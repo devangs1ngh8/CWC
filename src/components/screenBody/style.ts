@@ -17,6 +17,16 @@ const styles = StyleSheet.create({
     borderTopRightRadius: normalize(40),
   },
 
+  topPagination : {
+    width : normalize(20),
+    height : normalize(5),
+    backgroundColor : colors.primary,
+    borderRadius : normalize(30),
+    alignSelf : 'center',
+    marginTop : normalize(2),
+    marginBottom : normalize(31)
+  },
+
   scroll: {
     flex: 1,
     minHeight: 0,

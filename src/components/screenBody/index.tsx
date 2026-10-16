@@ -31,6 +31,7 @@ const ScreenBody = ({
         showsVerticalScrollIndicator={false}
         bounces={false}
       >
+        <View style={styles.topPagination} />
         {(title || description || titleContent) && (
           <View>
             {titleContent ? titleContent : title && <Text>{title}</Text>}
