@@ -34,7 +34,7 @@
 		<true/>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string/>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -56,5 +56,13 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>ManropeRegular.ttf</string>
+		<string>ManropeLight.ttf</string>
+		<string>ManropeSemiBold.ttf</string>
+		<string>ManropeMedium.ttf</string>
+		<string>ManropeBold.ttf</string>
+	</array>
 </dict>
 </plist>
