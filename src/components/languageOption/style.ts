@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 import { normalize } from "../../utils/metrics";
-import colors from "../../colors";
+import colors from "../../utils/color";
 
 
 const styles = StyleSheet.create({
