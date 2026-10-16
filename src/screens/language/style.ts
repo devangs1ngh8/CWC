@@ -8,10 +8,6 @@ const styles = StyleSheet.create({
         backgroundColor : colors.primary
     },
 
-     logo : {
-        position : 'absolute',
-     },
-
      options : {
         marginTop : normalize(4)
      },
