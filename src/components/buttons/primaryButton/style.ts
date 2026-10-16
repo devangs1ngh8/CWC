@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
     },
 
     title : {
-        color : colors.surface,
+        color : colors.textTertiary,
         fontSize : normalize(15),
         fontWeight : 600
     }
