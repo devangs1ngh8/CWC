@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
         borderRadius : normalize(16),
         paddingHorizontal : normalize(12),
         marginBottom : normalize(20),
-        backgroundColor : colors.surface,
+        backgroundColor : colors.textTertiary,
         height : normalize(55),
     },
 
