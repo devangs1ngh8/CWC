@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
       fontSize : normalize(20),
       fontWeight : 'bold',
       marginLeft : normalize(5),
-      color : colors.textColor
+      color : colors.textPrimary
      },
 
      infoRow : {
