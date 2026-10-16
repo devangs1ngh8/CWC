@@ -9,14 +9,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     minHeight: 0,
-    marginTop: normalize(-18),
     paddingHorizontal: normalize(20),
     paddingTop: normalize(12),
     paddingBottom: normalize(20),
     backgroundColor: colors.background,
     borderTopLeftRadius: normalize(40),
     borderTopRightRadius: normalize(40),
-    zIndex: 1,
   },
 
   scroll: {

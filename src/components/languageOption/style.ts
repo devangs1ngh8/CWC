@@ -27,10 +27,14 @@ const styles = StyleSheet.create({
         height : normalize(20),
         borderRadius : normalize(11),
         borderWidth : 1,
-        borderColor : '#D1D1D6',
+        borderColor : colors.borderColor,
         alignItems : 'center',
         justifyContent : 'center',
         marginRight : normalize(10)
+    },
+
+    selectedRadio : {
+        borderColor : colors.primary
     },
 
     radioDot : {

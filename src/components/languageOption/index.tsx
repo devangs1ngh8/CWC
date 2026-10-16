@@ -10,7 +10,7 @@ const LanguageOption = ({ title, selected, onPress }: Props) => {
       accessibilityState={{ checked: selected }}
       style={[styles.container, selected && styles.selectedContainer]}
     >
-      <View style={styles.radio}>
+      <View style={[styles.radio, selected && styles.selectedRadio]}>
         {selected && <View style={styles.radioDot} />}
       </View>
 

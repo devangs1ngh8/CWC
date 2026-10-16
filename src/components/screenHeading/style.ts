@@ -22,9 +22,7 @@ const styles = StyleSheet.create({
 
     logo : {
         position : 'absolute',
-        // width: normalize(205),
-        // height: normalize(100),
-        // left: normalize(28),
+        left: normalize(32),
         top: '60%',
     }
 })
