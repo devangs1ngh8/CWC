@@ -12,6 +12,7 @@ const colors = {
     textTertiary : '#FFFFFF',
 
     border : '#EEE7ED',
+    borderColor : '#D1D1D6',
 
     error : '#E53935',
     success : '#239B79',
