@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
      headingTitle : {
       fontSize : normalize(20),
       fontWeight : 'bold',
-      fontFamily : 'Manrope',
+      fontFamily : 'Manrope'
 
      },
 
@@ -41,7 +41,8 @@ const styles = StyleSheet.create({
       fontSize : normalize(20),
       fontWeight : 'bold',
       marginLeft : normalize(5),
-      color : colors.textPrimary
+      color : colors.primary,
+      fontFamily : 'Manrope'
      },
 
      infoRow : {
