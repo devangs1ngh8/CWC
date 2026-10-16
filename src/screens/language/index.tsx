@@ -9,12 +9,23 @@ import {
 
 import styles from './style';
 import { image } from '../../assets';
-import colors from '../../colors';
+import colors from '../../utils/color';
 import { useNavigation } from '@react-navigation/native';
 import { normalize } from '../../utils/metrics';
 
 const Language = () => {
   const navigation = useNavigation<any>();
+  const language = [
+    {
+      id: 1,
+      title: 'English',
+    },
+
+    {
+      id: 2,
+      title: 'Español',
+    },
+  ];
   const [selectedLanguage, setSelectedLanguage] = useState('English');
 
   const handleContinue = () => {
@@ -45,17 +56,13 @@ const Language = () => {
         }
       >
         <View style={styles.options}>
-          <LanguageOption
-            title="English"
-            selected={selectedLanguage === 'English'}
-            onPress={() => setSelectedLanguage('English')}
-          />
-
-          <LanguageOption
-            title="Español"
-            selected={selectedLanguage === 'Español'}
-            onPress={() => setSelectedLanguage('Español')}
-          />
+          {language.map(lang => (
+            <LanguageOption
+              title={lang.title}
+              selected={selectedLanguage === lang.title}
+              onPress={() => setSelectedLanguage(lang.title)}
+            />
+          ))}
         </View>
 
         <View style={styles.infoRow}>

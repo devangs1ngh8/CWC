@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import colors from "../../colors";
+import colors from "../../utils/color";
 import { normalize } from "../../utils/metrics";
 
 const styles = StyleSheet.create({
@@ -10,10 +10,6 @@ const styles = StyleSheet.create({
 
      logo : {
         position : 'absolute',
-        left : normalize(28),
-        top : normalize(100),
-        width : 125,
-        height : normalize(80)
      },
 
      options : {
@@ -37,7 +33,7 @@ const styles = StyleSheet.create({
      headingTitle : {
       fontSize : normalize(20),
       fontWeight : 'bold',
-      fontFamily : 'Manrope'
+      fontFamily : 'Manrope',
 
      },
 
@@ -55,7 +51,8 @@ const styles = StyleSheet.create({
 
      infoImage : {
       width : normalize(16),
-      height : normalize(16)
+      height : normalize(16),
+      marginTop : normalize(2)
      }
 })
 
