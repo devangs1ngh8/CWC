@@ -1,0 +1,27 @@
+{
+  "language": {
+    "title": "Choose Your",
+    "subtitle": "Language",
+    "description": "We've set your language to English. Do you want to continue or switch to Español?",
+    "english": "English",
+    "spanish": "Español",
+    "continue": "Continue",
+    "note": "You can change this later in the settings."
+  },
+  "onboarding": {
+    "next": "Next",
+    "skip": "Skip",
+    "getStarted": "Get Started",
+    "slide1Title": "Learn about Evaria Cycles & Wellness",
+    "slide1Description": "Evaria Cycles & Wellness is a science-informed cycle-tracking tool designed to help women honor the gift of their bodies.",
+    "slide2Title": "Cycle Power: Unlocking Body Literacy",
+    "slide2Description": "Go beyond period tracking and learn about the four cycle phases.",
+    "slide3Title": "Connect with Fertility Experts",
+    "slide3Description": "Your questions deserve expert answers. Connect with fertility care professionals.",
+    "slide4Title": "Explore Faith-Integrated Resources",
+    "slide4Description": "Discover resources about the beauty of the body, love, and personal identity."
+  },
+  "login": {
+    "title": "Login"
+  }
+}

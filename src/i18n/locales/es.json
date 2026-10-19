@@ -1,0 +1,27 @@
+{
+  "language": {
+    "title": "Elige tu",
+    "subtitle": "idioma",
+    "description": "Hemos configurado el inglés como idioma. ¿Quieres continuar o cambiar al español?",
+    "english": "Inglés",
+    "spanish": "Español",
+    "continue": "Continuar",
+    "note": "Puedes cambiar esto más adelante en la configuración."
+  },
+  "onboarding": {
+    "next": "Siguiente",
+    "skip": "Omitir",
+    "getStarted": "Comenzar",
+    "slide1Title": "Conoce Evaria Cycles & Wellness",
+    "slide1Description": "Evaria Cycles & Wellness es una herramienta de seguimiento del ciclo basada en la ciencia.",
+    "slide2Title": "El poder del ciclo: descubre tu cuerpo",
+    "slide2Description": "Ve más allá del seguimiento menstrual y aprende sobre las cuatro fases del ciclo.",
+    "slide3Title": "Conecta con expertos en fertilidad",
+    "slide3Description": "Tus preguntas merecen respuestas expertas. Conecta con profesionales de la fertilidad.",
+    "slide4Title": "Explora recursos integrados con la fe",
+    "slide4Description": "Descubre recursos sobre el cuerpo, el amor y la identidad personal."
+  },
+  "login": {
+    "title": "Iniciar sesión"
+  }
+}
