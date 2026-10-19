@@ -1,9 +1,9 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Splash from '../screens/splash';
 import Language from '../screens/language';
-import SpanishSplash from '../screens/spanishSplash';
 import Onboarding from '../screens/onboarding';
 import Login from '../screens/Login';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -16,14 +16,19 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const RootStackNavigation = () => {
+  // useEffect(() => {
+  //   const getLanguage = async () => {
+  //     await AsyncStorage.clear();
+  //   };
+  //   getLanguage();
+  // });
   return (
     <Stack.Navigator
-      initialRouteName="Splash"
+      initialRouteName={'Splash'}
       screenOptions={{ headerShown: false }}
     >
       <Stack.Screen name="Splash" component={Splash} />
       <Stack.Screen name="Language" component={Language} />
-      <Stack.Screen name="SpanishSplash" component={SpanishSplash} />
       <Stack.Screen name="Onboarding" component={Onboarding} />
       <Stack.Screen name="Login" component={Login} />
     </Stack.Navigator>
