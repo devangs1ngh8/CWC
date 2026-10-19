@@ -28,7 +28,6 @@ const styles = StyleSheet.create({
   infoImage: {
     width: normalize(16),
     height: normalize(16),
-    // marginTop: normalize(2),
   },
 
   secondaryHead: {

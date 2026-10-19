@@ -2,6 +2,7 @@ import { View, Text, Image, Pressable } from 'react-native';
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTranslation } from 'react-i18next';
 
 import {
   PrimaryButton,
@@ -15,23 +16,32 @@ import { image } from '../../assets';
 import colors from '../../utils/color';
 
 const language = [
-  { id: 1, title: 'English' },
+  { id: 1, title: 'English', code: 'en' },
 
-  { id: 2, title: 'Español' },
+  { id: 2, title: 'Español', code: 'es' },
 ];
 
 const Language = () => {
   const navigation = useNavigation<any>();
 
-  const [selectedLanguage, setSelectedLanguage] = useState('English');
+  const { t, i18n } = useTranslation();
+
+  const [selectedLanguage, setSelectedLanguage] = useState(
+    i18n.resolvedLanguage === 'es' ? 'es' : 'en',
+  );
 
   const handleContinue = async () => {
-    await AsyncStorage.setItem('languageSelected', 'true');
+    try {
+      await AsyncStorage.setItem('visistedLanguage', 'true');
+      await i18n.changeLanguage(selectedLanguage);
+      await AsyncStorage.setItem('selectedLanguage', selectedLanguage);
 
-    if (selectedLanguage === 'English') {
-      navigation.replace('Onboarding');
-    } else {
-      navigation.replace('SpanishSplash');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Onboarding' }],
+      });
+    } catch (error) {
+      console.log('Error : ', error);
     }
   };
   return (
@@ -44,29 +54,31 @@ const Language = () => {
       />
 
       <BodySection
-        titlePrimary="Choose Your"
-        titleSecondary="Language"
+        titlePrimary={t('language.title')}
+        titleSecondary={t('language.subtitle')}
         headingSecondaryStyle={styles.secondaryHead}
-        description="We've set your language to English. Do you want to continue or switch to Español?"
+        description={t('language.description')}
         bottomContent={
-          <PrimaryButton title="Continue" onPress={handleContinue} />
+          <PrimaryButton
+            title={t('language.continue')}
+            onPress={handleContinue}
+          />
         }
       >
         <View style={styles.options}>
           {language.map(lang => (
             <RadioButton
+              key={lang.id}
               title={lang.title}
-              selected={selectedLanguage === lang.title}
-              onPress={() => setSelectedLanguage(lang.title)}
+              selected={selectedLanguage === lang.code}
+              onPress={() => setSelectedLanguage(lang.code)}
             />
           ))}
         </View>
 
         <View style={styles.infoRow}>
           <Image source={image.infoCircle} style={styles.infoImage} />
-          <Text style={styles.note}>
-            You can change this later in the settings.
-          </Text>
+          <Text style={styles.note}>{t('language.note')}</Text>
         </View>
       </BodySection>
     </View>
