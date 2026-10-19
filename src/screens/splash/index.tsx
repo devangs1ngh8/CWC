@@ -2,30 +2,33 @@ import { View, Image } from 'react-native';
 import React, { useEffect } from 'react';
 import styles from './style';
 
-// import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-// import type { RootStackParamList } from '../../Navigation/RootStackNavigation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { image } from '../../assets/index';
 import { useNavigation } from '@react-navigation/native';
-
-// type Props = NativeStackScreenProps<RootStackParamList, 'Splash'>;
+import i18n from '../../i18n';
 
 const Splash = () => {
   const navigation = useNavigation<any>();
+  let savedLanguage = null;
   useEffect(() => {
     const timer = setTimeout(async () => {
       try {
-        const languageSelected = await AsyncStorage.getItem('languageSelected');
+        const visistedLanguage = await AsyncStorage.getItem('visistedLanguage');
+        savedLanguage = await AsyncStorage.getItem('selectedLanguage');
         const onboardingCompleted = await AsyncStorage.getItem(
           'onboardingCompleted',
         );
+
+        if (savedLanguage) {
+          await i18n.changeLanguage(savedLanguage);
+        }
 
         if (onboardingCompleted === 'true') {
           navigation.reset({
             index: 0,
             routes: [{ name: 'Login' }],
           });
-        } else if (languageSelected === 'true') {
+        } else if (visistedLanguage === 'true') {
           navigation.reset({
             index: 0,
             routes: [{ name: 'Onboarding' }],
@@ -47,7 +50,10 @@ const Splash = () => {
   return (
     <View style={styles.container}>
       <Image source={image.splashBackground} style={styles.background} />
-      <Image source={image.splashLogo} style={styles.logo} />
+      <Image
+        source={savedLanguage === 'es' ? image.spanishSplash : image.splashLogo}
+        style={styles.logo}
+      />
     </View>
   );
 };
