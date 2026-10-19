@@ -1,11 +1,7 @@
 import React from 'react';
 import styles from './style';
 import { Pressable, Text } from 'react-native';
-
-type Props = {
-  title: string;
-  onPress: () => void;
-};
+import { type Props } from './@types';
 
 const PrimaryButton = ({ title, onPress }: Props) => {
   return (
