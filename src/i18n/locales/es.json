@@ -1,0 +1,27 @@
+{
+  "language": {
+    "title": "Elige tu",
+    "subtitle": "idioma",
+    "description": "Hemos configurado tu idioma en inglés. ¿Quieres continuar o cambiar a español?",
+    "english": "Inglesa",
+    "spanish": "Español",
+    "continue": "Continuar",
+    "note": "Puedes cambiar esto más adelante en la configuración."
+  },
+  "onboarding": {
+    "next": "Próxima",
+    "skip": "Saltar",
+    "getStarted": "Comenzar",
+    "slide1Title": "Conoce Evaria Cycles & Wellness",
+    "slide1Description": "Evaria Cycles & Wellness es una herramienta de seguimiento del ciclo basada en la ciencia, diseñada para ayudar a las mujeres a honrar el regalo de sus cuerpos. Ofrecemos recursos integrales, acceso a expertos de confianza y oportunidades para la formación espiritual.",
+    "slide2Title": "El poder del ciclo: descubre tu cuerpo",
+    "slide2Description": "Ve más allá del simple seguimiento del ciclo menstrual: conoce sus cuatro fases, descubre qué revelan los biomarcadores sobre tu fertilidad y aprende cómo la información diaria te ayuda a tomar decisiones fundamentadas para tu bienestar general, nutrición, niveles de energía y fertilidad.",
+    "slide3Title": "Conecta con expertos en fertilidad",
+    "slide3Description": "Tus preguntas merecen respuestas de expertos. Descubre cómo conectar fácilmente con nuestra red de profesionales especializados en fertilidad, directamente desde la aplicación.",
+    "slide4Title": "Explora recursos integrados con la fe",
+    "slide4Description": "Descubre cómo acceder a nuestros recursos seleccionados, que exploran la belleza del cuerpo, la vocación al amor y la identidad personal desde una perspectiva fielmente católica."
+  },
+  "login": {
+    "title": "Acceso"
+  }
+}
