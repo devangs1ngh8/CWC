@@ -13,42 +13,40 @@ import {
 import { image } from '../../assets';
 import { Image, Pressable, View } from 'react-native';
 import colors from '../../utils/color';
+import { useTranslation } from 'react-i18next';
 
 const Onboarding = () => {
   const navigation = useNavigation<any>();
   const [currentPage, setCurrentPage] = useState(0);
+  const { t } = useTranslation();
 
   const onboardingData = [
     {
       id: 1,
       image: image.Onboarding1,
-      title: 'Learn about Evaria Cycles & Wellness',
-      description:
-        'Evaria Cycles & Wellness is a science-informed cycle-tracking tool designed to help women honor the gift of their bodies. We provide comprehensive resources, access to trusted experts, and opportunities for spiritual formation.',
+      title: t('onboarding.slide1Title'),
+      description: t('onboarding.slide1Description'),
     },
 
     {
       id: 2,
       image: image.Onboarding2,
-      title: 'Cycle Power: Unlocking Body Literacy',
-      description:
-        'Go beyond period tracking—learn the four cycle phases, what biomarkers reveal about your Fertility, and how daily insights help you make informed choices for general wellness, nutrition, energy, and fertility.',
+      title: t('onboarding.slide2Title'),
+      description: t('onboarding.slide2Description'),
     },
 
     {
       id: 3,
       image: image.Onboarding3,
-      title: 'Connect with Fertility Experts',
-      description:
-        'Your questions deserve expert answers. See how to easily connect with our network of fertility care professionals directly from the app.',
+      title: t('onboarding.slide3Title'),
+      description: t('onboarding.slide3Description'),
     },
 
     {
       id: 4,
       image: image.Onboarding4,
-      title: 'Explore Faith-Integrated Resources',
-      description:
-        'Discover how to access our curated resources that explore the beauty of the body, the vocation of love, and personal identity from a faithfully Catholic perspective.',
+      title: t('onboarding.slide4Title'),
+      description: t('onboarding.slide4Description'),
     },
   ];
 
@@ -94,7 +92,9 @@ const Onboarding = () => {
         bottomContent={
           <PrimaryButton
             title={
-              currentPage === onboardingData.length - 1 ? 'Get Started' : 'Next'
+              currentPage === onboardingData.length - 1
+                ? t('onboarding.getStarted')
+                : t('onboarding.next')
             }
             onPress={handleNext}
           />
