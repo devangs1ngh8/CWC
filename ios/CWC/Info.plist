@@ -34,9 +34,21 @@
 		<true/>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string/>
+	<string></string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>PTSerif-Italic.ttf</string>
+		<string>PTSerif-BoldItalic.ttf</string>
+		<string>PTSerif-Bold.ttf</string>
+		<string>PTSerif-Regular.ttf</string>
+		<string>Manrope-Medium.ttf</string>
+		<string>Manrope-SemiBold.ttf</string>
+		<string>Manrope-Regular.ttf</string>
+		<string>Manrope-Light.ttf</string>
+		<string>Manrope-Bold.ttf</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>BootSplash</string>
 	<key>UIRequiredDeviceCapabilities</key>
@@ -56,13 +68,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>UIAppFonts</key>
-	<array>
-		<string>ManropeRegular.ttf</string>
-		<string>ManropeLight.ttf</string>
-		<string>ManropeSemiBold.ttf</string>
-		<string>ManropeMedium.ttf</string>
-		<string>ManropeBold.ttf</string>
-	</array>
 </dict>
 </plist>
