@@ -50,6 +50,33 @@ const styles = StyleSheet.create({
   bottomContainer: {
     paddingTop: normalize(12),
   },
+
+  resendRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: normalize(12),
+    gap: normalize(4),
+  },
+
+  resendText: {
+    fontSize: normalize(14),
+    fontFamily: 'Manrope-Medium',
+    fontWeight: 500,
+    color: colors.textSecondary,
+  },
+
+  resendTime: {
+    fontSize: normalize(14),
+    fontFamily: 'Manrope-Medium',
+    fontWeight: 700,
+  },
+
+  resendButton: {
+    color: colors.primary,
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
 });
 
 export default styles;
