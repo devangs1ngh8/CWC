@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
-import LanguageCode from '../../utils/languageCode';
+import LanguageCode, { STORAGE_KEY } from '../../utils/languageCode';
 
 import {
   PrimaryButton,
@@ -15,12 +15,8 @@ import {
 import styles from './style';
 import { image } from '../../assets';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-const language = [
-  { id: 1, title: 'English', code: LanguageCode.ENGLISH },
-
-  { id: 2, title: 'Español', code: LanguageCode.SPANISH },
-];
+import { currentlang } from '../../utils/commonFunctions';
+import { ScreenName } from '../../navigation/screenName';
 
 const Language = () => {
   const navigation = useNavigation<any>();
@@ -28,19 +24,21 @@ const Language = () => {
 
   const { t, i18n } = useTranslation();
 
-  const [selectedLanguage, setSelectedLanguage] = useState(
-    i18n.resolvedLanguage === LanguageCode.SPANISH
-      ? LanguageCode.SPANISH
-      : LanguageCode.ENGLISH,
-  );
+  const language = [
+    { id: 1, title: t('language.english'), code: LanguageCode.ENGLISH },
+
+    { id: 2, title: t('language.spanish'), code: LanguageCode.SPANISH },
+  ];
+
+  const [selectedLanguage, setSelectedLanguage] = useState(currentlang);
 
   const handleContinue = async () => {
-    await AsyncStorage.setItem('visistedLanguage', 'true');
+    await AsyncStorage.setItem(STORAGE_KEY.IsVISITED, 'true');
     await i18n.changeLanguage(selectedLanguage);
-    await AsyncStorage.setItem('selectedLanguage', selectedLanguage);
+    await AsyncStorage.setItem(STORAGE_KEY.IsSELECTED, selectedLanguage);
     navigation.reset({
       index: 0,
-      routes: [{ name: 'Tutorial' }],
+      routes: [{ name: ScreenName.Tutorial }],
     });
   };
 
