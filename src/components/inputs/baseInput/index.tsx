@@ -1,11 +1,20 @@
 import React from 'react';
-import { View, Text, TextInput, TextInputProps, Image } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TextInputProps,
+  Image,
+  StyleProp,
+} from 'react-native';
 import styles from '../style';
 import { image } from '../../../assets';
+import colors from '../../../utils/color';
 
 type BaseInputProps = TextInputProps & {
   label: string;
   error?: string;
+  placeholderTextColor?: string;
 };
 
 const BaseInput = ({
@@ -16,6 +25,7 @@ const BaseInput = ({
   placeholder,
   keyboardType = 'default',
   maxLength,
+  placeholderTextColor = colors.textFourth,
   ...rest
 }: BaseInputProps) => {
   return (
@@ -26,6 +36,7 @@ const BaseInput = ({
         style={[styles.input, error ? styles.inputError : null]}
         value={value}
         placeholder={placeholder}
+        placeholderTextColor={placeholderTextColor}
         onChangeText={onChangeText}
         keyboardType={keyboardType}
         maxLength={maxLength}

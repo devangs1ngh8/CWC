@@ -9,10 +9,12 @@ import {
 } from 'react-native';
 import styles from '../style';
 import { image } from '../../../assets';
+import colors from '../../../utils/color';
 
 type PasswordInputProps = TextInputProps & {
   label: string;
   error?: string;
+  placeholderTextColor?: string;
 };
 
 const PasswordInput = ({
@@ -22,6 +24,7 @@ const PasswordInput = ({
   onChangeText,
   placeholder,
   maxLength,
+  placeholderTextColor = colors.textFourth,
   ...rest
 }: PasswordInputProps) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -34,6 +37,7 @@ const PasswordInput = ({
         <TextInput
           style={styles.passwordInput}
           placeholder={placeholder}
+          placeholderTextColor={placeholderTextColor}
           value={value}
           onChangeText={onChangeText}
           secureTextEntry={!showPassword}

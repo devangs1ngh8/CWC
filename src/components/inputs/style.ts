@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     fontSize: normalize(14),
     fontFamily: 'Manrope-Regular',
     fontWeight: '500',
-    color: colors.textPrimary,
+    color: 'colors.textSecondary',
     marginHorizontal: normalize(4),
   },
 
@@ -43,9 +43,9 @@ const styles = StyleSheet.create({
   passwordInput: {
     flex: 1,
     fontSize: normalize(14),
-    fontFamily: 'Manrope-Regular',
+    fontFamily: 'Manrope-Bold',
     fontWeight: '500',
-    color: colors.textPrimary,
+    color: colors.textSecondary,
   },
 
   error: {
