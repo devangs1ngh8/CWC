@@ -3168,6 +3168,7 @@ __metadata:
     react-native-asset: ^2.3.0
     react-native-bootsplash: ^7.3.4
     react-native-otp-entry: ^1.8.6
+    react-native-otp-timer: ^1.0.1
     react-native-safe-area-context: ^5.10.1
     react-native-screens: ^4.30.0
     react-test-renderer: 19.2.3
@@ -8063,6 +8064,13 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: e23a8f98af46f7b7aa60b176703606ff15716a6bccea3270d8bcab2531d1342d4e54db8ac6980ea973b76ca7a58e1b7061b43f3224f3032d143ac92f3e673bc7
+  languageName: node
+  linkType: hard
+
+"react-native-otp-timer@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "react-native-otp-timer@npm:1.0.1"
+  checksum: 2219ae0c2808588ccfd45fc1d1e1a81b8f4932a2ee9b14a9149105391948e6ad6d5a7a419674e831a68310ba562455050b1bbf2641cbef62ba957672757bf618
   languageName: node
   linkType: hard
 
