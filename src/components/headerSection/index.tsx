@@ -28,7 +28,6 @@ const HeaderSection = ({
         <Pressable
           style={styles.backButton}
           onPress={() => navigation.goBack()}
-          hitSlop={10}
         >
           <Image source={image.goBack} />
         </Pressable>
