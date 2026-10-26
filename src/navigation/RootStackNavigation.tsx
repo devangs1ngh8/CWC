@@ -2,7 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Splash from '../screens/splash';
 import Language from '../screens/language';
 import Tutorial from '../screens/tutorial';
-import Login from '../screens/Login';
+import Login from '../screens/login';
 import ForgotPassword from '../screens/forgotPassword';
 import SecurityPin from '../screens/securityPin';
 import ResetPassword from '../screens/resetPassword';
