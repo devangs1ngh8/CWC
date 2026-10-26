@@ -7,11 +7,11 @@ import {
 
 export interface Props {
   width?: number | `${number}%`;
-  backgroundColor?: string;
   backgroundImage?: ImageSourcePropType;
   backgroundImageStyle?: StyleProp<ImageStyle>;
   style?: StyleProp<ViewStyle>;
   logo?: ImageSourcePropType;
   logoStyle?: StyleProp<ImageStyle>;
   children?: React.ReactNode;
+  showBackButton?: boolean;
 }

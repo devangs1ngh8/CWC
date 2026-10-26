@@ -12,6 +12,16 @@ const styles = StyleSheet.create({
     left: normalize(32),
     bottom: 32,
   },
+
+  backButton: {
+    position: 'absolute',
+    top: normalize(71),
+    left: normalize(24),
+    width: normalize(40),
+    height: normalize(40),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
 
 export default styles;
