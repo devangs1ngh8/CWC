@@ -24,6 +24,7 @@ import { getTutorialData } from './tutorialData';
 import { image } from '../../assets';
 import styles from './style';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ScreenName } from '../../navigation/screenName';
 
 const Tutorial = () => {
   const navigation = useNavigation<any>();
@@ -42,7 +43,7 @@ const Tutorial = () => {
 
     navigation.reset({
       index: 0,
-      routes: [{ name: 'Login' }],
+      routes: [{ name: ScreenName.Login }],
     });
   };
 
@@ -64,12 +65,6 @@ const Tutorial = () => {
     } else {
       handleSkip();
     }
-  };
-
-  const handleScrollEnd = ({
-    nativeEvent,
-  }: NativeSyntheticEvent<NativeScrollEvent>) => {
-    setCurrentPage(Math.round(nativeEvent.contentOffset.x / width));
   };
 
   const renderItem = ({ item, index }: any) => (
@@ -113,12 +108,6 @@ const Tutorial = () => {
         pagingEnabled
         bounces={false}
         showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={handleScrollEnd}
-        getItemLayout={(_, index) => ({
-          length: width,
-          offset: width * index,
-          index,
-        })}
       />
     </View>
   );
