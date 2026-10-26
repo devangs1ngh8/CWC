@@ -22,6 +22,155 @@
     "slide4Description": "Discover how to access our curated resources that explore the beauty of the body, the vocation of love, and personal identity from a faithfully Catholic perspective."
   },
   "login": {
-    "title": "Login"
+    "primaryTitle": "Welcome",
+    "secondaryTitle": "Back!",
+    "subtitle": "Please Log in to continue",
+    "email": "Email",
+    "password": "Password",
+    "enterEmail": "Enter Email",
+    "enterPassword": "Enter Password",
+    "forgotPassword": "Forgot Password?",
+    "loginButton": "Login",
+    "createAccount": "Create a Catholic Women Account.",
+    "here": "Here",
+    "emailError": "Email is required",
+    "passwordError": "Password is required"
+  },
+
+  "forgotPassword": {
+    "primaryTitle": "Forgot",
+    "secondaryTitle": "Password",
+    "subtitle": "We'll send you a code to verify your account access.",
+    "email": "Email",
+    "enterEmail": "Enter Email",
+    "sendCode": "Send Code",
+    "emailError": "Email is required"
+  },
+
+  "securityPin": {
+    "primaryTitle": "Verify Account",
+    "secondaryTitle": "Access",
+    "subtitle": "Please enter the code sent to your email in order to verify your account.",
+    "resendText": "Didn't received a code?",
+    "resendButton": "Resend OTP",
+    "verifyCode": "Verify Code"
+  },
+
+  "otp": {
+    "otpError": "Please enter the complete 6-digit code."
+  },
+
+  "reset": {
+    "primaryTitle": "Reset Your",
+    "secondaryTitle": "Password",
+    "description": "You are all set! Enter a new password.",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "passwordWarning": "Password must be 8-15 characters with at least 1 uppercase, 1 lowercase, 1 digit, and 1 special character (@, $, %, &).",
+    "resetPassword": "Reset Password"
+  },
+
+  "logs": {
+    "title": "Logs",
+    "today": "Today",
+    "days": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    },
+    "sections": {
+      "bleeding": "Bleeding",
+      "vulvalSensation": "Vulval Sensation",
+      "cervicalFluidColor": "Cervical Fluid Color",
+      "cervicalFluidObservation": "Cervical Fluid Observation",
+      "mood": "Mood",
+      "symptoms": "Symptoms",
+      "sleepDisturbances": "Sleep Disturbances",
+      "urinaryHormones": "Urinary Hormones"
+    },
+    "bleeding": {
+      "heavy": "Heavy",
+      "medium": "Medium",
+      "light": "Light",
+      "spotting": "Spotting",
+      "brown": "Brown"
+    },
+    "vulvalSensation": {
+      "dry": "Dry",
+      "sticky": "Sticky",
+      "moist": "Moist",
+      "wet": "Wet",
+      "slippery": "Slippery"
+    },
+    "cervicalFluidColor": {
+      "white": "White",
+      "yellow": "Yellow",
+      "streaked": "Streaked",
+      "clear": "Clear",
+      "cloudy": "Cloudy",
+      "none": "None"
+    },
+    "cervicalFluidObservation": {
+      "thick": "Thick",
+      "thin": "Thin",
+      "watery": "Watery",
+      "lotion": "Lotion",
+      "pasty": "Pasty",
+      "stretchy": "Stretchy",
+      "none": "None"
+    },
+    "mood": {
+      "happy": "Happy",
+      "relaxed": "Relaxed",
+      "anxious": "Anxious",
+      "irritable": "Irritable",
+      "tired": "Tired",
+      "energetic": "Energetic",
+      "none": "None"
+    },
+    "symptoms": {
+      "breastTenderness": "Breast Tenderness",
+      "cramps": "Cramps",
+      "bloating": "Bloating",
+      "perinealPain": "Perineal Pain",
+      "acne": "Acne",
+      "exercise": "Exercise",
+      "sleep": "Sleep",
+      "cravings": "Cravings",
+      "none": "None"
+    },
+    "sleepDisturbances": {
+      "troubleSleeping": "Trouble Sleeping",
+      "frequentWaking": "Frequent Waking",
+      "restlessSleep": "Restless Sleep",
+      "earlyWaking": "Early Waking",
+      "insomnia": "Insomnia",
+      "nightSweats": "Night Sweats",
+      "none": "None"
+    },
+    "temperature": {
+      "title": "Basal Body Temperature",
+      "celsius": "°C",
+      "fahrenheit": "°F"
+    },
+    "hormones": {
+      "lh": "LH",
+      "fsh": "FSH",
+      "estrogen": "Estrogen",
+      "progesterone": "Progesterone"
+    },
+    "medications": {
+      "title": "Medications",
+      "emptyTitle": "No Medicine Added Yet!",
+      "startAdding": "Start Adding"
+    },
+    "notes": {
+      "title": "Notes",
+      "placeholder": "Add Notes"
+    }
   }
 }
