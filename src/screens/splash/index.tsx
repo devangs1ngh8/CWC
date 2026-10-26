@@ -1,5 +1,5 @@
 import { View, Image } from 'react-native';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './style';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,51 +9,72 @@ import i18n from '../../i18n';
 
 const Splash = () => {
   const navigation = useNavigation<any>();
-  let savedLanguage = null;
+  const [savedLanguage, setSavedLanguage] = useState<string | null>(null);
+
   useEffect(() => {
-    const timer = setTimeout(async () => {
+    let isMounted = true;
+
+    const loadSplash = async () => {
       try {
-        const visistedLanguage = await AsyncStorage.getItem('visistedLanguage');
-        savedLanguage = await AsyncStorage.getItem('selectedLanguage');
+        const visitedLanguage = await AsyncStorage.getItem('visistedLanguage');
+        const lang = await AsyncStorage.getItem('selectedLanguage');
+
         const onboardingCompleted = await AsyncStorage.getItem(
           'onboardingCompleted',
         );
 
-        if (savedLanguage) {
-          await i18n.changeLanguage(savedLanguage);
+        if (lang) {
+          await i18n.changeLanguage(lang);
         }
 
-        if (onboardingCompleted === 'true') {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'Login' }],
-          });
-        } else if (visistedLanguage === 'true') {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'Onboarding' }],
-          });
-        } else {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'Language' }],
-          });
-        }
+        if (!isMounted) return;
+
+        setSavedLanguage(lang);
+
+        setTimeout(() => {
+          if (!isMounted) return;
+
+          if (onboardingCompleted === 'true') {
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Login' }],
+            });
+          } else if (visitedLanguage === 'true') {
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Tutorial' }],
+            });
+          } else {
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Language' }],
+            });
+          }
+        }, 2000);
       } catch (error) {
-        console.log('Error : ', error);
-        navigation.replace('Language');
+        if (isMounted) {
+          navigation.replace('Language');
+        }
       }
-    }, 2000);
-    return () => clearTimeout(timer);
+    };
+    loadSplash();
+    return () => {
+      isMounted = false;
+    };
   }, [navigation]);
 
   return (
     <View style={styles.container}>
       <Image source={image.splashBackground} style={styles.background} />
-      <Image
-        source={savedLanguage === 'es' ? image.spanishSplash : image.splashLogo}
-        style={styles.logo}
-      />
+
+      {savedLanguage && (
+        <Image
+          source={
+            savedLanguage == 'es' ? image.spanishSplash : image.splashLogo
+          }
+          style={styles.logo}
+        />
+      )}
     </View>
   );
 };
