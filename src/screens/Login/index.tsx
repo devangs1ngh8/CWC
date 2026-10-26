@@ -1,5 +1,5 @@
-import { View, Text, Pressable, Alert } from 'react-native';
-import React, { useState } from 'react';
+import { View, Text, Pressable, Alert, Keyboard } from 'react-native';
+import React, { useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,10 +23,13 @@ import {
 import { image } from '../../assets';
 
 import { useTranslation } from 'react-i18next';
+import { ScreenName } from '../../navigation/screenName';
 
 const Login = () => {
   const navigation = useNavigation<any>();
   const { t, i18n } = useTranslation();
+
+  const inputRef = useRef<any>(null);
 
   const insets = useSafeAreaInsets();
 
@@ -40,7 +43,7 @@ const Login = () => {
     const validEmail = validateEmail(email);
     const validPassword = validatePassword(password);
 
-    setEmailError(validEmail ? '' : t('login.emailError'));
+    setEmailError(validEmail ? '' : 'Incorrect Email');
     setPasswordError(validPassword ? '' : t('login.passwordError'));
 
     if (!validEmail && !validPassword) {
@@ -50,7 +53,8 @@ const Login = () => {
     const savedPassword = await AsyncStorage.getItem('savedPassword');
 
     if (savedPassword === null) {
-      Alert.alert('No Password Found', 'Please reset your password first.');
+      setEmailError('Incorrect Email');
+      return;
     }
 
     if (password !== savedPassword) {
@@ -60,15 +64,11 @@ const Login = () => {
 
     navigation.reset({
       index: 0,
-      routes: [{ name: 'Logs' }],
+      routes: [{ name: ScreenName.Logs }],
     });
   };
 
-  const isFormValid =
-    email.trim() !== '' &&
-    password.trim() !== '' &&
-    validateEmail(email) &&
-    validatePassword(password);
+  const isFormValid = email.trim() !== '' && password.trim() !== '';
 
   return (
     <View style={styles.container}>
@@ -112,14 +112,19 @@ const Login = () => {
           autoCorrect={false}
           value={email}
           maxLength={50}
+          returnKeyType="next"
+          onSubmitEditing={() => inputRef.current?.focus()}
           onChangeText={value => setEmail(cleanEmail(value))}
           error={emailError}
         />
 
         <PasswordInput
+          ref={inputRef}
           label={t('login.password')}
           placeholder={t('login.enterPassword')}
           value={password}
+          returnKeyType="done"
+          onSubmitEditing={() => Keyboard.dismiss()}
           onChangeText={value => setPassword(cleanPassword(value))}
           error={passwordError}
         />
