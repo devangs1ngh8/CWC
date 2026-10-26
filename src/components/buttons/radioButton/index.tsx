@@ -8,7 +8,6 @@ const RadioButton = ({ title, selected, onPress }: Props) => {
     <Pressable
       onPress={onPress}
       accessibilityRole="radio"
-      accessibilityState={{ checked: selected }}
       style={[styles.container, selected && styles.selectedContainer]}
     >
       <View style={[styles.radio, selected && styles.selectedRadio]}>

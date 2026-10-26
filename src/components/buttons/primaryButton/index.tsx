@@ -3,11 +3,12 @@ import styles from './style';
 import { Pressable, Text } from 'react-native';
 import { type Props } from './@types';
 
-const PrimaryButton = ({ title, onPress }: Props) => {
+const PrimaryButton = ({ title, onPress, disabled = false }: Props) => {
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+      disabled={disabled}
+      style={[styles.button, disabled && styles.disabledButton]}
     >
       <Text style={styles.title}>{title}</Text>
     </Pressable>

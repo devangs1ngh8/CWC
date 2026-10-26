@@ -9,11 +9,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: normalize(24),
+    // marginBottom: normalize(24),
   },
 
-  pressed: {
-    opacity: 0.85,
+  disabledButton: {
+    opacity: 0.5,
   },
 
   title: {
