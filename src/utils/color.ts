@@ -1,9 +1,10 @@
 const colors = {
   primary: '#793466',
   primaryDark: '#702D61',
-  primaryLight: '#f9f4f8',
+  primaryLight: '#79346666',
 
   background: '#FDFBFD',
+  backgroundBG: '#f9f4f8',
   buttonBG: '#FAF5F9',
   buttonBG2: '#faf7fa',
   buttonBG3: '#344279',
@@ -11,7 +12,7 @@ const colors = {
   textPrimary: '#2C393F',
   textSecondary: '#464F57',
   textTertiary: '#FFFFFF',
-  textFourth: '#D2D2D2',
+  textFourth: '#464F5766',
 
   border: '#EEE7ED',
   borderColor: '#D1D1D6',
