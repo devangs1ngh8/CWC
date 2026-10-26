@@ -30,8 +30,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: colors.textSecondary,
     fontFamily: 'Manrope-Medium',
-    marginBottom: normalize(30),
+    marginBottom: normalize(32),
     marginHorizontal: normalize(10),
+    fontWeight: 400,
   },
 
   titleContentStyle: {

@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './style';
-import { ScrollView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, Text, View } from 'react-native';
 
 import { type Props } from './@types';
 
@@ -17,7 +17,7 @@ const bodySection = ({
 }: Props) => {
   return (
     <View style={[styles.container, root]}>
-      <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
+      <View>
         {topContent ? topContent : <View style={styles.dragHandle} />}
 
         <View>
@@ -37,9 +37,12 @@ const bodySection = ({
 
           {description && <Text style={styles.description}>{description}</Text>}
         </View>
+      </View>
 
+      <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
         {children}
       </ScrollView>
+
       {bottomContent && bottomContent}
     </View>
   );
