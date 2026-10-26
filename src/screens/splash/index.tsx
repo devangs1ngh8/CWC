@@ -2,10 +2,11 @@ import { View, Image } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import styles from './style';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { image } from '../../assets/index';
+import { image } from '../../assets';
 import { useNavigation } from '@react-navigation/native';
 import i18n from '../../i18n';
+import { ScreenName } from '../../navigation/screenName';
+import { getValues } from '../../utils/commonFunctions';
 
 const Splash = () => {
   const navigation = useNavigation<any>();
@@ -13,15 +14,12 @@ const Splash = () => {
 
   useEffect(() => {
     let isMounted = true;
+    let timer: ReturnType<typeof setTimeout>;
 
     const loadSplash = async () => {
       try {
-        const visitedLanguage = await AsyncStorage.getItem('visistedLanguage');
-        const lang = await AsyncStorage.getItem('selectedLanguage');
-
-        const onboardingCompleted = await AsyncStorage.getItem(
-          'onboardingCompleted',
-        );
+        const { visitedLanguage, lang, onboardingCompleted } =
+          await getValues();
 
         if (lang) {
           await i18n.changeLanguage(lang);
@@ -31,35 +29,38 @@ const Splash = () => {
 
         setSavedLanguage(lang);
 
-        setTimeout(() => {
+        timer = setTimeout(() => {
           if (!isMounted) return;
 
           if (onboardingCompleted === 'true') {
             navigation.reset({
               index: 0,
-              routes: [{ name: 'Login' }],
+              routes: [{ name: ScreenName.Login }],
             });
           } else if (visitedLanguage === 'true') {
             navigation.reset({
               index: 0,
-              routes: [{ name: 'Tutorial' }],
+              routes: [{ name: ScreenName.Tutorial }],
             });
           } else {
             navigation.reset({
               index: 0,
-              routes: [{ name: 'Language' }],
+              routes: [{ name: ScreenName.Login }],
             });
           }
         }, 2000);
       } catch (error) {
         if (isMounted) {
-          navigation.replace('Language');
+          navigation.replace(ScreenName.Language);
         }
       }
     };
+
     loadSplash();
+
     return () => {
       isMounted = false;
+      clearTimeout(timer);
     };
   }, [navigation]);
 
@@ -67,14 +68,10 @@ const Splash = () => {
     <View style={styles.container}>
       <Image source={image.splashBackground} style={styles.background} />
 
-      {savedLanguage && (
-        <Image
-          source={
-            savedLanguage == 'es' ? image.spanishSplash : image.splashLogo
-          }
-          style={styles.logo}
-        />
-      )}
+      <Image
+        source={savedLanguage === 'es' ? image.spanishSplash : image.splashLogo}
+        style={styles.logo}
+      />
     </View>
   );
 };
