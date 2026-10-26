@@ -1,5 +1,5 @@
-import { View, Text, Alert, Image } from 'react-native';
-import React, { useState } from 'react';
+import { View, Text, Alert, Image, Keyboard } from 'react-native';
+import React, { useRef, useState } from 'react';
 import {
   BodySection,
   HeaderSection,
@@ -13,11 +13,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { cleanPassword, validatePassword } from '../../utils/validations';
+import { ScreenName } from '../../navigation/screenName';
 
 const ResetPassword = () => {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
+
+  const inputRef = useRef<any>(null);
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -36,7 +39,7 @@ const ResetPassword = () => {
     await AsyncStorage.setItem('savedPassword', password);
     navigation.reset({
       index: 0,
-      routes: [{ name: 'Login' }],
+      routes: [{ name: ScreenName.Login }],
     });
   };
 
@@ -70,14 +73,18 @@ const ResetPassword = () => {
           value={password}
           onChangeText={value => setPassword(cleanPassword(value))}
           maxLength={15}
+          returnKeyType="next"
+          onSubmitEditing={() => inputRef.current?.focus()}
         />
 
         <PasswordInput
+          ref={inputRef}
           label="Confirm password"
           placeholder="Enter Password"
           value={confirmPassword}
           onChangeText={value => setConfirmPassword(cleanPassword(value))}
           maxLength={15}
+          onSubmitEditing={() => Keyboard.dismiss()}
         />
 
         <View style={styles.warningContainer}>

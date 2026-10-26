@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     flexDirection: 'row',
     paddingHorizontal: normalize(16),
-    backgroundColor: colors.primaryLight,
+    backgroundColor: colors.backgroundBG,
   },
 
   warningImg: {
@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
   warningText: {
     fontSize: normalize(12),
     fontFamily: 'Manrope-Regular',
-    fontWeight: 400,
+    // fontWeight: 400,
     lineHeight: normalize(16),
     paddingVertical: normalize(16),
     paddingRight: normalize(16),
