@@ -3167,6 +3167,7 @@ __metadata:
     react-native: 0.87.0
     react-native-asset: ^2.3.0
     react-native-bootsplash: ^7.3.4
+    react-native-otp-entry: ^1.8.6
     react-native-safe-area-context: ^5.10.1
     react-native-screens: ^4.30.0
     react-test-renderer: 19.2.3
@@ -8052,6 +8053,16 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: dc82d54e0bf8f89208a538bb0d14e4891af6efae27ed5b7b21be683a72c38c5219ab9be1ea9bd40aa1c905d481174e649d0b71aeceaa9946e6c707f251568282
+  languageName: node
+  linkType: hard
+
+"react-native-otp-entry@npm:^1.8.6":
+  version: 1.8.6
+  resolution: "react-native-otp-entry@npm:1.8.6"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: e23a8f98af46f7b7aa60b176703606ff15716a6bccea3270d8bcab2531d1342d4e54db8ac6980ea973b76ca7a58e1b7061b43f3224f3032d143ac92f3e673bc7
   languageName: node
   linkType: hard
 
