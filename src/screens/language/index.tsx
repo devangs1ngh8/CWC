@@ -1,8 +1,9 @@
-import { View, Text, Image, Pressable } from 'react-native';
+import { View, Text, Image } from 'react-native';
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
+import LanguageCode from '../../utils/languageCode';
 
 import {
   PrimaryButton,
@@ -13,43 +14,41 @@ import {
 
 import styles from './style';
 import { image } from '../../assets';
-import colors from '../../utils/color';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const language = [
-  { id: 1, title: 'English', code: 'en' },
+  { id: 1, title: 'English', code: LanguageCode.ENGLISH },
 
-  { id: 2, title: 'Español', code: 'es' },
+  { id: 2, title: 'Español', code: LanguageCode.SPANISH },
 ];
 
 const Language = () => {
   const navigation = useNavigation<any>();
+  const insets = useSafeAreaInsets();
 
   const { t, i18n } = useTranslation();
 
   const [selectedLanguage, setSelectedLanguage] = useState(
-    i18n.resolvedLanguage === 'es' ? 'es' : 'en',
+    i18n.resolvedLanguage === LanguageCode.SPANISH
+      ? LanguageCode.SPANISH
+      : LanguageCode.ENGLISH,
   );
 
   const handleContinue = async () => {
-    try {
-      await AsyncStorage.setItem('visistedLanguage', 'true');
-      await i18n.changeLanguage(selectedLanguage);
-      await AsyncStorage.setItem('selectedLanguage', selectedLanguage);
-
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Onboarding' }],
-      });
-    } catch (error) {
-      console.log('Error : ', error);
-    }
+    await AsyncStorage.setItem('visistedLanguage', 'true');
+    await i18n.changeLanguage(selectedLanguage);
+    await AsyncStorage.setItem('selectedLanguage', selectedLanguage);
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Tutorial' }],
+    });
   };
+
   return (
     <View style={styles.container}>
       <HeaderSection
         backgroundImage={image.headImage}
         logo={image.splashText}
-        backgroundColor={colors.primary}
         style={styles.header}
       />
 
@@ -59,10 +58,12 @@ const Language = () => {
         headingSecondaryStyle={styles.secondaryHead}
         description={t('language.description')}
         bottomContent={
-          <PrimaryButton
-            title={t('language.continue')}
-            onPress={handleContinue}
-          />
+          <View style={{ paddingBottom: insets.bottom }}>
+            <PrimaryButton
+              title={t('language.continue')}
+              onPress={handleContinue}
+            />
+          </View>
         }
       >
         <View style={styles.options}>
