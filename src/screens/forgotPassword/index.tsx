@@ -12,6 +12,7 @@ import { image } from '../../assets';
 import { useTranslation } from 'react-i18next';
 import { validateEmail } from '../../utils/validations';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ScreenName } from '../../navigation/screenName';
 
 const ForgotPassword = () => {
   const navigation = useNavigation<any>();
@@ -27,11 +28,11 @@ const ForgotPassword = () => {
     setEmailError(validEmail ? '' : t('forgotPassword.emailError'));
 
     if (validEmail) {
-      navigation.navigate('SecurityPin');
+      navigation.navigate(ScreenName.SecurityPin);
     }
   };
 
-  const isFormValid = email.trim() !== '' && validateEmail(email);
+  const isFormValid = email.trim() !== '';
 
   return (
     <View style={styles.container}>
@@ -64,7 +65,7 @@ const ForgotPassword = () => {
             keyboardType="email-address"
             value={email}
             onChangeText={setEmail}
-            maxLength={15}
+            maxLength={50}
             autoCapitalize="none"
             autoCorrect={false}
             error={emailError}
