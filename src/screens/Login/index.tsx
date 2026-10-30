@@ -64,7 +64,7 @@ const Login = () => {
 
     navigation.reset({
       index: 0,
-      routes: [{ name: ScreenName.Logs }],
+      routes: [{ name: 'MainTabs' }],
     });
   };
 
