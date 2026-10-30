@@ -24,3 +24,11 @@ export const getValues = async () => {
     onboardingCompleted,
   };
 };
+
+import { cleanPassword } from './validations';
+
+export const checkSavedPassword = async (password: string) => {
+  const savedPassword = await AsyncStorage.getItem('savedPassword');
+
+  return !!savedPassword && cleanPassword(password) === savedPassword;
+};
