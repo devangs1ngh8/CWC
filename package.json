@@ -30,6 +30,7 @@
     "react-native-screens": "^4.30.0",
     "react-native-toast-message": "^2.5.2",
     "react-native-video": "^6.19.3",
+    "react-native-webview": "^14.0.1",
     "react-native-youtube-iframe": "^2.4.1"
   },
   "devDependencies": {

@@ -3224,6 +3224,7 @@ __metadata:
     react-native-screens: ^4.30.0
     react-native-toast-message: ^2.5.2
     react-native-video: ^6.19.3
+    react-native-webview: ^14.0.1
     react-native-youtube-iframe: ^2.4.1
     react-test-renderer: 19.2.3
     typescript: ^6.0.3
@@ -5806,7 +5807,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"invariant@npm:^2.2.4":
+"invariant@npm:2.2.4, invariant@npm:^2.2.4":
   version: 2.2.4
   resolution: "invariant@npm:2.2.4"
   dependencies:
@@ -8199,6 +8200,19 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: bec9bc47ee512aa5ff962f0df27c3d65087507cb155ea3f238fdb8ef6e06f2898427b06177bea3d995aca7a930af37e5d13866eae1491636217aab0ccee585d9
+  languageName: node
+  linkType: hard
+
+"react-native-webview@npm:^14.0.1":
+  version: 14.0.1
+  resolution: "react-native-webview@npm:14.0.1"
+  dependencies:
+    escape-string-regexp: ^4.0.0
+    invariant: 2.2.4
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 79936364b8404240d30ca37530910673994ceb4f21e2ce1f9cd3042167e5cd6f52b4e001831d827bf0d5198fab25fcd089e286198d4af8ad962b8a1150f0dc77
   languageName: node
   linkType: hard
 
