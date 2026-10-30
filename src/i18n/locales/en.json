@@ -313,7 +313,8 @@
       "morning": "Morning",
       "night": "Night",
       "afternoon": "Afternoon",
-      "evening": "Evening"
+      "evening": "Evening",
+      "deleteMedication": "Delete Medication"
     },
     "notes": {
       "title": "Notes",
