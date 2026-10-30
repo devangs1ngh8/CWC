@@ -21,6 +21,7 @@
     "slide4Title": "Explore Faith-Integrated Resources",
     "slide4Description": "Discover how to access our curated resources that explore the beauty of the body, the vocation of love, and personal identity from a faithfully Catholic perspective."
   },
+
   "login": {
     "primaryTitle": "Welcome",
     "secondaryTitle": "Back!",
@@ -35,6 +36,138 @@
     "here": "Here",
     "invalidEmail": "Invalid email",
     "invalidPassword": "Invalid password"
+  },
+
+  "signup": {
+    "primaryTitle": "Create",
+    "secondaryTitle": "Account!",
+    "subtitle": "Join our Catholic wellness companion cycle",
+    "agree": "I agree to the",
+    "privacy": "Privacy Consent",
+    "and": "and",
+    "terms": "Terms & Conditions",
+    "alreadyAccount": "Already have an account?",
+    "login": "Login",
+    "registerButton": "Register"
+  },
+
+  "verifyEmail": {
+    "primaryTitle": "Verify",
+    "secondaryTitle": "Email",
+    "subtitle": "Please enter the code sent to your email in order to continue with account creation",
+    "confirmCode": "Confirm Code"
+  },
+
+  "terms": {
+    "title": "Terms and Conditions",
+    "description": "Terms of service are the legal agreements between a service provider and a person who wants to use that service. The person must agree to abide by the terms of service in order to use the offered service. Terms of service can also be merely a disclaimer, especially regarding the use of websites Terms of service are the legal agreements between a service provider and a person who wants to use that service. The person must agree to abide by the terms of service in order to use the offered service. Terms of service can also be merely a disclaimer, especially regarding the use of websites Terms of service are the legal agreements between a service provider and a person who wants to use that service. The person must agree to abide by the terms of service in order to use the offered service. Terms of service can also be merely a disclaimer, especially regarding the use of websites Terms of service are the legal agreements between a service provider and a person who wants to use that service. The person must agree to abide by the terms of service in order to use the offered service. Terms of service can also be merely a disclaimer"
+  },
+
+  "privacy": {
+    "title": "Privacy Policy",
+    "intro": "CWCNP is committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy outlines how we collect, use, and safeguard your data when you use our medical consultation app.",
+    "sections": {
+      "information": {
+        "title": "1. Information We Collect",
+        "items": [
+          "Personal Information: Name, email address, phone number, date of birth, and any medical information you provide.",
+          "Health Information: Details about your medical history, symptoms, and consultation records.",
+          "Device Information: Information such as your IP address, device type, operating system, and app usage data."
+        ]
+      },
+      "usage": {
+        "title": "2. How We Use Your Information",
+        "description": "We use your information to:",
+        "items": [
+          "Provide medical consultation services.",
+          "Facilitate communication between you and healthcare professionals.",
+          "Improve our app's functionality and user experience.",
+          "Comply with legal and regulatory requirements."
+        ]
+      }
+    }
+  },
+
+  "common": {
+    "next": "Next"
+  },
+  "personalInfo": {
+    "step": "STEP 1 OF 3",
+    "title": "Personal Information",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter your full name",
+    "dateOfBirth": "Date of Birth",
+    "datePlaceholder": "DD / MM / YYYY",
+    "height": "Height",
+    "heightCmPlaceholder": "e.g. 170",
+    "feetPlaceholder": "FT",
+    "inchesPlaceholder": "IN",
+    "weight": "Weight",
+    "weightKgPlaceholder": "e.g. 60",
+    "weightLbsPlaceholder": "e.g. 132",
+
+    "errors": {
+      "nameRequired": "Name is required",
+      "dobRequired": "Date of birth is required",
+      "heightRequired": "Height is required",
+      "feetInchesRequired": "Feet and inches are required",
+      "invalidHeight": "Enter a valid height",
+      "weightRequired": "Weight is required",
+      "invalidWeight": "Enter a valid weight"
+    }
+  },
+
+  "cycles": {
+    "step": "STEP 2 OF 3",
+    "title": "Your Cycle & Health Details",
+    "lactatingStatus": "Lactating Status",
+    "lactatingTitle": "Lactating Status",
+    "contraceptiveStatus": "Contraceptive Status",
+    "contraceptiveTitle": "Contraceptive Status",
+    "bleedTimeline": "Bleed Timeline",
+    "bleedTitle": "Bleed Timeline",
+    "lastMenstruationDate": "Last Menstruation Date",
+    "datePlaceholder": "Select date",
+    "cycleLength": "Cycle Length",
+    "options": {
+      "yes": "Yes",
+      "no": "No",
+      "oralContraceptive": "Oral contraceptive",
+      "copperIud": "IUD copper IUD",
+      "nonCopper": "Non-copper",
+      "injectable": "Injectable",
+      "implant": "Implant",
+      "none": "None",
+      "lessThan3Days": "Less than 3 days",
+      "threeToFiveDays": "3-5 days",
+      "sixToSevenDays": "6-7 days",
+      "moreThan7Days": "More than 7 days"
+    }
+  },
+
+  "community": {
+    "step": "STEP 3 OF 3",
+    "title": "Catholic Community",
+    "question": "Do you belong to a local parish or Catholic community?",
+    "yes": "Yes",
+    "no": "No",
+    "state": "State",
+    "selectState": "Select State",
+    "city": "City",
+    "selectCity": "Select City",
+    "localParishName": "Local Parish Name",
+    "selectParish": "Select Local Parish",
+    "pastorName": "Pastor Name",
+    "optional": "Optional",
+    "selectPastor": "Select Pastor (Optional)",
+    "receiveUpdates": "Are you committed to watch videos or receive news about Catholic Teachings?",
+    "save": "Save",
+    "errors": {
+      "communityRequired": "Please select Yes or No",
+      "stateRequired": "State is required",
+      "cityRequired": "City is required",
+      "parishRequired": "Local parish name is required"
+    }
   },
 
   "forgotPassword": {
@@ -90,7 +223,9 @@
       "mood": "Mood",
       "symptoms": "Symptoms",
       "sleepDisturbances": "Sleep Disturbances",
-      "urinaryHormones": "Urinary Hormones"
+      "urinaryHormones": "Urinary Hormones",
+      "urinary": "Urinary",
+      "hormones": "Hormones"
     },
     "bleeding": {
       "heavy": "Heavy",
@@ -130,32 +265,33 @@
       "irritable": "Irritable",
       "tired": "Tired",
       "energetic": "Energetic",
-      "none": "None"
+      "noneYellow": "None"
     },
     "symptoms": {
       "breastTenderness": "Breast Tenderness",
       "cramps": "Cramps",
       "bloating": "Bloating",
-      "perinealPain": "Perineal Pain",
+      "pain": "Perineal Pain",
       "acne": "Acne",
       "exercise": "Exercise",
       "sleep": "Sleep",
       "cravings": "Cravings",
-      "none": "None"
+      "blockGreen": "None"
     },
-    "sleepDisturbances": {
+    "sleep": {
       "troubleSleeping": "Trouble Sleeping",
-      "frequentWaking": "Frequent Waking",
+      "frequentWalking": "Frequent Waking",
       "restlessSleep": "Restless Sleep",
-      "earlyWaking": "Early Waking",
+      "earlyWalking": "Early Waking",
       "insomnia": "Insomnia",
       "nightSweats": "Night Sweats",
-      "none": "None"
+      "blockOrange": "None"
     },
     "temperature": {
       "title": "Basal Body Temperature",
       "celsius": "°C",
-      "fahrenheit": "°F"
+      "fahrenheit": "°F",
+      "placeholder": "Enter temperature"
     },
     "hormones": {
       "lh": "LH",
@@ -166,11 +302,231 @@
     "medications": {
       "title": "Medications",
       "emptyTitle": "No Medicine Added Yet!",
-      "startAdding": "Start Adding"
+      "startAdding": "Start Adding",
+      "edit": "Edit",
+      "add": "Add",
+      "addMedication": "Add Medication",
+      "medication": "Medication",
+      "name": "Name",
+      "dosage": "Dosage",
+      "time": "Time",
+      "morning": "Morning",
+      "night": "Night",
+      "afternoon": "Afternoon",
+      "evening": "Evening"
     },
     "notes": {
       "title": "Notes",
-      "placeholder": "Add Notes"
+      "placeholder": "Add Notes",
+      "limitNumber": "0/100"
     }
+  },
+
+  "home": {
+    "explore": "Explore all"
+  },
+
+  "learningLounge": {
+    "title": "Learning Lounge"
+  },
+
+  "more": {
+    "profileName": "Your Name",
+    "profileEmail": "your.email@example.com",
+    "editProfile": "Edit Profile",
+    "mySubscription": "My Subscription",
+    "manageGoals": "Manage Goals",
+    "reminders": "Reminders",
+    "trackingPreference": "Tracking Preference",
+    "languagePreference": "Language Preference",
+    "notificationSettings": "Notification Settings",
+    "staticContent": "Static Content",
+    "helpSupport": "Help & Support",
+    "changePassword": "Change Password",
+    "logout": "Logout",
+
+    "logoutModal": {
+      "title": "Logout",
+      "description": "Are you sure you want to Logout from the Application?",
+      "cancel": "Cancel",
+      "confirm": "Yes, Logout"
+    }
+  },
+
+  "editProfile": {
+    "title": "My Profile",
+    "changePhoto": "Change Photo",
+    "name": "Name",
+    "namePlaceholder": "Enter your name",
+    "email": "Email",
+    "phoneNumber": "Phone Number",
+    "dob": "DOB",
+    "dobPlaceholder": "Select date of birth",
+    "height": "Height",
+    "weight": "Weight",
+    "heightUnitCm": "Cm",
+    "heightUnitFt": "Ft",
+    "weightUnitKg": "Kg",
+    "weightUnitLbs": "Lbs",
+    "lactating": "Lactating Status",
+    "deleteAccount": "Delete Account",
+    "saveDetails": "Save Details",
+    "phonePlaceholder": "Add phone number",
+    "validName": "Enter a valid name",
+    "validPhone": "Enter a valid 10-digit phone number",
+    "validHeight": "Enter a valid height",
+    "photoOptions": {
+      "takePhoto": "Take Photo",
+      "uploadFromGallery": "Upload From Gallery",
+      "removePhoto": "Remove Photo"
+    },
+    "deleteAccountModal": {
+      "title": "Delete Account",
+      "description": "Deleting your account will permanently remove your personal details after 4 days. If you log in within this 4 days period, your account will be restored automatically. Your active subscription will also be automatically cancelled after 4 days. Some de-identified health data may be retained for compliance and tracking purposes and will not be linked to your personal information. After 4 days, you can create a new account using the same email or phone number.",
+      "cancel": "Cancel",
+      "confirm": "Yes, Delete"
+    },
+
+    "unsavedModal": {
+      "title": "Unsaved Changes",
+      "description": "Unsaved changes will be lost. Are you sure you want to go back?",
+      "cancel": "Cancel",
+      "confirm": "Yes, Go back"
+    }
+  },
+
+  "manageGoals": {
+    "title": "Manage Goals",
+    "periodPredictions": "Period Predictions",
+    "periodNotifications": "Period Notifications",
+    "fertilityEstimation": "Fertility Status Estimation",
+    "fertilityNotifications": "Fertility Status Notification"
+  },
+
+  "languagePreferences": {
+    "title": "Language Preferences"
+  },
+  "notificationSettings": {
+    "title": "Notification Settings",
+    "pushNotification": "Push Notification",
+    "description": "Enable Push Notifications"
+  },
+
+  "trackingPreferences": {
+    "title": "Tracking Preferences",
+    "urinaryHormone": "Urinary Hormone Analysis",
+    "fsh": "FSH Test Result",
+    "lh": "LH Test Result",
+    "estrogen": "Estrogen Level Test",
+    "progesterone": "Progesterone Test Result",
+    "manageSymptoms": "Manage Symptoms",
+    "hcp": "My Insights with HCP"
+  },
+
+  "changePassword": {
+    "title": "Change Password",
+    "oldPassword": "Old Password",
+    "enterOldPassword": "Enter old password",
+    "newPassword": "New Password",
+    "enterNewPassword": "Enter new password",
+    "confirmPassword": "Confirm Password",
+    "enterConfirmPassword": "Enter confirm password",
+    "button": "Change Password",
+    "errors": {
+      "oldRequired": "Old Password is required",
+      "oldIncorrect": "Old Password is wrong",
+      "newRequired": "New Password is required",
+      "invalidNew": "Password must be 8–15 characters and include uppercase, lowercase, number and special character",
+      "sameAsOld": "New password cannot be the same as old password",
+      "confirmRequired": "Confirm Password is required",
+      "passwordMismatch": "Passwords do not match"
+    }
+  },
+
+  "staticContent": {
+    "title": "Static Content",
+    "faqs": "FAQs",
+    "terms": "Terms & Conditions",
+    "privacy": "Privacy Policy",
+    "about": "About Us"
+  },
+
+  "faqs": {
+    "questions": {
+      "bbt": "What is Basal Body Temperature (BBT)?",
+      "cycle": "What is a menstrual cycle?",
+      "ovulation": "What is ovulation?",
+      "period": "How long does a period usually last?",
+      "hormones": "Why are hormones important?",
+      "fertileWindow": "What is the fertile window?",
+      "tracking": "Why should I track my cycle?"
+    },
+    "answers": {
+      "bbt": "Basal Body Temperature (BBT) is your body's lowest resting temperature, usually measured right after waking up in the morning, before getting out of bed or doing any activity. It reflects subtle changes in your hormones during the menstrual cycle.",
+      "cycle": "A menstrual cycle is the monthly hormonal process that prepares your body for a possible pregnancy. It starts on the first day of your period and ends when your next period begins.",
+      "ovulation": "Ovulation is the process in which an ovary releases an egg. It generally occurs once during a menstrual cycle.",
+      "period": "A menstrual period commonly lasts between 2 and 7 days. Duration can vary from person to person.",
+      "hormones": "Hormones help regulate your menstrual cycle, ovulation, and other reproductive processes. Their levels naturally change throughout your cycle.",
+      "fertileWindow": "The fertile window is the period during which pregnancy is possible. It includes the days leading up to ovulation and the day of ovulation.",
+      "tracking": "Tracking your menstrual cycle can help you understand your cycle patterns, notice changes, and keep a record of symptoms."
+    }
+  },
+
+  "aboutUs": {
+    "title": "About Us",
+    "paragraph1": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum in augue odio. Morbi vitae libero feugiat turpis sodales egestas. Nullam maximus ultricies augue, eget dapibus tellus pretium consectetur. Donec ullamcorper accumsan iaculis. Ut dapibus ante eu ex fermentum, ac feugiat diam semper. Etiam varius maximus elit, tempus ornare ipsum dictum eget. Integer non dignissim augue, vitae aliquam ipsum.",
+    "paragraph2": "Etiam felis neque, vulputate ornare massa vitae, volutpat dignissim metus. Proin ut felis fermentum, aliquet sapien sed, euismod nulla. Duis sit amet arcu felis. Fusce odio diam, congue nec libero in, pretium faucibus dui.",
+    "paragraph3": "Duis consequat sed ipsum at gravida. In nec gravida sem. Nulla eleifend tellus ligula, id ut felis fermentum, aliquet sapien sed, euismod nulla. Duis sit amet arcu felis. Fusce odio diam, congue nec libero in, pretium faucibus dui."
+  },
+
+  "helpSupport": {
+    "title": "Help & Support",
+    "contact": "Contact",
+    "us": "Us",
+    "description": "How can we help you?",
+    "faqDescription": "Before reaching out to us check out our",
+    "faqs": "FAQs",
+    "email": "admin@cwcnfp.com",
+    "emailSubtitle": "Support Email",
+    "category": "Category",
+    "issueDescription": "You can write your issue and it will be sent to the admin to get resolved",
+    "issuePlaceholder": "Please write your issue here...",
+    "send": "Send",
+    "errorTitle": "Missing Information",
+    "errorMessage": "Please describe your issue before sending.",
+    "successTitle": "Success",
+    "successMessage": "Your issue has been submitted successfully."
+  },
+
+  "reminders": {
+    "screenTitle": "Reminders",
+    "defaultTitle": "Daily Log Reminder",
+    "reminder": "Reminder",
+    "add": "Add",
+    "edit": "Edit",
+    "save": "Save",
+    "delete": "Delete",
+
+    "title": "Title",
+    "enterTitle": "Enter Title",
+
+    "startDate": "Start Date",
+    "selectDate": "Select Date",
+
+    "time": "Time",
+    "frequency": "Frequency",
+
+    "once": "Once",
+    "daily": "Daily",
+    "weekly": "Weekly",
+
+    "repeat": "Repeat",
+    "done": "Done",
+
+    "deleteTitle": "Delete Reminder",
+    "deleteDescription": "Are you sure you want to delete this reminder?",
+
+    "cancel": "Cancel",
+    "yesDelete": "Yes, Delete"
   }
 }

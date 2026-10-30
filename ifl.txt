@@ -1,0 +1,26 @@
+{days.map(day => {
+  const isSelected = selectedDate === day.date;
+
+  return (
+    <Pressable
+      key={day.key}
+      disabled={day.isDisabled}
+      onPress={() => setSelectedDate(day.date)}
+      style={[
+        styles.dateItem,
+        isSelected && styles.selectedDate,
+      ]}
+    >
+      <Text style={styles.dayText}>{day.label}</Text>
+
+      <Text
+        style={[
+          styles.dateText,
+          isSelected && styles.selectedDateText,
+        ]}
+      >
+        {day.date.getDate()}
+      </Text>
+    </Pressable>
+  );
+})}
