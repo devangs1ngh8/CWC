@@ -42,6 +42,8 @@ export const image = {
   nfpMethods: require(`${Path}/nfpMethods.png`),
   practicalGuidance: require(`${Path}/practicalGuidance.png`),
   playButton: require(`${Path}/playButton.png`),
+  deleteMedication: require(`${Path}/deleteMedication.png`),
+  editMedication: require(`${Path}/editMedication.png`),
 
   // cycleBasics3: require(`${Path}/cycleBasics3.png`),
   // practicalGuidance2: require(`${Path}/practicalGuidance2.png`),
@@ -86,6 +88,7 @@ export const image = {
   reminderBell: require(`${Path}/reminderBell.png`),
   addButton: require(`${Path}/addButton.png`),
   deleteReminder: require(`${Path}/deleteReminder.png`),
+  dot: require(`${Path}/dot.png`),
 };
 
 export const logsImages = {
