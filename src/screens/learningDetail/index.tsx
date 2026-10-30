@@ -7,13 +7,12 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import styles from './style';
 import { image } from '../../assets';
 import { LearningItem } from '../home/learningData';
-import { HeaderSection } from '../../components';
 
 const LearningDetail = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
 
-  const item: LearningItem = route.params.item;
+  const { item } = route.params;
   const [playing, setPlaying] = useState(false);
 
   const goBack = () => {

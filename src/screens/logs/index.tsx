@@ -408,45 +408,69 @@ const Logs = () => {
             {t('logs.medications.title')}
           </Text>
 
-          {medications.map(medication => (
-            <View key={medication.id} style={styles.medicationCard}>
+          {medications.length === 0 ? (
+            <View style={styles.emptyMedicationCard}>
               <Image
                 source={image.medicines}
-                style={styles.medicationCardIcon}
+                style={styles.emptyMedicationImage}
+                resizeMode="contain"
               />
 
-              <View style={styles.medicationCardContent}>
-                <Text style={styles.medicationCardName}>{medication.name}</Text>
+              <Text style={styles.emptyMedicationText}>
+                {t('logs.medications.emptyTitle')}
+              </Text>
 
-                <Text style={styles.medicationCardDetails}>
-                  {medication.dosage}
-
-                  {medication.dosageUnit}
-
-                  <Text style={styles.medicationDot}> • </Text>
-
-                  {medication.time}
+              <Pressable
+                style={styles.startAddingButton}
+                onPress={openAddMedication}
+              >
+                <Text style={styles.startAddingText}>
+                  {t('logs.medications.startAdding')}
                 </Text>
-              </View>
-
-              <Pressable onPress={() => openMedicationOptions(medication)}>
-                <Text style={styles.medicationMore}>⋮</Text>
               </Pressable>
             </View>
-          ))}
+          ) : (
+            <>
+              {medications.map(medication => (
+                <View key={medication.id} style={styles.medicationCard}>
+                  <Image
+                    source={image.medicines}
+                    style={styles.medicationCardIcon}
+                  />
 
-          <Pressable
-            style={styles.addMedicationCard}
-            onPress={openAddMedication}
-          >
-            <View style={styles.addMedicationIcon}>
-              <Text style={styles.addMedicationPlus}>+</Text>
-            </View>
+                  <View style={styles.medicationCardContent}>
+                    <Text style={styles.medicationCardName}>
+                      {medication.name}
+                    </Text>
 
-            <Text style={styles.addMedicationText}>
-              {t('logs.medications.addMedication')}
-            </Text>
-          </Pressable>
+                    <Text style={styles.medicationCardDetails}>
+                      {medication.dosage}
+                      {medication.dosageUnit}
+                      <Text style={styles.medicationDot}> • </Text>
+                      {medication.time}
+                    </Text>
+                  </View>
+
+                  <Pressable onPress={() => openMedicationOptions(medication)}>
+                    <Text style={styles.medicationMore}>⋮</Text>
+                  </Pressable>
+                </View>
+              ))}
+
+              <Pressable
+                style={styles.addMedicationCard}
+                onPress={openAddMedication}
+              >
+                <View style={styles.addMedicationIcon}>
+                  <Text style={styles.addMedicationPlus}>+</Text>
+                </View>
+
+                <Text style={styles.addMedicationText}>
+                  {t('logs.medications.addMedication')}
+                </Text>
+              </Pressable>
+            </>
+          )}
         </View>
 
         <View style={styles.notesSection}>
@@ -560,7 +584,7 @@ const Logs = () => {
       <Modal
         visible={medicationOptionsVisible}
         transparent
-        animationType="fade"
+        animationType="slide"
         onRequestClose={() => setMedicationOptionsVisible(false)}
       >
         <View style={styles.modalOverlay}>
@@ -569,7 +593,7 @@ const Logs = () => {
             <View style={styles.modalHandle} />
             <Pressable style={styles.medicationOption} onPress={editMedication}>
               <Image
-                source={image.editPencilProfile}
+                source={image.editMedication}
                 style={styles.medicationOptionIcon}
               />
               <Text style={styles.medicationOptionText}>
@@ -581,19 +605,17 @@ const Logs = () => {
               onPress={openDeleteMedication}
             >
               <Image
-                source={image.deleteReminder}
+                source={image.deleteMedication}
                 style={styles.medicationOptionIcon}
               />
               <Text style={styles.medicationOptionText}>
-                {t('logs.medications.delete')}{' '}
-                {t('logs.medications.medication')}
+                {t('logs.medications.deleteMedication')}
               </Text>
             </Pressable>
           </View>
         </View>
       </Modal>
 
-      {/* Delete medication confirmation */}
       <Modal
         visible={deleteMedicationVisible}
         transparent
@@ -607,7 +629,6 @@ const Logs = () => {
             <Image
               source={image.deleteAccount}
               style={styles.deleteMedicationIcon}
-              resizeMode="contain"
             />
             <Text style={styles.deleteMedicationTitle}>
               Are you sure you want to delete this medication?

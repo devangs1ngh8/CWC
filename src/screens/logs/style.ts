@@ -347,6 +347,45 @@ const styles = StyleSheet.create({
     marginBottom: normalize(20),
   },
 
+  emptyMedicationCard: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.textTertiary,
+    borderWidth: 1,
+    borderColor: colors.medicationBorderColor,
+    borderRadius: normalize(35),
+    paddingVertical: normalize(35),
+    paddingHorizontal: normalize(16),
+    marginBottom: normalize(16),
+  },
+
+  emptyMedicationImage: {
+    width: normalize(56),
+    height: normalize(56),
+    marginBottom: normalize(8),
+  },
+
+  emptyMedicationText: {
+    fontSize: normalize(16),
+    fontFamily: 'Manrope-SemiBold',
+    color: colors.textPrimary,
+    textAlign: 'center',
+    marginBottom: normalize(16),
+  },
+
+  startAddingButton: {
+    backgroundColor: colors.buttonBG3,
+    paddingVertical: normalize(10),
+    paddingHorizontal: normalize(35),
+    borderRadius: normalize(24),
+  },
+
+  startAddingText: {
+    fontSize: normalize(19),
+    fontFamily: 'Manrope-SemiBold',
+    color: colors.textTertiary,
+  },
+
   medicationField: {
     marginBottom: normalize(20),
   },
@@ -394,7 +433,7 @@ const styles = StyleSheet.create({
     borderRadius: normalize(14),
     borderColor: colors.border,
     marginTop: normalize(8),
-    color: 'colors.textSecondary',
+    color: colors.textSecondary,
   },
 
   dosageRow: {
@@ -572,8 +611,9 @@ const styles = StyleSheet.create({
   },
 
   medicationOptionIcon: {
-    width: normalize(25),
-    height: normalize(25),
+    width: normalize(24),
+    height: normalize(24),
+    tintColor: 'black',
   },
 
   medicationOptionText: {
@@ -596,9 +636,9 @@ const styles = StyleSheet.create({
   },
 
   deleteMedicationIcon: {
-    width: normalize(100),
-    height: normalize(100),
-    marginVertical: normalize(20),
+    width: normalize(88),
+    height: normalize(88),
+    marginVertical: normalize(16),
   },
 
   deleteMedicationTitle: {
@@ -606,13 +646,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope-Bold',
     color: colors.textPrimary,
     textAlign: 'center',
-    marginBottom: normalize(35),
+    marginBottom: normalize(32),
   },
 
   deleteMedicationButtons: {
     flexDirection: 'row',
-    width: '100%',
-    gap: normalize(14),
+    gap: normalize(16),
   },
 
   deleteMedicationCancel: {
