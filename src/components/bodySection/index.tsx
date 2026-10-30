@@ -1,6 +1,12 @@
 import React from 'react';
 import styles from './style';
-import { KeyboardAvoidingView, ScrollView, Text, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 
 import { type Props } from './@types';
 
@@ -11,17 +17,28 @@ const bodySection = ({
   bottomContent,
   headingSecondaryStyle,
   headingPrimaryStyle,
+  descriptionStyle,
   titlePrimary,
   titleSecondary,
   topContent,
+  showDragHandle = true,
+  titleContentStyle,
 }: Props) => {
   return (
-    <View style={[styles.container, root]}>
+    <KeyboardAvoidingView
+      style={[styles.container, root]}
+      behavior="padding"
+      keyboardVerticalOffset={0}
+    >
       <View>
-        {topContent ? topContent : <View style={styles.dragHandle} />}
+        {topContent ? (
+          topContent
+        ) : showDragHandle ? (
+          <View style={styles.dragHandle} />
+        ) : null}
 
         <View>
-          <View style={styles.titleContentStyle}>
+          <View style={[styles.titleContentStyle, titleContentStyle]}>
             {titlePrimary && (
               <Text style={[styles.titlePrimaryStyle, headingPrimaryStyle]}>
                 {titlePrimary}
@@ -35,7 +52,11 @@ const bodySection = ({
             )}
           </View>
 
-          {description && <Text style={styles.description}>{description}</Text>}
+          {description && (
+            <Text style={[styles.description, descriptionStyle]}>
+              {description}
+            </Text>
+          )}
         </View>
       </View>
 
@@ -44,7 +65,7 @@ const bodySection = ({
       </ScrollView>
 
       {bottomContent && bottomContent}
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

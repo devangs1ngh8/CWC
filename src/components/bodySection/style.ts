@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: normalize(4),
     alignSelf: 'center',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'center',
   },
 

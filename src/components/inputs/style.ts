@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     borderRadius: normalize(14),
     borderColor: colors.border,
     fontSize: normalize(14),
-    fontFamily: 'Manrope-Regular',
+    fontFamily: 'Manrope-Medium',
     fontWeight: '500',
     color: 'colors.textSecondary',
     marginHorizontal: normalize(4),

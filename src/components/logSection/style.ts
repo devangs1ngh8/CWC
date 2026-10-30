@@ -3,9 +3,11 @@ import { normalize } from '../../utils/metrics';
 
 const styles = StyleSheet.create({
   section: {
-    borderRadius: normalize(23),
-    padding: normalize(24),
-    marginBottom: normalize(42),
+    borderTopLeftRadius: normalize(35),
+    borderTopRightRadius: normalize(35),
+    // paddingTop: normalize(16),
+    marginBottom: normalize(40),
+    paddingHorizontal: normalize(10),
   },
 
   heading: {
@@ -20,6 +22,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: normalize(10),
+    paddingHorizontal: normalize(24),
   },
 });
 

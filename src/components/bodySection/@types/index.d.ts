@@ -9,6 +9,9 @@ export interface Props {
   bottomContent?: React.ReactNode;
   headingSecondaryStyle?: TextStyle;
   headingPrimaryStyle?: TextStyle;
+  descriptionStyle?: TextStyle;
   root?: ViewStyle;
   topContent?: React.ReactNode;
+  showDragHandle?: boolean;
+  titleContentStyle?: object;
 }

@@ -1,10 +1,9 @@
 import React from 'react';
+import { Image, Pressable, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 import styles from './style';
-import { Image, Pressable, View } from 'react-native';
-
 import { type Props } from './@types';
-import { useNavigation } from '@react-navigation/native';
 import { image } from '../../assets';
 
 const HeaderSection = ({
@@ -14,8 +13,11 @@ const HeaderSection = ({
   logoStyle,
   style,
   showBackButton,
+  title,
+  titleStyle,
 }: Props) => {
   const navigation = useNavigation<any>();
+
   return (
     <View style={[styles.container, style]}>
       {backgroundImage && (
@@ -24,13 +26,22 @@ const HeaderSection = ({
 
       {logo && <Image source={logo} style={[styles.logo, logoStyle]} />}
 
-      {showBackButton && (
-        <Pressable
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Image source={image.goBack} />
-        </Pressable>
+      {(showBackButton || title) && (
+        <View style={styles.titleRow}>
+          {showBackButton && (
+            <Pressable
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}
+              hitSlop={10}
+            >
+              <Image source={image.goBack} />
+            </Pressable>
+          )}
+
+          {title ? (
+            <Text style={[styles.title, titleStyle]}>{title}</Text>
+          ) : null}
+        </View>
       )}
     </View>
   );
