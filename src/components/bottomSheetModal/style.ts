@@ -6,7 +6,7 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: '#00000066',
+    backgroundColor: colors.backgroundDullColor,
   },
 
   bottomSheet: {

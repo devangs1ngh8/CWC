@@ -25,15 +25,19 @@ const ReminderCard = ({
         <View style={styles.details}>
           <Text style={styles.title}>{title}</Text>
 
-          <Text style={styles.subtitle}>
-            {time} • {frequency}
-          </Text>
+          <View style={styles.subtitleRow}>
+            <Text style={styles.subtitle}>{time}</Text>
+
+            <Image source={image.dot} style={styles.dotIcon} />
+
+            <Text style={styles.subtitle}>{frequency}</Text>
+          </View>
 
           {frequency === 'weekly' && (
             <View style={styles.weekdays}>
               {weekdays?.map(day => (
                 <Text key={day} style={styles.day}>
-                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'][day]}
+                  {['S', 'M', 'T', 'W', 'T', 'F', 'S']}
                 </Text>
               ))}
             </View>

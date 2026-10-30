@@ -40,6 +40,18 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
 
+  subtitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  dotIcon: {
+    width: normalize(4),
+    height: normalize(4),
+    resizeMode: 'contain',
+    marginHorizontal: normalize(6),
+  },
+
   weekdays: {
     flexDirection: 'row',
     alignItems: 'center',

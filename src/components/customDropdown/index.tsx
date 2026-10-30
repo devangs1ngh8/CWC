@@ -26,11 +26,6 @@ const CustomDropdown = ({ title, options, selectedValue, onSelect }: Props) => {
         onRequestClose={() => setVisible(false)}
       >
         <View style={styles.overlay}>
-          <Pressable
-            // style={styles.background}
-            onPress={() => setVisible(false)}
-          />
-
           <View style={styles.bottomSheet}>
             <View style={styles.handle} />
 

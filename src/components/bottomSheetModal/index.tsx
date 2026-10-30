@@ -11,7 +11,6 @@ const BottomSheetModal = ({ visible, onClose, children }: Props) => {
       transparent
       animationType="slide"
       onRequestClose={onClose}
-      statusBarTranslucent
     >
       <View style={styles.overlay}>
         <Pressable onPress={onClose} />
