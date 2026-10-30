@@ -20,6 +20,7 @@ import { getLogsSections, HormoneKey, hormonesData } from './logsData';
 
 import {
   cleanHormoneValue,
+  validateConsecutiveSpaces,
   validateHormoneValue,
 } from '../../utils/validations';
 
@@ -223,6 +224,12 @@ const Logs = () => {
       isFuture,
     };
   });
+
+  const handleNotesChange = (value: string) => {
+    if (validateConsecutiveSpaces(value)) {
+      setNotes(value);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -450,10 +457,9 @@ const Logs = () => {
             style={styles.notesInput}
             placeholderTextColor={colors.textFourth}
             value={notes}
-            onChangeText={setNotes}
+            onChangeText={handleNotesChange}
             maxLength={100}
             multiline
-            textAlignVertical="top"
           />
 
           <Text style={styles.limitIndicator}>
@@ -716,9 +722,7 @@ const Logs = () => {
               </View>
 
               <View style={styles.medicationField}>
-                <Text style={styles.medicationLabel}>
-                  {t('logs.medications.time')}
-                </Text>
+                <Text>{t('logs.medications.time')}</Text>
 
                 <View style={styles.timeContainer}>
                   {[
