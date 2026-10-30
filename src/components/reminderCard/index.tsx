@@ -37,7 +37,7 @@ const ReminderCard = ({
             <View style={styles.weekdays}>
               {weekdays?.map(day => (
                 <Text key={day} style={styles.day}>
-                  {['S', 'M', 'T', 'W', 'T', 'F', 'S']}
+                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'][day]}
                 </Text>
               ))}
             </View>
