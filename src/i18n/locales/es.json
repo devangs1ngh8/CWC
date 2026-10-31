@@ -1,0 +1,174 @@
+{
+  "language": {
+    "title": "Elige tu",
+    "subtitle": "idioma",
+    "description": "Hemos configurado tu idioma en inglés. ¿Quieres continuar o cambiar a español?",
+    "english": "Inglesa",
+    "spanish": "Español",
+    "continue": "Continuar",
+    "note": "Puedes cambiar esto más adelante en la configuración."
+  },
+  "onboarding": {
+    "next": "Próxima",
+    "skip": "Saltar",
+    "getStarted": "Comenzar",
+    "slide1Title": "Conoce Evaria Cycles & Wellness",
+    "slide1Description": "Evaria Cycles & Wellness es una herramienta de seguimiento del ciclo basada en la ciencia, diseñada para ayudar a las mujeres a honrar el regalo de sus cuerpos. Ofrecemos recursos integrales, acceso a expertos de confianza y oportunidades para la formación espiritual.",
+    "slide2Title": "El poder del ciclo: descubre tu cuerpo",
+    "slide2Description": "Ve más allá del simple seguimiento del ciclo menstrual: conoce sus cuatro fases, descubre qué revelan los biomarcadores sobre tu fertilidad y aprende cómo la información diaria te ayuda a tomar decisiones fundamentadas para tu bienestar general, nutrición, niveles de energía y fertilidad.",
+    "slide3Title": "Conecta con expertos en fertilidad",
+    "slide3Description": "Tus preguntas merecen respuestas de expertos. Descubre cómo conectar fácilmente con nuestra red de profesionales especializados en fertilidad, directamente desde la aplicación.",
+    "slide4Title": "Explora recursos integrados con la fe",
+    "slide4Description": "Descubre cómo acceder a nuestros recursos seleccionados, que exploran la belleza del cuerpo, la vocación al amor y la identidad personal desde una perspectiva fielmente católica."
+  },
+  "login": {
+    "primaryTitle": "¡Bienvenido",
+    "secondaryTitle": "de nuevo!",
+    "subtitle": "Inicia sesión para continuar",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "enterEmail": "Introduce tu correo electrónico",
+    "enterPassword": "Introduce la contraseña",
+    "forgotPassword": "¿Has olvidado tu contraseña?",
+    "loginButton": "Iniciar sesión",
+    "createAccount": "Crea una cuenta en Catholic Women.",
+    "here": "Aquí",
+    "emailError": "¡Por favor, introduce un correo electrónico válido!",
+    "passwordError": "La contraseña debe tener entre 8 y 15 caracteres e incluir al menos 1 letra mayúscula, 1 letra minúscula, 1 dígito y 1 carácter especial (@, $, %, &)."
+  },
+  "forgotPassword": {
+    "primaryTitle": "Olvidó",
+    "secondaryTitle": "Contraseña",
+    "subtitle": "Te enviaremos un código para verificar el acceso a tu cuenta.",
+    "email": "Correo electrónico",
+    "enterEmail": "Ingrese el correo electrónico",
+    "sendCode": "Enviar código"
+  },
+
+  "securityPin": {
+    "primaryTitle": "Verificar cuenta",
+    "secondaryTitle": "Acceso",
+    "subtitle": "Por favor, introduce el código enviado a tu correo electrónico para verificar tu cuenta.",
+    "resendText": "¿No recibiste un código?",
+    "resendButton": "Reenviar OTP",
+    "verifyCode": "Código de verificación"
+  },
+
+  "otp": {
+    "otpError": "Por favor, introduce el código completo de 6 dígitos."
+  },
+
+  "reset": {
+    "primaryTitle": "Restablece tu",
+    "secondaryTitle": "Contraseña",
+    "description": "¡Ya está todo listo! Introduce una nueva contraseña.",
+    "newPassword": "Nueva contraseña",
+    "confirmPassword": "confirmar Contraseña",
+    "passwordWarning": "La contraseña debe tener entre 8 y 15 caracteres e incluir al menos 1 letra mayúscula, 1 letra minúscula, 1 dígito y 1 carácter especial (@, $, %, &).",
+    "resetPassword": "Restablecer contraseña"
+  },
+
+  "logs": {
+    "title": "Registros",
+    "today": "Hoy",
+    "days": {
+      "mon": "Lun",
+      "tue": "Mar",
+      "wed": "Mié",
+      "thu": "Jue",
+      "fri": "Vie",
+      "sat": "Sáb",
+      "sun": "Dom"
+    },
+    "sections": {
+      "bleeding": "Sangrado",
+      "vulvalSensation": "Sensación vulvar",
+      "cervicalFluidColor": "Color del flujo cervical",
+      "cervicalFluidObservation": "Observación del flujo cervical",
+      "mood": "Estado de ánimo",
+      "symptoms": "Síntomas",
+      "sleepDisturbances": "Alteraciones del sueño",
+      "urinaryHormones": "Hormonas urinarias"
+    },
+    "bleeding": {
+      "heavy": "Abundante",
+      "medium": "Moderado",
+      "light": "Leve",
+      "spotting": "Manchado",
+      "brown": "Marrón"
+    },
+    "vulvalSensation": {
+      "dry": "Seco",
+      "sticky": "Pegajoso",
+      "moist": "Húmedo",
+      "wet": "Mojado",
+      "slippery": "Resbaladizo"
+    },
+    "cervicalFluidColor": {
+      "white": "Blanco",
+      "yellow": "Amarillo",
+      "streaked": "Con vetas",
+      "clear": "Transparente",
+      "cloudy": "Turbio",
+      "none": "Ninguno"
+    },
+    "cervicalFluidObservation": {
+      "thick": "Espeso",
+      "thin": "Fino",
+      "watery": "Acuoso",
+      "lotion": "Cremoso",
+      "pasty": "Pastoso",
+      "stretchy": "Elástico",
+      "none": "Ninguno"
+    },
+    "mood": {
+      "happy": "Feliz",
+      "relaxed": "Relajado",
+      "anxious": "Ansioso",
+      "irritable": "Irritable",
+      "tired": "Cansado",
+      "energetic": "Enérgico",
+      "none": "Ninguno"
+    },
+    "symptoms": {
+      "breastTenderness": "Sensibilidad en los senos",
+      "cramps": "Cólicos",
+      "bloating": "Hinchazón",
+      "perinealPain": "Dolor perineal",
+      "acne": "Acné",
+      "exercise": "Ejercicio",
+      "sleep": "Sueño",
+      "cravings": "Antojos",
+      "none": "Ninguno"
+    },
+    "sleepDisturbances": {
+      "troubleSleeping": "Dificultad para dormir",
+      "frequentWaking": "Despertares frecuentes",
+      "restlessSleep": "Sueño inquieto",
+      "earlyWaking": "Despertar temprano",
+      "insomnia": "Insomnio",
+      "nightSweats": "Sudores nocturnos",
+      "none": "Ninguno"
+    },
+    "temperature": {
+      "title": "Temperatura corporal basal",
+      "celsius": "°C",
+      "fahrenheit": "°F"
+    },
+    "hormones": {
+      "lh": "LH",
+      "fsh": "FSH",
+      "estrogen": "Estrógeno",
+      "progesterone": "Progesterona"
+    },
+    "medications": {
+      "title": "Medicamentos",
+      "emptyTitle": "¡Aún no se han añadido medicamentos!",
+      "startAdding": "Comenzar a añadir"
+    },
+    "notes": {
+      "title": "Notas",
+      "placeholder": "Añadir notas"
+    }
+  }
+}
