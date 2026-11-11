@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
   title: {
     color: colors.textTertiary,
     fontSize: normalize(16),
-    fontWeight: 600,
+
     fontFamily: 'Manrope-Regular',
   },
 });

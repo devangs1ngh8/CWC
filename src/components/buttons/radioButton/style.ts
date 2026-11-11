@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: normalize(16),
-    fontWeight: 600,
+
     color: colors.textPrimary,
     fontFamily: 'Manrope-Medium',
   },
