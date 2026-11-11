@@ -1,13 +1,13 @@
 import React from 'react';
 import { View, Text, Image, Pressable, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 import styles from './style';
 import { image } from '../../assets';
-import { HeaderSection } from '../../components';
+import { HeaderSection, ScreenHeader } from '../../components';
 import { learningData } from '../home/learningData';
 import { ScreenName } from '../../navigation/screenName';
-import { useTranslation } from 'react-i18next';
 
 const LearningLounge = () => {
   const navigation = useNavigation<any>();
@@ -15,17 +15,16 @@ const LearningLounge = () => {
 
   return (
     <View style={styles.container}>
-      <HeaderSection
+      <ScreenHeader
         backgroundImage={image.homeBG}
         title={t('learningLounge.title')}
-        titleStyle={styles.headerTitle}
         style={styles.header}
-        showBackButton
       />
 
       <ScrollView
-        showsVerticalScrollIndicator={false}
+        style={styles.scrollView}
         contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
       >
         <View style={styles.learningGrid}>
           {learningData.map(item => (
@@ -36,7 +35,11 @@ const LearningLounge = () => {
                 navigation.navigate(ScreenName.LearningDetail, { item })
               }
             >
-              <Image source={item.image} />
+              <Image
+                source={item.image}
+                style={styles.learningImage}
+                resizeMode="cover"
+              />
 
               <Text style={styles.learningTitle} numberOfLines={1}>
                 {item.title}
