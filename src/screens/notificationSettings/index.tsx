@@ -36,6 +36,7 @@ const NotificationSettings = () => {
       <ScreenHeader
         title={t('notificationSettings.title')}
         backgroundImage={image.homeBG}
+        style={styles.header}
       />
 
       <View style={styles.body}>
@@ -53,13 +54,13 @@ const NotificationSettings = () => {
           </View>
 
           <Switch
+            style={{ transform: [{ scaleX: 0.67 }, { scaleY: 0.67 }] }}
             value={isEnabled}
             onValueChange={handleToggle}
             trackColor={{
               false: colors.borderColor,
               true: colors.primary,
             }}
-            thumbColor="#FFFFFF"
             ios_backgroundColor={colors.borderColor}
           />
         </View>
