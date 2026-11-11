@@ -34,7 +34,6 @@ const styles = StyleSheet.create({
   warningText: {
     fontSize: normalize(12),
     fontFamily: 'Manrope-Regular',
-    // fontWeight: 400,
     lineHeight: normalize(16),
     paddingVertical: normalize(16),
     paddingRight: normalize(16),
