@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import { View, Text } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { View, Text, TextInput, Keyboard } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 
 import { saveProfileData } from '../../utils/profileStorage';
-
 import styles from './style';
+
 import {
   HeaderSection,
-  BodySection,
   PrimaryButton,
   DateInput,
   UnitToggle,
   FormInput,
   HeightInput,
+  StepBody,
 } from '../../components';
 
 import {
@@ -24,13 +24,18 @@ import {
 } from '../../utils/validations';
 
 import { image } from '../../assets';
-import { useNavigation } from '@react-navigation/native';
 import { ScreenName } from '../../navigation/screenName';
 
 const PersonalInformation = () => {
   const navigation = useNavigation<any>();
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
+
+  // Single useRef for all TextInputs
+  const inputRefs = useRef<(TextInput | null)[]>([]);
+
+  const focusInput = (index: number) => {
+    inputRefs.current[index]?.focus();
+  };
 
   const [fullName, setFullName] = useState('');
   const [dob, setDob] = useState<Date | null>(null);
@@ -93,6 +98,7 @@ const PersonalInformation = () => {
       weightUnit,
     });
 
+    Keyboard.dismiss();
     navigation.navigate(ScreenName.YourCycles);
   };
 
@@ -104,7 +110,7 @@ const PersonalInformation = () => {
         style={styles.header}
       />
 
-      <BodySection
+      <StepBody
         root={styles.body}
         titlePrimary={t('personalInfo.step')}
         titleSecondary={t('personalInfo.title')}
@@ -112,9 +118,7 @@ const PersonalInformation = () => {
         headingSecondaryStyle={styles.screenTitle}
         titleContentStyle={styles.titleContent}
         bottomContent={
-          <View
-            style={[styles.bottomContent, { paddingBottom: insets.bottom }]}
-          >
+          <View style={styles.bottomContent}>
             <PrimaryButton
               title={t('common.next')}
               disabled={isNextDisabled}
@@ -123,6 +127,7 @@ const PersonalInformation = () => {
           </View>
         }
       >
+        {/* Full Name */}
         <FormInput
           label={t('personalInfo.fullName')}
           placeholder={t('personalInfo.fullNamePlaceholder')}
@@ -132,8 +137,14 @@ const PersonalInformation = () => {
           maxLength={50}
           error={translatedErrors.name}
           inputStyle={fullName ? styles.filledInput : undefined}
+          inputRef={ref => (inputRefs.current[0] = ref)}
+          returnKeyType="next"
+          onSubmitEditing={() => {
+            focusInput(1);
+          }}
         />
 
+        {/* Date of Birth */}
         <Text style={styles.label}>{t('personalInfo.dateOfBirth')}</Text>
 
         <DateInput
@@ -144,6 +155,7 @@ const PersonalInformation = () => {
           inputStyle={dob ? styles.filledInput : undefined}
         />
 
+        {/* Height */}
         <View style={styles.fieldHeader}>
           <Text style={styles.label}>{t('personalInfo.height')}</Text>
 
@@ -164,6 +176,9 @@ const PersonalInformation = () => {
             maxLength={3}
             error={translatedErrors.height}
             inputStyle={heightCm ? styles.filledInput : undefined}
+            inputRef={ref => (inputRefs.current[1] = ref)}
+            returnKeyType="next"
+            onSubmitEditing={() => focusInput(3)}
           />
         ) : (
           <HeightInput
@@ -175,8 +190,14 @@ const PersonalInformation = () => {
             inchesPlaceholder={t('personalInfo.inchesPlaceholder')}
             placeholderColor={styles.placeholderColor.color}
             inputStyle={feet || inches ? styles.filledInput : undefined}
+            feetInputRef={ref => (inputRefs.current[1] = ref)}
+            inchesInputRef={ref => (inputRefs.current[2] = ref)}
+            onFeetSubmitEditing={() => focusInput(2)}
+            onInchesSubmitEditing={() => focusInput(3)}
           />
         )}
+
+        {/* Weight */}
         <View style={styles.fieldHeader}>
           <Text style={styles.label}>{t('personalInfo.weight')}</Text>
 
@@ -200,8 +221,11 @@ const PersonalInformation = () => {
           maxLength={3}
           error={translatedErrors.weight}
           inputStyle={weight ? styles.filledInput : undefined}
+          inputRef={ref => (inputRefs.current[3] = ref)}
+          returnKeyType="done"
+          onSubmitEditing={Keyboard.dismiss}
         />
-      </BodySection>
+      </StepBody>
     </View>
   );
 };

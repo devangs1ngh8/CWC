@@ -11,6 +11,14 @@ export default StyleSheet.create({
     height: SCREEN_HEIGHT * 0.3,
   },
 
+  body: {
+    flex: 1,
+    minHeight: 0,
+    backgroundColor: colors.background,
+    borderTopLeftRadius: normalize(35),
+    borderTopRightRadius: normalize(35),
+  },
+
   stepTitle: {
     color: colors.primary,
     fontSize: normalize(13),

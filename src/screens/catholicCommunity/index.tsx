@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, Image } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 
 import { saveProfileData } from '../../utils/profileStorage';
 
 import {
   HeaderSection,
-  BodySection,
+  StepBody,
   PrimaryButton,
   CustomDropdown,
   ErrorMessage,
@@ -22,12 +22,10 @@ import {
 
 import { image } from '../../assets';
 import styles from './style';
-import { useNavigation } from '@react-navigation/native';
 import { ScreenName } from '../../navigation/screenName';
 
 const CatholicCommunity = () => {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
 
   const [community, setCommunity] = useState('');
@@ -70,7 +68,7 @@ const CatholicCommunity = () => {
 
     navigation.reset({
       index: 0,
-      routes: [{ name: ScreenName.Login }],
+      routes: [{ name: ScreenName.Subscription }],
     });
   };
 
@@ -83,7 +81,8 @@ const CatholicCommunity = () => {
         showBackButton
       />
 
-      <BodySection
+      <StepBody
+        root={styles.body}
         titlePrimary={t('community.step')}
         titleSecondary={t('community.title')}
         description={t('community.question')}
@@ -92,9 +91,7 @@ const CatholicCommunity = () => {
         headingSecondaryStyle={styles.screenTitle}
         titleContentStyle={styles.titleContent}
         bottomContent={
-          <View
-            style={[styles.bottomContent, { paddingBottom: insets.bottom }]}
-          >
+          <View style={styles.bottomContent}>
             <PrimaryButton
               title={t('community.save')}
               onPress={handleSave}
@@ -103,8 +100,7 @@ const CatholicCommunity = () => {
           </View>
         }
       >
-        {/* <Text style={styles.description}>{t('community.question')}</Text> */}
-
+        {/* Community selection */}
         <View style={styles.radioRow}>
           {[t('community.yes'), t('community.no')].map(option => {
             const isSelected = community === option;
@@ -145,18 +141,18 @@ const CatholicCommunity = () => {
           <ErrorMessage error={t('community.errors.communityRequired')} />
         )}
 
+        {/* State and City */}
         <View style={styles.locationRow}>
           <View style={styles.halfColumn}>
             <Text style={styles.label}>{t('community.state')}</Text>
 
-            <View style={selectedState && styles.selectedBorder}>
-              <CustomDropdown
-                title={t('community.selectState')}
-                options={states}
-                selectedValue={selectedState || t('community.selectState')}
-                onSelect={handleStateChange}
-              />
-            </View>
+            <CustomDropdown
+              title={t('community.selectState')}
+              placeholder={t('community.selectState')}
+              options={states}
+              selectedValue={selectedState}
+              onSelect={handleStateChange}
+            />
 
             {hasAttemptedSave && !selectedState && (
               <ErrorMessage error={t('community.errors.stateRequired')} />
@@ -166,17 +162,16 @@ const CatholicCommunity = () => {
           <View style={styles.halfColumn}>
             <Text style={styles.label}>{t('community.city')}</Text>
 
-            <View style={selectedCity && styles.selectedBorder}>
-              <CustomDropdown
-                title={t('community.selectCity')}
-                options={citiesByState[selectedState] || []}
-                selectedValue={selectedCity || t('community.selectCity')}
-                onSelect={value => {
-                  setSelectedCity(value);
-                  setHasInteracted(true);
-                }}
-              />
-            </View>
+            <CustomDropdown
+              title={t('community.selectCity')}
+              placeholder={t('community.selectCity')}
+              options={citiesByState[selectedState] || []}
+              selectedValue={selectedCity}
+              onSelect={value => {
+                setSelectedCity(value);
+                setHasInteracted(true);
+              }}
+            />
 
             {hasAttemptedSave && !selectedCity && (
               <ErrorMessage error={t('community.errors.cityRequired')} />
@@ -184,40 +179,41 @@ const CatholicCommunity = () => {
           </View>
         </View>
 
+        {/* Parish */}
         <Text style={styles.label}>{t('community.localParishName')}</Text>
 
-        <View style={parish && styles.selectedBorder}>
-          <CustomDropdown
-            title={t('community.selectParish')}
-            options={parishNames}
-            selectedValue={parish || t('community.selectParish')}
-            onSelect={value => {
-              setParish(value);
-              setHasInteracted(true);
-            }}
-          />
-        </View>
+        <CustomDropdown
+          title={t('community.selectParish')}
+          placeholder={t('community.selectParish')}
+          options={parishNames}
+          selectedValue={parish}
+          onSelect={value => {
+            setParish(value);
+            setHasInteracted(true);
+          }}
+        />
 
         {hasAttemptedSave && !parish && (
           <ErrorMessage error={t('community.errors.parishRequired')} />
         )}
 
+        {/* Pastor */}
         <Text style={styles.label}>
           {t('community.pastorName')} ({t('community.optional')})
         </Text>
 
-        <View style={pastor && styles.selectedBorder}>
-          <CustomDropdown
-            title={t('community.selectPastor')}
-            options={pastorNames}
-            selectedValue={pastor || t('community.selectPastor')}
-            onSelect={value => {
-              setPastor(value);
-              setHasInteracted(true);
-            }}
-          />
-        </View>
+        <CustomDropdown
+          title={t('community.selectPastor')}
+          placeholder={t('community.selectPastor')}
+          options={pastorNames}
+          selectedValue={pastor}
+          onSelect={value => {
+            setPastor(value);
+            setHasInteracted(true);
+          }}
+        />
 
+        {/* Receive updates */}
         <Pressable
           style={styles.checkboxRow}
           onPress={() => {
@@ -235,7 +231,7 @@ const CatholicCommunity = () => {
             {t('community.receiveUpdates')}
           </Text>
         </Pressable>
-      </BodySection>
+      </StepBody>
     </View>
   );
 };
