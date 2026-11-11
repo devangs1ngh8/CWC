@@ -45,6 +45,7 @@ const ReminderCard = ({
         </View>
 
         <Switch
+          style={{ transform: [{ scaleX: 0.67 }, { scaleY: 0.67 }] }}
           value={isDefault ? true : enabled}
           disabled={isDefault}
           onValueChange={onToggle}
