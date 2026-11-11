@@ -81,11 +81,7 @@ const Home = () => {
       <StatusBar barStyle="light-content" />
 
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <Image
-          source={image.homeBG}
-          style={styles.headerBackground}
-          resizeMode="cover"
-        />
+        <Image source={image.homeBG} style={styles.headerBackground} />
 
         <View style={styles.headerTop}>
           <View style={styles.headerText}>
@@ -151,13 +147,12 @@ const Home = () => {
         style={styles.scroll}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: insets.bottom + 20 },
+          { paddingBottom: insets.bottom },
         ]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.cycleSection}>
-          <Image source={image.tunnel} />
-
+          <Image source={image.tunnel} style={styles.tunnelImg} />
           <Image source={image.periodDueImg} style={styles.periodDueImage} />
         </View>
 
@@ -177,7 +172,11 @@ const Home = () => {
                   navigation.navigate(ScreenName.LearningDetail, { item })
                 }
               >
-                <Image source={item.image} style={styles.learningImage} />
+                <Image
+                  source={item.image}
+                  style={styles.learningImage}
+                  resizeMode="cover"
+                />
 
                 <Text style={styles.learningTitle} numberOfLines={2}>
                   {item.title}
