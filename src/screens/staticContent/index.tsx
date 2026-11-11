@@ -17,6 +17,7 @@ const StaticContent = () => {
       <ScreenHeader
         title={t('staticContent.title')}
         backgroundImage={image.homeBG}
+        style={styles.header}
       />
 
       <View style={styles.body}>
