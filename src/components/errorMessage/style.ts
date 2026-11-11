@@ -15,6 +15,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     marginTop: normalize(8),
     marginLeft: normalize(4),
+    marginBottom: normalize(20),
   },
 
   errorIcon: {
