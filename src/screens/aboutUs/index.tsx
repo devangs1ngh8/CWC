@@ -11,7 +11,11 @@ const AboutUs = () => {
 
   return (
     <View style={styles.container}>
-      <ScreenHeader title={t('aboutUs.title')} backgroundImage={image.homeBG} />
+      <ScreenHeader
+        title={t('aboutUs.title')}
+        backgroundImage={image.homeBG}
+        style={styles.header}
+      />
 
       <View style={styles.body}>
         <ScrollView
