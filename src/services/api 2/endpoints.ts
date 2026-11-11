@@ -1,0 +1,11 @@
+export const API_VERSION = 'v1/';
+export const API_VERSION_2 = 'v2/';
+
+export const AUTH_ENDPOINTS = {
+  LOGIN: 'user/onboarding/login',
+  REGISTER: 'user/onboarding/register',
+  VERIFY_OTP: 'user/onboarding/verify-otp',
+  RESEND_OTP: 'user/onboarding/resend-otp',
+  VALIDATE_OTP: 'user/onboarding/validate-otp',
+  RESEND_USER_OTP: 'user/onboarding/resend-user-otp',
+};
