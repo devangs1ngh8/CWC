@@ -42,6 +42,7 @@ const TrackingPreferences = () => {
 
   const renderSwitch = (key: keyof typeof options, disabled = false) => (
     <Switch
+      style={{ transform: [{ scaleX: 0.67 }, { scaleY: 0.67 }] }}
       value={options[key]}
       disabled={disabled}
       onValueChange={value => handleToggle(key, value)}
@@ -73,6 +74,7 @@ const TrackingPreferences = () => {
       <ScreenHeader
         title={t('trackingPreferences.title')}
         backgroundImage={image.homeBG}
+        style={styles.heading}
       />
 
       <View style={styles.body}>
