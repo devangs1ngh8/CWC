@@ -12,10 +12,18 @@ const BottomSheetModal = ({ visible, onClose, children }: Props) => {
       animationType="slide"
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
+      <View
+        style={styles.overlay}
+        onStartShouldSetResponder={() => true}
+        onResponderRelease={onClose}
+      >
         <Pressable onPress={onClose} />
 
-        <View style={styles.bottomSheet}>
+        <View
+          style={styles.bottomSheet}
+          onStartShouldSetResponder={() => true}
+          onResponderRelease={event => event.stopPropagation()}
+        >
           <View style={styles.handle} />
           {children}
         </View>
