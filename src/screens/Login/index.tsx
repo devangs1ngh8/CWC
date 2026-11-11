@@ -1,10 +1,6 @@
-import { View, Text, Pressable, Alert, Keyboard } from 'react-native';
+import { View, Text, Pressable, Keyboard } from 'react-native';
 import React, { useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import styles from './style';
 import {
@@ -24,14 +20,20 @@ import { image } from '../../assets';
 
 import { useTranslation } from 'react-i18next';
 import { ScreenName } from '../../navigation/screenName';
+import { loginUser } from '../../services/auth/auth';
+import { Storage } from '../../services/storage';
+import { StorageKeys } from '../../services/storage/keys';
+
+import { useAppDispatch, useAppSelector } from '../../redux/auth/hooks';
+
+import { setEmail as setReduxEmail } from '../../redux/auth/actions/authActions';
 
 const Login = () => {
   const navigation = useNavigation<any>();
   const { t, i18n } = useTranslation();
+  const dispatch = useAppDispatch();
 
   const inputRef = useRef<any>(null);
-
-  const insets = useSafeAreaInsets();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -39,33 +41,53 @@ const Login = () => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
+  const [isLoading, setIsLoading] = useState(false);
+
+  const savedEmail = useAppSelector(state => state.email);
+
+  console.log('Redux Email:', savedEmail);
+
   const handleLogin = async () => {
+    if (isLoading) return;
+
     const validEmail = validateEmail(email);
     const validPassword = validatePassword(password);
 
     setEmailError(validEmail ? '' : 'Incorrect Email');
     setPasswordError(validPassword ? '' : t('login.passwordError'));
 
-    if (!validEmail && !validPassword) {
-      return;
+    if (!validEmail || !validPassword) return;
+
+    Keyboard.dismiss();
+    setIsLoading(true);
+
+    try {
+      const data = await loginUser({
+        type: 1,
+        email: email.trim(),
+        password,
+      });
+
+      await Storage.set(StorageKeys.AUTH_TOKEN, data.accessToken);
+
+      dispatch(setReduxEmail(email.trim()));
+
+      navigation.reset({
+        index: 0,
+        routes: [{ name: ScreenName.MainTabs }],
+      });
+    } catch (error: any) {
+      console.log('Login Error:', error.response?.data || error);
+
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        'Invalid email or password';
+
+      setPasswordError(message);
+    } finally {
+      setIsLoading(false);
     }
-
-    const savedPassword = await AsyncStorage.getItem('savedPassword');
-
-    if (savedPassword === null) {
-      setEmailError('Incorrect Email');
-      return;
-    }
-
-    if (password !== savedPassword) {
-      setPasswordError('Incorrect Password');
-      return;
-    }
-
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'MainTabs' }],
-    });
   };
 
   const isFormValid = email.trim() !== '' && password.trim() !== '';
@@ -88,11 +110,11 @@ const Login = () => {
         headingPrimaryStyle={styles.primaryTextStyle}
         description={t('login.subtitle')}
         bottomContent={
-          <View style={{ paddingBottom: insets.bottom }}>
+          <View>
             <PrimaryButton
               title={t('login.loginButton')}
               onPress={handleLogin}
-              disabled={!isFormValid}
+              disabled={!isFormValid || isLoading}
             />
 
             <View style={styles.createTextRow}>

@@ -5,6 +5,7 @@ import colors from '../../utils/color';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.primary,
   },
 
   header: {
@@ -23,8 +24,7 @@ const styles = StyleSheet.create({
 
   forgotText: {
     fontSize: normalize(14),
-    fontFamily: 'Manrope-Regular',
-    fontWeight: '700',
+    fontFamily: 'Manrope-Bold',
     color: colors.primary,
   },
 
@@ -38,13 +38,11 @@ const styles = StyleSheet.create({
   createText: {
     fontSize: normalize(14),
     fontFamily: 'Manrope-Medium',
-    fontWeight: '500',
   },
 
   link: {
     fontSize: normalize(14),
     fontFamily: 'Manrope-Medium',
-    fontWeight: '500',
     color: colors.primary,
   },
 });
