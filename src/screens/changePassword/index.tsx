@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import HeaderSection from '../../components/headerSection';
-import { PasswordInput, PrimaryButton } from '../../components';
+import { PasswordInput, PrimaryButton, ScreenHeader } from '../../components';
 import { image } from '../../assets';
 import styles from './style';
 import { cleanPassword, validateChangePassword } from '../../utils/validations';
@@ -107,10 +107,10 @@ const ChangePassword = () => {
       behavior="padding"
       keyboardVerticalOffset={0}
     >
-      <HeaderSection
+      <ScreenHeader
         title={t('changePassword.title')}
         backgroundImage={image.homeBG}
-        showBackButton
+        style={styles.header}
       />
 
       <View style={styles.body}>
