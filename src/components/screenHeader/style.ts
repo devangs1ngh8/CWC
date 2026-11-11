@@ -4,16 +4,23 @@ import colors from '../../utils/color';
 
 const styles = StyleSheet.create({
   container: {
-    height: SCREEN_HEIGHT * 0.16,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+  },
+
+  headingContent: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.primary,
+    // paddingHorizontal: normalize(60),
+    marginTop: normalize(12),
   },
 
   backButton: {
     position: 'absolute',
     left: normalize(24),
-    top: normalize(70),
   },
 
   backArrow: {
@@ -26,7 +33,6 @@ const styles = StyleSheet.create({
     fontSize: normalize(24),
     fontFamily: 'Manrope-Bold',
     textAlign: 'center',
-    marginTop: normalize(20),
   },
 });
 
