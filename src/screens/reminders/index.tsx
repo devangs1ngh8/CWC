@@ -22,6 +22,7 @@ import ReminderCard from '../../components/reminderCard';
 import { image } from '../../assets';
 import styles from './style';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import colors from '../../utils/color';
 
 const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
@@ -172,9 +173,25 @@ const Reminders = () => {
   };
 
   const saveReminder = () => {
+    if (!isDefaultEdit) {
+      if (!title.trim() || !date) return;
+      if (frequency === 'weekly' && weekdays.length === 0) return;
+    }
+
     setReminders(previous =>
       previous.map(item =>
-        item.id === selectedReminder?.id ? { ...item, time } : item,
+        item.id === selectedReminder?.id
+          ? isDefaultEdit
+            ? { ...item, time }
+            : {
+                ...item,
+                title: title.trim(),
+                date,
+                time,
+                frequency,
+                weekdays,
+              }
+          : item,
       ),
     );
 
@@ -208,6 +225,7 @@ const Reminders = () => {
   };
 
   const isEdit = modal === 'edit';
+  const isDefaultEdit = isEdit && selectedReminder?.isDefault;
 
   return (
     <View style={styles.container}>
@@ -258,158 +276,158 @@ const Reminders = () => {
         visible={modal === 'add' || modal === 'edit'}
         onClose={closeModal}
       >
-        <KeyboardAvoidingView behavior="padding">
-          <Text style={styles.sheetTitle}>
-            {isEdit ? t('reminders.edit') : t('reminders.add')}{' '}
-            <Text style={styles.purpleText}>{t('reminders.reminder')}</Text>
-          </Text>
+        {/* <KeyboardAvoidingView behavior="padding"> */}
+        <Text style={styles.sheetTitle}>
+          {isEdit ? t('reminders.edit') : t('reminders.add')}{' '}
+          <Text style={styles.purpleText}>{t('reminders.reminder')}</Text>
+        </Text>
 
-          <ScrollView
-            contentContainerStyle={styles.sheetContent}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          >
-            <Text style={styles.label}>{t('reminders.title')}</Text>
+        <ScrollView
+          contentContainerStyle={styles.sheetContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Text style={styles.label}>{t('reminders.title')}</Text>
 
-            <TextInput
-              style={[styles.input, isEdit && styles.disabledInput]}
-              value={title}
-              onChangeText={setTitle}
-              editable={!isEdit}
-              placeholder={t('reminders.enterTitle')}
-              placeholderTextColor="#AEB4B9"
+          <TextInput
+            style={[styles.input, isDefaultEdit && styles.disabledInput]}
+            value={title}
+            onChangeText={setTitle}
+            editable={!isDefaultEdit}
+            placeholder={t('reminders.enterTitle')}
+            placeholderTextColor={colors.textSecondary}
+          />
+
+          <Text style={styles.label}>{t('reminders.startDate')}</Text>
+
+          {isDefaultEdit ? (
+            <View style={[styles.input, styles.disabledInput]}>
+              <Text style={styles.inputText}>
+                {date ? formatDate(date) : ''}
+              </Text>
+            </View>
+          ) : (
+            <DateInput
+              value={date}
+              onChange={setDate}
+              placeholder={t('reminders.selectDate')}
             />
+          )}
 
-            <Text style={styles.label}>{t('reminders.startDate')}</Text>
+          <Text style={styles.label}>{t('reminders.time')}</Text>
 
-            {isEdit ? (
-              <View style={[styles.input, styles.disabledInput]}>
-                <Text style={styles.inputText}>
-                  {date ? formatDate(date) : ''}
-                </Text>
-              </View>
-            ) : (
-              <DateInput
-                value={date}
-                onChange={setDate}
-                placeholder={t('reminders.selectDate')}
-              />
-            )}
+          <Pressable
+            style={styles.input}
+            onPress={() => {
+              Keyboard.dismiss();
+              setShowTimePicker(true);
+            }}
+          >
+            <Text style={styles.inputText}>{formatTime(time)}</Text>
 
-            <Text style={styles.label}>{t('reminders.time')}</Text>
+            <Text style={styles.clockIcon}>◷</Text>
+          </Pressable>
 
-            <Pressable
-              style={styles.input}
-              onPress={() => {
-                Keyboard.dismiss();
-                setShowTimePicker(true);
+          {showTimePicker && (
+            <DateTimePicker
+              value={time}
+              mode="time"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={(_, selectedTime) => {
+                if (Platform.OS === 'android') {
+                  setShowTimePicker(false);
+                }
+
+                if (selectedTime) {
+                  setTime(selectedTime);
+                }
               }}
+              themeVariant="light"
+            />
+          )}
+
+          {showTimePicker && Platform.OS === 'ios' && (
+            <Pressable
+              onPress={() => setShowTimePicker(false)}
+              style={styles.doneButton}
             >
-              <Text style={styles.inputText}>{formatTime(time)}</Text>
-
-              <Text style={styles.clockIcon}>◷</Text>
+              <Text style={styles.doneText}>{t('reminders.done')}</Text>
             </Pressable>
+          )}
 
-            {showTimePicker && (
-              <DateTimePicker
-                value={time}
-                mode="time"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                onChange={(_, selectedTime) => {
-                  if (Platform.OS === 'android') {
-                    setShowTimePicker(false);
-                  }
+          <Text style={styles.label}>{t('reminders.frequency')}</Text>
 
-                  if (selectedTime) {
-                    setTime(selectedTime);
-                  }
-                }}
-                themeVariant="light"
-              />
-            )}
-
-            {showTimePicker && Platform.OS === 'ios' && (
+          <View style={styles.frequencyRow}>
+            {['once', 'daily', 'weekly'].map(item => (
               <Pressable
-                onPress={() => setShowTimePicker(false)}
-                style={styles.doneButton}
+                key={item}
+                disabled={isDefaultEdit}
+                onPress={() => {
+                  setFrequency(item);
+                  setWeekdays([]);
+                }}
+                style={[
+                  styles.frequencyButton,
+                  frequency === item && styles.selectedFrequency,
+                  isDefaultEdit && styles.disabledInput,
+                ]}
               >
-                <Text style={styles.doneText}>{t('reminders.done')}</Text>
-              </Pressable>
-            )}
-
-            <Text style={styles.label}>{t('reminders.frequency')}</Text>
-
-            <View style={styles.frequencyRow}>
-              {['once', 'daily', 'weekly'].map(item => (
-                <Pressable
-                  key={item}
-                  disabled={isEdit}
-                  onPress={() => {
-                    setFrequency(item);
-                    setWeekdays([]);
-                  }}
+                <Text
                   style={[
-                    styles.frequencyButton,
-                    frequency === item && styles.selectedFrequency,
-                    isEdit && styles.disabledInput,
+                    styles.frequencyText,
+                    frequency === item && styles.selectedFrequencyText,
+                    isDefaultEdit && styles.disabledFrequencyText,
                   ]}
                 >
-                  <Text
+                  {t(`reminders.${item}`)}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+
+          {frequency === 'weekly' && (
+            <>
+              <Text style={styles.label}>{t('reminders.repeat')}</Text>
+
+              <View style={styles.daysRow}>
+                {days.map((day, index) => (
+                  <Pressable
+                    key={index}
+                    disabled={isDefaultEdit}
+                    onPress={() => selectDay(index)}
                     style={[
-                      styles.frequencyText,
-                      frequency === item && styles.selectedFrequencyText,
-                      isEdit && styles.disabledFrequencyText,
+                      styles.dayButton,
+                      weekdays.includes(index) && styles.selectedDay,
+                      isDefaultEdit && styles.disabledInput,
                     ]}
                   >
-                    {t(`reminders.${item}`)}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-
-            {frequency === 'weekly' && (
-              <>
-                <Text style={styles.label}>{t('reminders.repeat')}</Text>
-
-                <View style={styles.daysRow}>
-                  {days.map((day, index) => (
-                    <Pressable
-                      key={index}
-                      disabled={isEdit}
-                      onPress={() => selectDay(index)}
+                    <Text
                       style={[
-                        styles.dayButton,
-                        weekdays.includes(index) && styles.selectedDay,
-                        isEdit && styles.disabledInput,
+                        styles.dayText,
+                        weekdays.includes(index) && styles.selectedDayText,
+                        isDefaultEdit && styles.disabledFrequencyText,
                       ]}
                     >
-                      <Text
-                        style={[
-                          styles.dayText,
-                          weekdays.includes(index) && styles.selectedDayText,
-                          isEdit && styles.disabledFrequencyText,
-                        ]}
-                      >
-                        {day}
-                      </Text>
-                    </Pressable>
-                  ))}
-                </View>
-              </>
-            )}
-          </ScrollView>
+                      {day}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </>
+          )}
+        </ScrollView>
 
-          <View style={styles.footer}>
-            <Pressable
-              style={styles.submitButton}
-              onPress={isEdit ? saveReminder : addReminder}
-            >
-              <Text style={styles.submitText}>
-                {isEdit ? t('reminders.save') : t('reminders.add')}
-              </Text>
-            </Pressable>
-          </View>
-        </KeyboardAvoidingView>
+        <View style={styles.footer}>
+          <Pressable
+            style={styles.submitButton}
+            onPress={isEdit ? saveReminder : addReminder}
+          >
+            <Text style={styles.submitText}>
+              {isEdit ? t('reminders.save') : t('reminders.add')}
+            </Text>
+          </Pressable>
+        </View>
+        {/* </KeyboardAvoidingView> */}
       </BottomSheetModal>
 
       <BottomSheetModal visible={modal === 'delete'} onClose={closeModal}>

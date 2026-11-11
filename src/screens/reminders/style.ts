@@ -5,21 +5,22 @@ import colors from '../../utils/color';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.textTertiary,
+    backgroundColor: colors.primary,
   },
 
   header: {
-    height: SCREEN_HEIGHT * 0.2,
+    height: SCREEN_HEIGHT * 0.15,
+    marginBottom: normalize(23),
   },
 
   content: {
     flex: 1,
-    paddingTop: normalize(20),
+    paddingTop: normalize(32),
   },
 
   list: {
     paddingHorizontal: normalize(24),
-    paddingBottom: SCREEN_HEIGHT * 0.11,
+    // paddingBottom: SCREEN_HEIGHT * 0.11,
   },
 
   addButton: {
@@ -116,7 +117,7 @@ const styles = StyleSheet.create({
     borderRadius: normalize(14),
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.borderBG,
+    backgroundColor: colors.textTertiary,
   },
 
   selectedFrequency: {
