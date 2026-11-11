@@ -5,47 +5,53 @@ import colors from '../../utils/color';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.primary,
+    position: 'relative',
+  },
+
+  profileImageContainer: {
+    position: 'absolute',
+    top: SCREEN_HEIGHT * 0.17,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 10,
   },
 
   header: {
-    height: SCREEN_HEIGHT * 0.25,
-    position: 'relative',
+    height: SCREEN_HEIGHT * 0.235,
     backgroundColor: colors.primary,
   },
 
-  headerBackground: {
+  body: {
     flex: 1,
-  },
-
-  headerTitle: {
-    position: 'absolute',
-    alignSelf: 'center',
-    top: normalize(80),
-    color: colors.textTertiary,
-    fontSize: normalize(24),
-    fontFamily: 'Manrope-Bold',
-  },
-
-  profileTop: {
-    alignItems: 'center',
-    paddingHorizontal: normalize(24),
-    paddingBottom: normalize(12),
+    minHeight: 0,
+    backgroundColor: colors.textTertiary,
+    borderTopLeftRadius: normalize(35),
+    borderTopRightRadius: normalize(35),
   },
 
   profileImage: {
-    position: 'absolute',
-    bottom: SCREEN_HEIGHT * 0.09,
-    alignSelf: 'center',
-    width: SCREEN_WIDTH * 0.25,
-    height: SCREEN_HEIGHT * 0.11,
+    width: SCREEN_WIDTH * 0.27,
+    height: SCREEN_HEIGHT * 0.125,
     borderRadius: normalize(22),
     borderWidth: 2,
     borderColor: colors.textTertiary,
   },
+
+  profileTop: {
+    paddingHorizontal: normalize(24),
+    paddingTop: SCREEN_HEIGHT * 0.08,
+    paddingBottom: normalize(12),
+    backgroundColor: colors.textTertiary,
+    borderTopLeftRadius: normalize(35),
+    borderTopRightRadius: normalize(35),
+    zIndex: 1,
+  },
+
   changePhotoButton: {
-    width: '100%',
+    // width: '100%',
     paddingVertical: normalize(18),
-    marginTop: normalize(75),
     borderWidth: 1,
     borderColor: colors.primary,
     borderRadius: normalize(14),
@@ -60,18 +66,23 @@ const styles = StyleSheet.create({
     height: normalize(20),
     marginRight: normalize(8),
   },
+
   changePhotoText: {
     fontSize: normalize(14),
     fontFamily: 'Manrope-SemiBold',
     color: colors.primary,
   },
+
   form: {
     flex: 1,
+    minHeight: 0,
   },
+
   scrollContent: {
     paddingHorizontal: normalize(24),
     paddingBottom: normalize(20),
   },
+
   label: {
     marginTop: normalize(18),
     marginBottom: normalize(8),
@@ -79,6 +90,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope-Medium',
     color: colors.textSecondary,
   },
+
   input: {
     paddingVertical: normalize(18),
     borderWidth: 1,
@@ -90,18 +102,22 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     backgroundColor: colors.textTertiary,
   },
+
   disabledInput: {
     backgroundColor: colors.backgroundBG3,
     borderColor: colors.borderColor,
   },
+
   measureRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: normalize(8),
   },
+
   measureInput: {
     flex: 1,
   },
+
   unitGroup: {
     height: normalize(54),
     flexDirection: 'row',
@@ -111,6 +127,7 @@ const styles = StyleSheet.create({
     borderRadius: normalize(14),
     padding: normalize(3),
   },
+
   unitButton: {
     paddingHorizontal: normalize(17),
     paddingVertical: normalize(14),
@@ -118,18 +135,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: normalize(14),
   },
+
   selectedUnit: {
     backgroundColor: colors.primary,
   },
+
   unitText: {
     fontSize: normalize(14),
     fontFamily: 'Manrope-Regular',
     color: colors.textSeven,
   },
+
   selectedUnitText: {
     color: colors.textTertiary,
     fontFamily: 'Manrope-Bold',
   },
+
   phoneInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -140,17 +161,20 @@ const styles = StyleSheet.create({
     backgroundColor: colors.textTertiary,
     paddingHorizontal: normalize(16),
   },
+
   countryCode: {
     fontSize: normalize(14),
     fontFamily: 'Manrope-Medium',
     color: colors.textPrimary,
     paddingRight: normalize(10),
   },
+
   phoneDivider: {
     width: normalize(1),
     height: normalize(38),
     backgroundColor: colors.border,
   },
+
   phoneTextInput: {
     flex: 1,
     fontSize: normalize(14),
@@ -158,15 +182,18 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     paddingLeft: normalize(10),
   },
+
   inputError: {
     borderColor: colors.error,
   },
+
   errorText: {
     color: colors.error,
     fontSize: normalize(12),
     fontFamily: 'Manrope-Regular',
     marginTop: normalize(5),
   },
+
   deleteButton: {
     flexDirection: 'row',
     gap: normalize(8),
@@ -177,6 +204,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+
   deleteButtonText: {
     paddingVertical: normalize(14),
     fontSize: normalize(14),
@@ -187,7 +215,6 @@ const styles = StyleSheet.create({
   bottomButton: {
     paddingHorizontal: normalize(24),
     paddingTop: normalize(12),
-    paddingBottom: normalize(12),
     backgroundColor: colors.textTertiary,
   },
 
@@ -251,7 +278,6 @@ const styles = StyleSheet.create({
     borderRadius: normalize(14),
     alignItems: 'center',
     justifyContent: 'center',
-    fontFamily: 'manrope-Bold',
   },
 
   cancelDeleteText: {
