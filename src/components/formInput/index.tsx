@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, TextInput, View, StyleProp, TextStyle } from 'react-native';
+import { Text, TextInput, View } from 'react-native';
 
 import styles from './style';
 import { Props } from './@types';
@@ -15,13 +15,18 @@ const FormInput = ({
   autoCapitalize = 'sentences',
   inputStyle,
   error,
+  inputRef,
+  returnKeyType,
+  onSubmitEditing,
 }: Props) => {
   const [isFocused, setIsFocused] = useState(false);
+
   return (
     <View>
       {label !== '' && <Text style={styles.label}>{label}</Text>}
 
       <TextInput
+        ref={inputRef}
         style={[
           styles.input,
           inputStyle,
@@ -35,6 +40,8 @@ const FormInput = ({
         keyboardType={keyboardType}
         maxLength={maxLength}
         autoCapitalize={autoCapitalize}
+        returnKeyType={returnKeyType}
+        onSubmitEditing={onSubmitEditing}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
       />

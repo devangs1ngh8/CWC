@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: normalize(14),
     fontFamily: 'Manrope-Medium',
-    fontWeight: '500',
+
     color: colors.textSecondary,
     marginBottom: normalize(8),
     marginHorizontal: normalize(4),
@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     fontSize: normalize(14),
     fontFamily: 'Manrope-Medium',
-    fontWeight: '500',
+
     color: 'colors.textSecondary',
     marginHorizontal: normalize(4),
   },
@@ -44,7 +44,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: normalize(14),
     fontFamily: 'Manrope-Bold',
-    fontWeight: '500',
     color: colors.textSecondary,
   },
 

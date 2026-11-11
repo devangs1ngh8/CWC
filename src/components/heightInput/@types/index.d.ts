@@ -9,4 +9,8 @@ export interface Props {
   inchesPlaceholder: string;
   placeholderColor: string;
   inputStyle?: StyleProp<ViewStyle>;
+  feetInputRef?: (ref: TextInput | null) => void;
+  inchesInputRef?: (ref: TextInput | null) => void;
+  onFeetSubmitEditing?: () => void;
+  onInchesSubmitEditing?: () => void;
 }

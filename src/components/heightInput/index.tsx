@@ -14,6 +14,10 @@ const SplitHeightInput = ({
   inchesPlaceholder,
   placeholderColor,
   inputStyle,
+  feetInputRef,
+  inchesInputRef,
+  onFeetSubmitEditing,
+  onInchesSubmitEditing,
 }: Props) => {
   const [focusedInput, setFocusedInput] = useState<'feet' | 'inches' | null>(
     null,
@@ -38,6 +42,9 @@ const SplitHeightInput = ({
           maxLength={1}
           onFocus={() => setFocusedInput('feet')}
           onBlur={() => setFocusedInput(null)}
+          ref={feetInputRef}
+          returnKeyType="next"
+          onSubmitEditing={onFeetSubmitEditing}
         />
         <Text style={styles.suffix}>FT</Text>
       </View>
@@ -59,6 +66,9 @@ const SplitHeightInput = ({
           maxLength={2}
           onFocus={() => setFocusedInput('inches')}
           onBlur={() => setFocusedInput(null)}
+          ref={inchesInputRef}
+          returnKeyType="next"
+          onSubmitEditing={onInchesSubmitEditing}
         />
         <Text style={styles.suffix}>IN</Text>
       </View>

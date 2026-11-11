@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
-import { normalize } from '../../utils/metrics';
+
+import { normalize, SCREEN_WIDTH } from '../../utils/metrics';
 import colors from '../../utils/color';
 
 const styles = StyleSheet.create({
@@ -31,19 +32,46 @@ const styles = StyleSheet.create({
     tintColor: colors.primary,
   },
 
-  doneButton: {
-    alignSelf: 'flex-end',
-    padding: normalize(10),
+  inputError: {
+    borderColor: colors.error,
+  },
+
+  // Modal overlay
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  // Picker container
+  datePickerContainer: {
+    width: SCREEN_WIDTH - normalize(40),
+    backgroundColor: colors.background,
+    borderRadius: normalize(20),
+    paddingHorizontal: normalize(12),
+    paddingVertical: normalize(12),
+    overflow: 'hidden',
+  },
+
+  // Done button above wheel
+  pickerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: normalize(12),
+    paddingBottom: normalize(4),
   },
 
   doneText: {
     color: colors.primary,
     fontFamily: 'Manrope-Bold',
-    fontSize: normalize(14),
+    fontSize: normalize(15),
+    padding: normalize(8),
   },
 
-  inputError: {
-    borderColor: colors.error,
+  datePicker: {
+    width: '100%',
+    alignSelf: 'center',
   },
 });
 

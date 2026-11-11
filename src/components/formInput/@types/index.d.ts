@@ -8,4 +8,7 @@ export interface Props {
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   inputStyle?: StyleProp<TextStyle>;
   error?: string;
+  inputRef?: (ref: TextInput | null) => void;
+  returnKeyType?: TextInputProps['returnKeyType'];
+  onSubmitEditing?: TextInputProps['onSubmitEditing'];
 }
