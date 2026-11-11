@@ -49,7 +49,7 @@ const ForgotPassword = () => {
         headingPrimaryStyle={styles.primaryTextStyle}
         description={t('forgotPassword.subtitle')}
         bottomContent={
-          <View style={{ paddingBottom: insets.bottom }}>
+          <View>
             <PrimaryButton
               onPress={handleSendCode}
               disabled={!isFormValid}

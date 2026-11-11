@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { SCREEN_HEIGHT } from '../../utils/metrics';
+import { normalize, SCREEN_HEIGHT } from '../../utils/metrics';
 import colors from '../../utils/color';
 
 const styles = StyleSheet.create({
