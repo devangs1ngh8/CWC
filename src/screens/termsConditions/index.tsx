@@ -3,7 +3,7 @@ import { View, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import styles from './style';
-import { BodySection, HeaderSection } from '../../components';
+import { BodySection, HeaderSection, ScreenHeader } from '../../components';
 import { image } from '../../assets';
 
 const TermsConditions = () => {
@@ -11,11 +11,9 @@ const TermsConditions = () => {
 
   return (
     <View style={styles.container}>
-      <HeaderSection
+      <ScreenHeader
         backgroundImage={image.homeBG}
-        showBackButton
         title={t('terms.title')}
-        titleStyle={styles.headerTitle}
         style={styles.header}
       />
 
