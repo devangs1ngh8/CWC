@@ -9,8 +9,7 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    height: SCREEN_HEIGHT * 0.2,
-    paddingTop: normalize(90),
+    height: SCREEN_HEIGHT * 0.17,
     paddingHorizontal: normalize(20),
     backgroundColor: colors.primary,
   },
@@ -122,6 +121,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: normalize(24),
     paddingTop: normalize(14),
     marginBottom: normalize(40),
+    paddingBottom: normalize(20),
   },
 
   simpleHeading: {
@@ -202,6 +202,7 @@ const styles = StyleSheet.create({
     paddingTop: normalize(16),
     marginBottom: normalize(40),
     paddingHorizontal: normalize(24),
+    paddingBottom: normalize(20),
   },
 
   hormoneCard: {
@@ -257,6 +258,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: normalize(24),
     paddingTop: normalize(12),
     paddingBottom: normalize(45),
+    maxHeight: '85%',
+  },
+
+  hormoneScroll: {
+    flexShrink: 1,
+  },
+
+  hormoneScrollContent: {
+    flexGrow: 1,
+    paddingBottom: normalize(10),
   },
 
   modalHandle: {
@@ -424,6 +435,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: normalize(24),
     paddingTop: normalize(12),
     paddingBottom: normalize(30),
+    maxHeight: '85%',
   },
 
   medicationInput: {
@@ -538,7 +550,6 @@ const styles = StyleSheet.create({
   medicationCardName: {
     fontSize: normalize(18),
     color: colors.textPrimary,
-    fontWeight: '600',
   },
 
   medicationCardDetails: {

@@ -8,6 +8,9 @@ import {
   ScrollView,
   TextInput,
   Modal,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 
 import { useTranslation } from 'react-i18next';
@@ -31,6 +34,7 @@ import LogOption from '../../components/logOption';
 import colors from '../../utils/color';
 
 import { validateTemperature } from '../../utils/validations';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Logs = () => {
   const { t } = useTranslation();
@@ -231,9 +235,11 @@ const Logs = () => {
     }
   };
 
+  const insets = useSafeAreaInsets();
+
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <Image source={image.homeBG} style={styles.headerBackground} />
 
         <View style={styles.headerTop}>
@@ -251,11 +257,7 @@ const Logs = () => {
             </Pressable>
 
             <Pressable>
-              <Image
-                source={image.calendar}
-                style={styles.iconImage}
-                resizeMode="contain"
-              />
+              <Image source={image.calendar} style={styles.iconImage} />
             </Pressable>
           </View>
         </View>
@@ -387,14 +389,13 @@ const Logs = () => {
 
                 <View style={styles.pencilRow}>
                   <Text style={styles.hormoneValue}>
-                    {hormones[hormone.key] || '----'}
+                    {savedHormones[hormone.key] || '----'}
                   </Text>
 
                   <Pressable onPress={() => setEditingHormone(hormone.key)}>
                     <Image
                       source={image.editPencil}
                       style={styles.hormoneEdit}
-                      resizeMode="contain"
                     />
                   </Pressable>
                 </View>
@@ -413,7 +414,6 @@ const Logs = () => {
               <Image
                 source={image.medicines}
                 style={styles.emptyMedicationImage}
-                resizeMode="contain"
               />
 
               <Text style={styles.emptyMedicationText}>
@@ -496,17 +496,28 @@ const Logs = () => {
         visible={editingHormone !== null}
         transparent
         animationType="slide"
-        onRequestClose={() => setEditingHormone(null)}
+        onRequestClose={() => {
+          Keyboard.dismiss();
+          setEditingHormone(null);
+        }}
       >
-        <View style={styles.modalOverlay}>
-          <Pressable onPress={() => setEditingHormone(null)} />
-
-          <View style={styles.hormoneModal}>
+        <View
+          style={styles.modalOverlay}
+          onStartShouldSetResponder={() => true}
+          onResponderRelease={() => {
+            Keyboard.dismiss();
+            setEditingHormone(null);
+          }}
+        >
+          <View
+            style={styles.hormoneModal}
+            onStartShouldSetResponder={() => true}
+            onResponderRelease={event => event.stopPropagation()}
+          >
             <View style={styles.modalHandle} />
 
             <View style={styles.titleRow}>
               <Text style={styles.titleOne}>{t('logs.sections.urinary')}</Text>
-
               <Text style={styles.titleTwo}>
                 {t('logs.medications.medication')}
               </Text>
@@ -514,52 +525,62 @@ const Logs = () => {
 
             {editingHormone !== null && (
               <>
-                {hormonesData.map(hormone => (
-                  <View key={hormone.key} style={styles.modalField}>
-                    <Text style={styles.modalLabel}>{t(hormone.labelKey)}</Text>
+                <KeyboardAvoidingView
+                  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                  keyboardVerticalOffset={0}
+                >
+                  <ScrollView
+                    style={styles.hormoneScroll}
+                    contentContainerStyle={styles.hormoneScrollContent}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                    keyboardDismissMode="on-drag"
+                    automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+                  >
+                    {hormonesData.map(hormone => (
+                      <View key={hormone.key} style={styles.modalField}>
+                        <Text style={styles.modalLabel}>
+                          {t(hormone.labelKey)}
+                        </Text>
 
-                    <View style={styles.modalInputContainer}>
-                      <TextInput
-                        style={styles.modalInput}
-                        value={hormones[hormone.key]}
-                        onChangeText={value =>
-                          setHormones(previous => ({
-                            ...previous,
+                        <View style={styles.modalInputContainer}>
+                          <TextInput
+                            style={styles.modalInput}
+                            value={hormones[hormone.key]}
+                            onChangeText={value =>
+                              setHormones(previous => ({
+                                ...previous,
+                                [hormone.key]: cleanHormoneValue(value),
+                              }))
+                            }
+                            keyboardType="decimal-pad"
+                            placeholder="Enter value"
+                            placeholderTextColor={colors.textFourth}
+                            maxLength={6}
+                          />
 
-                            [hormone.key]: cleanHormoneValue(value),
-                          }))
-                        }
-                        keyboardType="decimal-pad"
-                        placeholder="Enter value"
-                        placeholderTextColor={colors.textFourth}
-                        maxLength={6}
-                      />
-
-                      <Text style={styles.modalUnit}>{hormone.unit}</Text>
-                    </View>
-                  </View>
-                ))}
+                          <Text style={styles.modalUnit}>{hormone.unit}</Text>
+                        </View>
+                      </View>
+                    ))}
+                  </ScrollView>
+                </KeyboardAvoidingView>
 
                 <Pressable
                   style={styles.modalSaveButton}
                   onPress={() => {
                     const isValid = hormonesData.every(hormone => {
                       const value = hormones[hormone.key];
-
                       return value === '' || validateHormoneValue(value);
                     });
 
-                    if (!isValid) {
-                      return;
-                    }
+                    if (!isValid) return;
 
                     setSavedHormones(previous => ({
                       ...previous,
-
                       ...Object.fromEntries(
                         hormonesData.map(hormone => [
                           hormone.key,
-
                           hormones[hormone.key]
                             ? `${hormones[hormone.key]} ${hormone.unit}`
                             : '',
@@ -567,6 +588,7 @@ const Logs = () => {
                       ),
                     }));
 
+                    Keyboard.dismiss();
                     setEditingHormone(null);
                   }}
                 >
@@ -580,16 +602,23 @@ const Logs = () => {
         </View>
       </Modal>
 
-      {/* Medication options bottom sheet */}
       <Modal
         visible={medicationOptionsVisible}
         transparent
         animationType="slide"
         onRequestClose={() => setMedicationOptionsVisible(false)}
       >
-        <View style={styles.modalOverlay}>
+        <View
+          style={styles.modalOverlay}
+          onStartShouldSetResponder={() => true}
+          onResponderRelease={() => setMedicationOptionsVisible(false)}
+        >
           <Pressable onPress={() => setMedicationOptionsVisible(false)} />
-          <View style={styles.medicationOptionsModal}>
+          <View
+            style={styles.medicationOptionsModal}
+            onStartShouldSetResponder={() => true}
+            onResponderRelease={event => event.stopPropagation()}
+          >
             <View style={styles.modalHandle} />
             <Pressable style={styles.medicationOption} onPress={editMedication}>
               <Image
@@ -622,9 +651,17 @@ const Logs = () => {
         animationType="fade"
         onRequestClose={() => setDeleteMedicationVisible(false)}
       >
-        <View style={styles.modalOverlay}>
+        <View
+          style={styles.modalOverlay}
+          onStartShouldSetResponder={() => true}
+          onResponderRelease={() => setDeleteMedicationVisible(false)}
+        >
           <Pressable onPress={() => setDeleteMedicationVisible(false)} />
-          <View style={styles.deleteMedicationModal}>
+          <View
+            style={styles.deleteMedicationModal}
+            onStartShouldSetResponder={() => true}
+            onResponderRelease={event => event.stopPropagation()}
+          >
             <View style={styles.modalHandle} />
             <Image
               source={image.deleteAccount}
@@ -659,12 +696,24 @@ const Logs = () => {
         visible={medicationModalVisible}
         transparent
         animationType="slide"
-        onRequestClose={() => setMedicationModalVisible(false)}
+        onRequestClose={() => {
+          Keyboard.dismiss();
+          setMedicationModalVisible(false);
+        }}
       >
-        <View style={styles.modalOverlay}>
-          <Pressable onPress={() => setMedicationModalVisible(false)} />
-
-          <View style={styles.medicationModal}>
+        <View
+          style={styles.modalOverlay}
+          onStartShouldSetResponder={() => true}
+          onResponderRelease={() => {
+            Keyboard.dismiss();
+            setMedicationModalVisible(false);
+          }}
+        >
+          <View
+            style={styles.medicationModal}
+            onStartShouldSetResponder={() => true}
+            onResponderRelease={event => event.stopPropagation()}
+          >
             <View style={styles.modalHandle} />
 
             <View style={styles.titleRow}>
@@ -675,118 +724,127 @@ const Logs = () => {
               </Text>
 
               <Text style={styles.titleTwo}>
-                {isEditingMedication
-                  ? t('logs.medications.add')
-                  : t('logs.medications.medication')}
+                {t('logs.medications.medication')}
               </Text>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <View style={styles.medicationField}>
-                <Text>{t('logs.medications.name')}</Text>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              keyboardVerticalOffset={0}
+            >
+              <ScrollView
+                style={styles.hormoneScroll}
+                contentContainerStyle={styles.hormoneScrollContent}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="on-drag"
+                automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+              >
+                {/* Medication Name */}
+                <View style={styles.medicationField}>
+                  <Text>{t('logs.medications.name')}</Text>
 
-                <TextInput
-                  style={styles.medicationInput}
-                  placeholder="Enter medication name"
-                  placeholderTextColor={colors.textFourth}
-                  value={medicationName}
-                  onChangeText={setMedicationName}
-                />
-              </View>
-
-              <View style={styles.medicationField}>
-                <Text>{t('logs.medications.dosage')}</Text>
-
-                <View style={styles.dosageRow}>
                   <TextInput
-                    style={styles.dosageInput}
-                    placeholder="Enter dosage"
+                    style={styles.medicationInput}
+                    placeholder="Enter medication name"
                     placeholderTextColor={colors.textFourth}
-                    keyboardType="decimal-pad"
-                    value={dosage}
-                    onChangeText={value =>
-                      setDosage(
-                        value
-
-                          .replace(/[^0-9.]/g, '')
-
-                          .replace(/(\..*)\./g, '$1'),
-                      )
-                    }
-                    maxLength={5}
+                    value={medicationName}
+                    onChangeText={setMedicationName}
+                    returnKeyType="next"
                   />
+                </View>
 
-                  <View style={styles.unitContainer}>
-                    {(['mg', 'ml'] as const).map(unit => (
+                {/* Dosage */}
+                <View style={styles.medicationField}>
+                  <Text>{t('logs.medications.dosage')}</Text>
+
+                  <View style={styles.dosageRow}>
+                    <TextInput
+                      style={styles.dosageInput}
+                      placeholder="Enter dosage"
+                      placeholderTextColor={colors.textFourth}
+                      keyboardType="decimal-pad"
+                      value={dosage}
+                      onChangeText={value =>
+                        setDosage(
+                          value
+                            .replace(/[^0-9.]/g, '')
+                            .replace(/(\..*)\./g, '$1'),
+                        )
+                      }
+                      maxLength={5}
+                    />
+
+                    <View style={styles.unitContainer}>
+                      {(['mg', 'ml'] as const).map(unit => (
+                        <Pressable
+                          key={unit}
+                          onPress={() => setDosageUnit(unit)}
+                          style={[
+                            styles.unitButton,
+                            dosageUnit === unit && styles.activeUnitButton,
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.unitTexts,
+                              dosageUnit === unit && styles.activeUnitText,
+                            ]}
+                          >
+                            {unit}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  </View>
+                </View>
+
+                {/* Medication Time */}
+                <View style={styles.medicationField}>
+                  <Text>{t('logs.medications.time')}</Text>
+
+                  <View style={styles.timeContainer}>
+                    {[
+                      t('logs.medications.morning'),
+                      t('logs.medications.night'),
+                      t('logs.medications.afternoon'),
+                      t('logs.medications.evening'),
+                    ].map(time => (
                       <Pressable
-                        key={unit}
-                        onPress={() => setDosageUnit(unit)}
+                        key={time}
+                        onPress={() => setMedicationTime(time)}
                         style={[
-                          styles.unitButton,
-
-                          dosageUnit === unit && styles.activeUnitButton,
+                          styles.timeButton,
+                          medicationTime === time && styles.activeTimeButton,
                         ]}
                       >
                         <Text
                           style={[
-                            styles.unitTexts,
-
-                            dosageUnit === unit && styles.activeUnitText,
+                            styles.timeText,
+                            medicationTime === time && styles.activeTimeText,
                           ]}
                         >
-                          {unit}
+                          {time}
                         </Text>
                       </Pressable>
                     ))}
                   </View>
                 </View>
-              </View>
+              </ScrollView>
+            </KeyboardAvoidingView>
 
-              <View style={styles.medicationField}>
-                <Text>{t('logs.medications.time')}</Text>
-
-                <View style={styles.timeContainer}>
-                  {[
-                    t('logs.medications.morning'),
-
-                    t('logs.medications.night'),
-
-                    t('logs.medications.afternoon'),
-
-                    t('logs.medications.evening'),
-                  ].map(time => (
-                    <Pressable
-                      key={time}
-                      onPress={() => setMedicationTime(time)}
-                      style={[
-                        styles.timeButton,
-
-                        medicationTime === time && styles.activeTimeButton,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.timeText,
-
-                          medicationTime === time && styles.activeTimeText,
-                        ]}
-                      >
-                        {time}
-                      </Text>
-                    </Pressable>
-                  ))}
-                </View>
-              </View>
-
-              <Pressable
-                style={styles.medicationSaveButton}
-                onPress={saveMedication}
-              >
-                <Text style={styles.medicationSaveText}>
-                  {t('community.save')}
-                </Text>
-              </Pressable>
-            </ScrollView>
+            {/* Save Button */}
+            <Pressable
+              style={styles.medicationSaveButton}
+              onPress={() => {
+                Keyboard.dismiss();
+                saveMedication();
+              }}
+            >
+              <Text style={styles.medicationSaveText}>
+                {t('community.save')}
+              </Text>
+            </Pressable>
           </View>
         </View>
       </Modal>
