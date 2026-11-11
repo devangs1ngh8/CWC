@@ -3,4 +3,5 @@ export interface Props {
   options: string[];
   selectedValue: string;
   onSelect: (value: string) => void;
+  placeholder?: string;
 }

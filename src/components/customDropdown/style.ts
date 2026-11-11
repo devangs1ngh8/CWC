@@ -7,7 +7,7 @@ const { height } = Dimensions.get('window');
 export default StyleSheet.create({
   dropdown: {
     borderWidth: 1,
-    borderColor: colors.borderColor,
+    borderColor: colors.border,
     borderRadius: normalize(14),
     paddingHorizontal: normalize(16),
     flexDirection: 'row',
@@ -66,6 +66,12 @@ export default StyleSheet.create({
     marginBottom: normalize(20),
   },
 
+  placeholderText: {
+    color: colors.textSecondary,
+    fontSize: normalize(14),
+    fontFamily: 'Manrope-Medium',
+  },
+
   option: {
     paddingVertical: normalize(12),
     borderRadius: normalize(9),
@@ -87,12 +93,15 @@ export default StyleSheet.create({
 
   selectedOptionText: {
     color: colors.primary,
-    fontWeight: '600',
   },
 
   check: {
     width: normalize(20),
     height: normalize(20),
     borderRadius: normalize(60),
+  },
+
+  backdrop: {
+    backgroundColor: 'red',
   },
 });

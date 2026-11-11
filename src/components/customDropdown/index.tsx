@@ -5,16 +5,28 @@ import styles from './style';
 import { Props } from './@types';
 import { image } from '../../assets';
 
-const CustomDropdown = ({ title, options, selectedValue, onSelect }: Props) => {
+const CustomDropdown = ({
+  title,
+  options,
+  selectedValue,
+  onSelect,
+  placeholder,
+}: Props) => {
   const [visible, setVisible] = useState(false);
+
+  const isSelected = !!selectedValue;
 
   return (
     <>
       <Pressable
-        style={[styles.dropdown, selectedValue && styles.dropdownSelected]}
+        style={[styles.dropdown, isSelected && styles.dropdownSelected]}
         onPress={() => setVisible(true)}
       >
-        <Text style={styles.dropdownText}>{selectedValue}</Text>
+        <Text
+          style={[styles.dropdownText, !isSelected && styles.placeholderText]}
+        >
+          {isSelected ? selectedValue : placeholder || title}
+        </Text>
 
         <Image style={styles.arrow} source={image.arrowDown} />
       </Pressable>
@@ -25,8 +37,16 @@ const CustomDropdown = ({ title, options, selectedValue, onSelect }: Props) => {
         animationType="slide"
         onRequestClose={() => setVisible(false)}
       >
-        <View style={styles.overlay}>
-          <View style={styles.bottomSheet}>
+        <View
+          style={styles.overlay}
+          onStartShouldSetResponder={() => true}
+          onResponderRelease={() => setVisible(false)}
+        >
+          <View
+            style={styles.bottomSheet}
+            onStartShouldSetResponder={() => true}
+            onResponderRelease={event => event.stopPropagation()}
+          >
             <View style={styles.handle} />
 
             <Text style={styles.title}>{title}</Text>
