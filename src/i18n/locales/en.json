@@ -121,14 +121,15 @@
     "step": "STEP 2 OF 3",
     "title": "Your Cycle & Health Details",
     "lactatingStatus": "Lactating Status",
-    "lactatingTitle": "Lactating Status",
+    "lactatingTitle": " Select Lactating Status",
     "contraceptiveStatus": "Contraceptive Status",
-    "contraceptiveTitle": "Contraceptive Status",
+    "contraceptiveTitle": "Select Contraceptive Status",
     "bleedTimeline": "Bleed Timeline",
-    "bleedTitle": "Bleed Timeline",
+    "bleedTitle": "Select Bleed Timeline",
     "lastMenstruationDate": "Last Menstruation Date",
     "datePlaceholder": "Select date",
     "cycleLength": "Cycle Length",
+    "cycleStatus": "Select Cycle Length",
     "options": {
       "yes": "Yes",
       "no": "No",
@@ -200,7 +201,9 @@
     "newPassword": "New Password",
     "confirmPassword": "Confirm Password",
     "passwordWarning": "Password must be 8-15 characters with at least 1 uppercase, 1 lowercase, 1 digit, and 1 special character (@, $, %, &).",
-    "resetPassword": "Reset Password"
+    "resetPassword": "Reset Password",
+    "invalidPass": " Invalid password. Please enter a valid password.",
+    "invalidMatch": "Passwords do not match."
   },
 
   "logs": {
