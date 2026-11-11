@@ -18,29 +18,28 @@ const styles = StyleSheet.create({
   consentRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: normalize(24),
+    // marginTop: normalize(24),
   },
 
   checkbox: {
     width: normalize(20),
     height: normalize(20),
-    borderWidth: 1,
-    borderColor: colors.borderColor,
     borderRadius: normalize(4),
     marginRight: normalize(12),
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderWidth: normalize(1),
+    borderColor: colors.borderColor,
   },
 
   checkboxSelected: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    width: normalize(20),
+    height: normalize(20),
+    borderRadius: normalize(4),
+    marginRight: normalize(12),
   },
 
-  checkmark: {
-    color: colors.textTertiary,
-    fontSize: normalize(16),
-    lineHeight: normalize(18),
+  tickIcon: {
+    width: normalize(20),
+    height: normalize(20),
   },
 
   consentTextRow: {
@@ -70,6 +69,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: normalize(16),
+    gap: normalize(3),
   },
 
   createText: {

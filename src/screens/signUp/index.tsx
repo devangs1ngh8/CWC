@@ -1,10 +1,13 @@
-import { View, Text, Pressable, Keyboard } from 'react-native';
+import { View, Text, Pressable, Keyboard, Image } from 'react-native';
 import React, { useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+
+import { registerUser } from '../../services/auth/auth';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { saveProfileData } from '../../utils/profileStorage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import styles from './style';
 import {
@@ -40,20 +43,49 @@ const SignUp = () => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleRegister = async () => {
+    if (isLoading) return;
+
     const validEmail = validateEmail(email);
     const validPassword = validatePassword(password);
 
     setEmailError(validEmail ? '' : 'Incorrect Email');
     setPasswordError(validPassword ? '' : 'Incorrect Password');
 
-    if (!validEmail || !validPassword) {
-      return;
+    if (!validEmail || !validPassword) return;
+
+    Keyboard.dismiss();
+    setIsLoading(true);
+
+    try {
+      const data = await registerUser({
+        type: 1,
+        email: email.trim(),
+        password,
+      });
+
+      // await saveProfileData({
+      //   email: email.trim(),
+      // });
+
+      await AsyncStorage.setItem('savedEmail', email.trim());
+
+      navigation.navigate(ScreenName.VerifyEmail, {
+        userId: data.userId,
+        email: email.trim(),
+      });
+    } catch (error: any) {
+      console.log('Register Error:', error.response?.data || error);
+
+      const message =
+        error.response?.data?.message || error.message || 'Registration failed';
+
+      setEmailError(message);
+    } finally {
+      setIsLoading(false);
     }
-
-    await saveProfileData({ email: email.trim() });
-
-    navigation.navigate(ScreenName.VerifyEmail);
   };
 
   const isFormValid = email.trim() !== '' && password.trim() !== '' && agreed;
@@ -76,18 +108,18 @@ const SignUp = () => {
         headingPrimaryStyle={styles.primaryTextStyle}
         description={t('signup.subtitle')}
         bottomContent={
-          <View style={{ paddingBottom: insets.bottom }}>
+          <View>
             <PrimaryButton
               title={t('signup.registerButton')}
               onPress={handleRegister}
-              disabled={!isFormValid}
+              disabled={!isFormValid || isLoading}
             />
 
             <View style={styles.createTextRow}>
               <Text style={styles.createText}>
                 {t('signup.alreadyAccount')}
               </Text>
-              <Pressable onPress={() => navigation.navigate('SignUp')}>
+              <Pressable onPress={() => navigation.navigate(ScreenName.Login)}>
                 <Text style={styles.link}>{t('signup.login')}</Text>
               </Pressable>
             </View>
@@ -120,8 +152,10 @@ const SignUp = () => {
         />
 
         <Pressable style={styles.consentRow} onPress={() => setAgreed(!agreed)}>
-          <View style={[styles.checkbox, agreed && styles.checkboxSelected]}>
-            {agreed && <Text style={styles.checkmark}> ✓ </Text>}
+          <View style={agreed ? styles.checkboxSelected : styles.checkbox}>
+            {agreed && (
+              <Image source={image.tickCheckbox} style={styles.tickIcon} />
+            )}
           </View>
           <View style={styles.consentTextRow}>
             <Text style={styles.consentText}>{t('signup.agree')}</Text>
