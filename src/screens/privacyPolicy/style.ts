@@ -9,7 +9,7 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    height: SCREEN_HEIGHT * 0.17,
+    height: SCREEN_HEIGHT * 0.15,
   },
 
   headerTitle: {
