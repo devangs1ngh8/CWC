@@ -51,6 +51,7 @@ const LanguagePreferences = () => {
       <ScreenHeader
         title={t('languagePreferences.title')}
         backgroundImage={image.homeBG}
+        style={styles.header}
       />
 
       <View style={styles.body}>
@@ -76,9 +77,7 @@ const LanguagePreferences = () => {
               );
             })}
           </View>
-        ) : (
-          <ActivityIndicator color={colors.primary} />
-        )}
+        ) : null}
       </View>
     </View>
   );
