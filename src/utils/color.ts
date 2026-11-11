@@ -13,6 +13,11 @@ const colors = {
   backgroundDullColor: '#0008',
   backgroundBG7: '#743161',
   backgroundBG8: '#24B9E8',
+  backgroundBG9: '#F2F4F7',
+  backgroundBG10: '#E9FBF2',
+  backgroundBG11: '#F5F7FA',
+  backgroundBG12: '#FCF7FC',
+  backgroundBG13: '#F3FAFA',
 
   buttonBG: '#FAF5F9',
   buttonBG2: '#faf7fa',
@@ -24,6 +29,7 @@ const colors = {
   disableBorder: '#E8E3E8',
   disableText: '#77717A',
 
+  textBlack: '#18181B',
   textPrimary: '#2C393F',
   textSecondary: '#464F57',
   textTertiary: '#FFFFFF',
@@ -33,6 +39,15 @@ const colors = {
   textSeven: '#7B7B7B',
   text8: '#A3A7AB',
   text9: '#EFE7ED',
+  exploreText: '#626262',
+  text10: '#6A747E',
+  text11: '#3A4F5F',
+  text12: '#98A2B3',
+
+  promoText: '#17B26A',
+  promoBG: '#E9FFF2',
+
+  subsValidBG: '#08B8A9',
 
   border: '#EEE7ED',
   borderColor: '#D1D1D6',
@@ -42,6 +57,9 @@ const colors = {
   border3: '#DFF5FF',
   border4: '#B58BAE',
   border5: '#f2e5ef',
+  border6: '#F0F1F2',
+  border7: '#E5CDE2',
+  border8: '#B5EAE6',
 
   shadowColor: '#000000',
 
