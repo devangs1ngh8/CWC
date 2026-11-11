@@ -7,10 +7,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: normalize(20),
-    paddingBottom: normalize(20),
+    // paddingBottom: normalize(20),
     backgroundColor: colors.background,
     borderTopLeftRadius: normalize(30),
     borderTopRightRadius: normalize(30),
+  },
+
+  keyboardContainer: {
+    flex: 1,
+    minHeight: 0,
+  },
+
+  scroll: {
+    flex: 1,
+  },
+
+  scrollContent: {
+    flexGrow: 1,
+    // paddingBottom: normalize(20),
   },
 
   dragHandle: {
@@ -20,7 +34,7 @@ const styles = StyleSheet.create({
     borderRadius: normalize(30),
     alignSelf: 'center',
     marginTop: normalize(12),
-    marginBottom: normalize(31),
+    marginBottom: normalize(23),
   },
 
   description: {
@@ -32,7 +46,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope-Medium',
     marginBottom: normalize(32),
     marginHorizontal: normalize(10),
-    fontWeight: 400,
   },
 
   titleContentStyle: {

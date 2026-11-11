@@ -1,16 +1,13 @@
 import React from 'react';
+import { KeyboardAvoidingView, ScrollView, Text, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
 import styles from './style';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
-
 import { type Props } from './@types';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { normalize, SCREEN_HEIGHT } from '../../utils/metrics';
 
-const bodySection = ({
+const BodySection = ({
   description,
   children,
   root,
@@ -24,12 +21,12 @@ const bodySection = ({
   showDragHandle = true,
   titleContentStyle,
 }: Props) => {
+  const insets = useSafeAreaInsets();
+
+  const bottomSpacing =
+    SCREEN_HEIGHT <= 700 ? insets.bottom + normalize(12) : insets.bottom;
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, root]}
-      behavior="padding"
-      keyboardVerticalOffset={0}
-    >
+    <View style={[styles.container, root]}>
       <View>
         {topContent ? (
           topContent
@@ -60,13 +57,17 @@ const bodySection = ({
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
-        {children}
-      </ScrollView>
+      <ScrollView contentContainerStyle={{ flex: 1 }}>
+        <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+          {children}
+        </KeyboardAvoidingView>
 
-      {bottomContent && bottomContent}
-    </KeyboardAvoidingView>
+        {bottomContent && (
+          <View style={{ paddingBottom: bottomSpacing }}>{bottomContent}</View>
+        )}
+      </ScrollView>
+    </View>
   );
 };
 
-export default bodySection;
+export default BodySection;
