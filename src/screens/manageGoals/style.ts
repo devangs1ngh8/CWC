@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { normalize } from '../../utils/metrics';
+import { normalize, SCREEN_HEIGHT } from '../../utils/metrics';
 import colors from '../../utils/color';
 
 const styles = StyleSheet.create({
@@ -14,6 +14,10 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: normalize(35),
     borderTopRightRadius: normalize(35),
     paddingHorizontal: normalize(24),
+  },
+
+  header: {
+    height: SCREEN_HEIGHT * 0.15,
   },
 
   scrollContent: {

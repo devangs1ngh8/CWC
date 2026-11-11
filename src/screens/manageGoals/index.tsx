@@ -9,26 +9,39 @@ import colors from '../../utils/color';
 import styles from './style';
 import { goalsData } from './goalsData';
 
+type GoalsState = {
+  periodPredictions: boolean;
+  periodNotifications: boolean;
+  fertilityEstimation: boolean;
+  fertilityNotifications: boolean;
+};
+
+const defaultGoals: GoalsState = {
+  periodPredictions: true,
+  periodNotifications: false,
+  fertilityEstimation: false,
+  fertilityNotifications: false,
+};
+
 const ManageGoals = () => {
   const { t } = useTranslation();
 
-  const [goals, setGoals] = useState({
-    periodPredictions: true,
-    periodNotifications: false,
-    fertilityEstimation: false,
-    fertilityNotifications: false,
-  });
-
+  const [goals, setGoals] = useState<GoalsState>(defaultGoals);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load saved goals when screen opens
+  // Load saved goals
   useEffect(() => {
     const loadGoals = async () => {
       try {
         const savedGoals = await AsyncStorage.getItem('manageGoals');
 
         if (savedGoals) {
-          setGoals(JSON.parse(savedGoals));
+          const parsedGoals = JSON.parse(savedGoals);
+
+          setGoals({
+            ...defaultGoals,
+            ...parsedGoals,
+          });
         }
       } catch (error) {
         console.log('Error loading goals:', error);
@@ -40,57 +53,74 @@ const ManageGoals = () => {
     loadGoals();
   }, []);
 
-  // Save goals whenever their values change
+  // Save goals whenever they change
   useEffect(() => {
-    if (isLoaded) {
-      AsyncStorage.setItem('manageGoals', JSON.stringify(goals)).catch(error =>
-        console.log('Error saving goals:', error),
-      );
-    }
+    if (!isLoaded) return;
+
+    const saveGoals = async () => {
+      try {
+        await AsyncStorage.setItem('manageGoals', JSON.stringify(goals));
+      } catch (error) {
+        console.log('Error saving goals:', error);
+      }
+    };
+
+    saveGoals();
   }, [goals, isLoaded]);
+
+  const handleGoalChange = (key: keyof GoalsState, value: boolean) => {
+    setGoals(previous => ({
+      ...previous,
+      [key]: value,
+    }));
+  };
 
   return (
     <View style={styles.container}>
       <ScreenHeader
         title={t('manageGoals.title')}
         backgroundImage={image.homeBG}
+        style={styles.header}
       />
 
       <View style={styles.body}>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
+          bounces={false}
         >
           <View style={styles.goalsCard}>
-            {goalsData.map((goal, index) => (
-              <View
-                key={goal.key}
-                style={[
-                  styles.goalRow,
-                  index !== goalsData.length - 1 && styles.goalDivider,
-                ]}
-              >
-                <Image style={styles.goalIcon} source={goal.icon} />
+            {goalsData.map((goal, index) => {
+              const goalKey = goal.key as keyof GoalsState;
 
-                <Text style={styles.goalTitle}>{t(goal.titleKey)}</Text>
+              return (
+                <View
+                  key={goal.key}
+                  style={[
+                    styles.goalRow,
+                    index !== goalsData.length - 1 && styles.goalDivider,
+                  ]}
+                >
+                  <Image style={styles.goalIcon} source={goal.icon} />
 
-                <Switch
-                  value={goals[goal.key]}
-                  disabled={goal.disabled}
-                  onValueChange={value =>
-                    setGoals(previous => ({
-                      ...previous,
-                      [goal.key]: value,
-                    }))
-                  }
-                  trackColor={{
-                    false: colors.borderColor,
-                    true: goal.disabled ? colors.buttonDisable : colors.primary,
-                  }}
-                  ios_backgroundColor={colors.borderColor}
-                />
-              </View>
-            ))}
+                  <Text style={styles.goalTitle}>{t(goal.titleKey)}</Text>
+
+                  <Switch
+                    style={{ transform: [{ scaleX: 0.67 }, { scaleY: 0.67 }] }}
+                    value={goals[goalKey]}
+                    disabled={goal.disabled}
+                    onValueChange={value => handleGoalChange(goalKey, value)}
+                    trackColor={{
+                      false: colors.borderColor,
+                      true: goal.disabled
+                        ? colors.buttonDisable
+                        : colors.primary,
+                    }}
+                    ios_backgroundColor={colors.borderColor}
+                  />
+                </View>
+              );
+            })}
           </View>
         </ScrollView>
       </View>
