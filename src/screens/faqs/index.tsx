@@ -21,6 +21,7 @@ const FAQs = () => {
       <ScreenHeader
         title={t('staticContent.faqs')}
         backgroundImage={image.homeBG}
+        style={styles.header}
       />
 
       <View style={styles.body}>
