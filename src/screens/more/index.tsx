@@ -6,10 +6,11 @@ import { useTranslation } from 'react-i18next';
 import styles from './style';
 import { image } from '../../assets';
 import { moreData } from './moreData';
-import { HeaderSection } from '../../components';
+import { HeaderSection, ScreenHeader } from '../../components';
 import { ScreenName } from '../../navigation/screenName';
 import { useNavigation } from '@react-navigation/native';
 import { BottomSheetModal } from '../../components';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const More = () => {
   const { t } = useTranslation();
@@ -17,19 +18,26 @@ const More = () => {
 
   const [profileName, setProfileName] = useState('Your Name');
   const [profileEmail, setProfileEmail] = useState('your.email@example.com');
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
 
   const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
       const profile = await getProfileData();
+      const savedPhoto = await AsyncStorage.getItem('profilePhotoUri');
 
-      if (profile.name) setProfileName(profile.name);
-      if (profile.email) setProfileEmail(profile.email);
+      setProfileName(profile.name || 'Your Name');
+      setProfileEmail(profile.email || 'your.email@example.com');
+      setProfilePhoto(savedPhoto);
     };
 
+    const unsubscribe = navigation.addListener('focus', loadProfile);
+
     loadProfile();
-  }, []);
+
+    return unsubscribe;
+  }, [navigation]);
 
   const handleLogout = () => {
     setIsLogoutModalVisible(false);
@@ -42,16 +50,18 @@ const More = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <HeaderSection backgroundImage={image.homeBG} />
-        <Text style={styles.version}>v1.2.0</Text>
+      <ScreenHeader
+        backgroundImage={image.homeBG}
+        style={styles.header}
+        showBackButton={false}
+      />
+      <Text style={styles.version}>v1.2.0</Text>
+      {/* </View> */}
 
-        <Image
-          source={image.defaultProfile}
-          style={styles.profileImage}
-          resizeMode="cover"
-        />
-      </View>
+      <Image
+        source={profilePhoto ? { uri: profilePhoto } : image.defaultProfile}
+        style={styles.profileImage}
+      />
 
       <View style={styles.profileSection}>
         <Text style={styles.profileName}>{profileName}</Text>

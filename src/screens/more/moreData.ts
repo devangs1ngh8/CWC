@@ -6,6 +6,7 @@ export const moreData = [
     id: '1',
     titleKey: 'more.mySubscription',
     icon: image.mySubscription,
+    screenName: ScreenName.MySubscription,
   },
   {
     id: '2',

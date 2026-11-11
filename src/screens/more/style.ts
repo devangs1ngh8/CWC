@@ -6,7 +6,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.backgroundBG2,
-    borderTopLeftRadius: normalize(50),
   },
 
   scrollContent: {
@@ -23,24 +22,24 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    height: SCREEN_HEIGHT * 0.19,
+    height: SCREEN_HEIGHT * 0.15,
   },
 
   profileImage: {
     position: 'absolute',
-    width: SCREEN_WIDTH * 0.25,
-    height: SCREEN_HEIGHT * 0.11,
+    width: SCREEN_WIDTH * 0.27,
+    height: SCREEN_HEIGHT * 0.125,
     borderRadius: normalize(22),
     borderWidth: normalize(2),
     borderColor: colors.textTertiary,
-    top: SCREEN_HEIGHT * 0.135,
+    top: SCREEN_HEIGHT * 0.12,
     alignSelf: 'center',
   },
 
   profileSection: {
     alignItems: 'center',
     paddingHorizontal: normalize(24),
-    paddingTop: normalize(55),
+    paddingTop: SCREEN_HEIGHT * 0.1,
   },
 
   profileName: {
