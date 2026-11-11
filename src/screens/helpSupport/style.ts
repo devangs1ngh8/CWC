@@ -19,6 +19,10 @@ const styles = StyleSheet.create({
     paddingBottom: normalize(12),
   },
 
+  header: {
+    height: SCREEN_HEIGHT * 0.15,
+  },
+
   scrollContent: {
     paddingBottom: normalize(20),
   },

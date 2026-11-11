@@ -6,7 +6,6 @@ import {
   Pressable,
   TextInput,
   ScrollView,
-  Alert,
   Keyboard,
   KeyboardAvoidingView,
 } from 'react-native';
@@ -63,6 +62,7 @@ const HelpSupport = () => {
       <ScreenHeader
         title={t('helpSupport.title')}
         backgroundImage={image.homeBG}
+        style={styles.header}
       />
 
       <KeyboardAvoidingView
