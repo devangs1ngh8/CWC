@@ -32,6 +32,12 @@ import FAQs from '../screens/faqs';
 import AboutUs from '../screens/aboutUs';
 import HelpSupport from '../screens/helpSupport';
 import Reminders from '../screens/reminders';
+import Subscription from '../screens/subscription';
+import SubscriptionPlan from '../screens/subscriptionPlan';
+import PromoCode from '../screens/promoCode';
+import PromoApplied from '../screens/promoApplied';
+import SuccessSubscription from '../screens/successSubscription';
+import MySubscription from '../screens/mySubscription';
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -63,6 +69,12 @@ export type RootStackParamList = {
   AboutUs: undefined;
   HelpSupport: undefined;
   Reminders: undefined;
+  Subscription: undefined;
+  SubscriptionPlan: undefined;
+  PromoCode: undefined;
+  PromoApplied: undefined;
+  SuccessSubscription: undefined;
+  MySubscription: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -144,6 +156,21 @@ const RootStackNavigation = () => {
       <Stack.Screen name={ScreenName.AboutUs} component={AboutUs} />
       <Stack.Screen name={ScreenName.HelpSupport} component={HelpSupport} />
       <Stack.Screen name={ScreenName.Reminders} component={Reminders} />
+      <Stack.Screen name={ScreenName.Subscription} component={Subscription} />
+      <Stack.Screen
+        name={ScreenName.SubscriptionPlan}
+        component={SubscriptionPlan}
+      />
+      <Stack.Screen name={ScreenName.PromoCode} component={PromoCode} />
+      <Stack.Screen name={ScreenName.PromoApplied} component={PromoApplied} />
+      <Stack.Screen
+        name={ScreenName.SuccessSubscription}
+        component={SuccessSubscription}
+      />
+      <Stack.Screen
+        name={ScreenName.MySubscription}
+        component={MySubscription}
+      />
     </Stack.Navigator>
   );
 };

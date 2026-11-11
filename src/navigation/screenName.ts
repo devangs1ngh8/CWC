@@ -28,4 +28,10 @@ export const ScreenName = {
   AboutUs: 'AboutUs',
   HelpSupport: 'HelpSupport',
   Reminders: 'Reminders',
+  Subscription: 'Subscription',
+  SubscriptionPlan: 'SubscriptionPlan',
+  PromoCode: 'PromoCode',
+  PromoApplied: 'PromoApplied',
+  SuccessSubscription: 'SuccessSubscription',
+  MySubscription: 'MySubscription',
 } as const;

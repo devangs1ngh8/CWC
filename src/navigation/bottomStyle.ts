@@ -7,7 +7,7 @@ export const inactiveColor = '#A6A6A6';
 
 const styles = StyleSheet.create({
   tabBar: {
-    height: SCREEN_HEIGHT * 0.12,
+    height: SCREEN_HEIGHT * 0.1,
     backgroundColor: colors.textTertiary,
     shadowOpacity: 0.3,
     shadowColor: colors.border,
