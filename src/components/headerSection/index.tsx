@@ -21,7 +21,10 @@ const HeaderSection = ({
   return (
     <View style={[styles.container, style]}>
       {backgroundImage && (
-        <Image source={backgroundImage} style={backgroundImageStyle} />
+        <Image
+          source={backgroundImage}
+          style={[styles.headerImg, backgroundImageStyle]}
+        />
       )}
 
       {logo && <Image source={logo} style={[styles.logo, logoStyle]} />}
@@ -30,11 +33,10 @@ const HeaderSection = ({
         <View style={styles.titleRow}>
           {showBackButton && (
             <Pressable
-              style={styles.backButton}
               onPress={() => navigation.goBack()}
-              hitSlop={10}
+              style={styles.backButtonContainer}
             >
-              <Image source={image.goBack} />
+              <Image source={image.goBack} style={styles.backButton} />
             </Pressable>
           )}
 

@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import colors from '../../utils/color';
-import { normalize } from '../../utils/metrics';
+import { normalize, SCREEN_HEIGHT } from '../../utils/metrics';
 
 const styles = StyleSheet.create({
   container: {
@@ -13,9 +13,15 @@ const styles = StyleSheet.create({
     bottom: normalize(32),
   },
 
+  headerImg: {
+    top: normalize(SCREEN_HEIGHT <= 700 ? 20 : 35),
+    width: '100%',
+    height: '100%',
+  },
+
   titleRow: {
     position: 'absolute',
-    top: normalize(80),
+    top: SCREEN_HEIGHT * 0.08,
     left: normalize(24),
     right: normalize(24),
     flexDirection: 'row',
@@ -25,11 +31,13 @@ const styles = StyleSheet.create({
   backButton: {
     width: normalize(40),
     height: normalize(40),
-    borderColor: colors.textTertiary,
-    borderRadius: normalize(10),
-    alignItems: 'center',
+  },
+
+  backButtonContainer: {
+    width: normalize(40),
+    height: normalize(40),
     justifyContent: 'center',
-    marginRight: normalize(26),
+    alignItems: 'center',
   },
 
   title: {
