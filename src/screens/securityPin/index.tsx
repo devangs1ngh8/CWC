@@ -65,22 +65,17 @@ const SecurityPin = () => {
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTimer(prev => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
+    if (timer === 0) return;
 
-        return prev - 1;
-      });
+    const interval = setInterval(() => {
+      setTimer(prev => Math.max(prev - 1, 0));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [timer]);
 
   const handleResend = () => {
-    navigation.navigate('Hey');
+    setTimer(30);
   };
 
   return (
@@ -98,9 +93,7 @@ const SecurityPin = () => {
         headingSecondaryStyle={styles.secondaryTextStyle}
         description={t('securityPin.subtitle')}
         bottomContent={
-          <View
-            style={[styles.bottomContainer, { paddingBottom: insets.bottom }]}
-          >
+          <View style={styles.bottomContainer}>
             <PrimaryButton
               title={t('securityPin.verifyCode')}
               onPress={handleVerify}
