@@ -62,19 +62,16 @@ const styles = StyleSheet.create({
   resendText: {
     fontSize: normalize(14),
     fontFamily: 'Manrope-Medium',
-    fontWeight: 500,
     color: colors.textSecondary,
   },
 
   resendTime: {
     fontSize: normalize(14),
     fontFamily: 'Manrope-Medium',
-    fontWeight: 700,
   },
 
   resendButton: {
     color: colors.primary,
-    fontWeight: 'bold',
     fontSize: 14,
   },
 });

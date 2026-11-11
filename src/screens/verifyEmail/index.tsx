@@ -1,7 +1,7 @@
 import { View, Text, TextInput, Pressable } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './style';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { BodySection, HeaderSection, PrimaryButton } from '../../components';
 import { image } from '../../assets';
 import { useTranslation } from 'react-i18next';
@@ -10,25 +10,60 @@ import { validateOtp } from '../../utils/validations';
 import colors from '../../utils/color';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScreenName } from '../../navigation/screenName';
+import { verifyOtp, resendOtp } from '../../services/auth/auth';
 
 const SecurityPin = () => {
   const navigation = useNavigation<any>();
+
+  const route = useRoute<any>();
+  const { userId, email } = route.params || {};
+
   const { t } = useTranslation();
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+
   const insets = useSafeAreaInsets();
 
   const [timer, setTimer] = useState(30);
 
   const inputRefs = useRef<any[]>([]);
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     if (otp.length !== 6) {
       setError(t('otp.otpError'));
       return;
     }
-    navigation.navigate(ScreenName.PersonalInformation);
+
+    if (!userId) {
+      setError('User ID is missing. Please try signing up again.');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      await verifyOtp({
+        type: 1,
+        otp,
+        userId,
+      });
+
+      navigation.navigate(ScreenName.PersonalInformation);
+    } catch (error: any) {
+      console.log('Verify OTP Error:', error.response?.data || error);
+
+      setError(
+        error.response?.data?.message ||
+          error.message ||
+          'Invalid OTP. Please try again.',
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleOtpChange = (value: string, index: number) => {
@@ -65,22 +100,38 @@ const SecurityPin = () => {
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTimer(prev => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
+    if (timer === 0) return;
 
-        return prev - 1;
-      });
+    const interval = setInterval(() => {
+      setTimer(prev => Math.max(prev - 1, 0));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [timer]);
 
-  const handleResend = () => {
-    navigation.navigate('Hey');
+  const handleResend = async () => {
+    if (!userId || isResending) return;
+
+    setIsResending(true);
+
+    try {
+      await resendOtp(userId);
+
+      setOtp('');
+      setError('');
+      setTimer(30);
+      inputRefs.current[0]?.focus();
+    } catch (error: any) {
+      console.log('Resend OTP Error:', error.response?.data || error);
+
+      setError(
+        error.response?.data?.message ||
+          error.message ||
+          'Unable to resend OTP. Please try again.',
+      );
+    } finally {
+      setIsResending(false);
+    }
   };
 
   return (
@@ -98,13 +149,11 @@ const SecurityPin = () => {
         headingSecondaryStyle={styles.secondaryTextStyle}
         description={t('verifyEmail.subtitle')}
         bottomContent={
-          <View
-            style={[styles.bottomContainer, { paddingBottom: insets.bottom }]}
-          >
+          <View style={styles.bottomContainer}>
             <PrimaryButton
               title={t('verifyEmail.confirmCode')}
               onPress={handleVerify}
-              disabled={otp.length !== 6}
+              disabled={otp.length !== 6 || isLoading}
             />
           </View>
         }
@@ -123,7 +172,7 @@ const SecurityPin = () => {
                   activeIndex === index && styles.activeOtpBox,
                 ]}
                 value={otp[index] || ''}
-                maxLength={26}
+                maxLength={2}
                 editable={true}
                 selectionColor={colors.primary}
                 onFocus={() => setActiveIndex(index)}
@@ -149,8 +198,10 @@ const SecurityPin = () => {
               00:{String(timer).padStart(2, '0')}
             </Text>
           ) : (
-            <Pressable onPress={handleResend}>
-              <Text style={styles.resendButton}>Resend OTP</Text>
+            <Pressable onPress={handleResend} disabled={isResending}>
+              <Text style={styles.resendButton}>
+                {isResending ? 'Sending...' : 'Resend OTP'}
+              </Text>
             </Pressable>
           )}
         </View>

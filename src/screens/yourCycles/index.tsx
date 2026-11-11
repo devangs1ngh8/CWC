@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 
 import { saveProfileData } from '../../utils/profileStorage';
 
 import {
   HeaderSection,
-  BodySection,
+  StepBody,
   PrimaryButton,
   DateInput,
   CustomDropdown,
@@ -23,30 +23,40 @@ import {
 import { image } from '../../assets';
 import styles from './style';
 import { validateCyclesState } from '../../utils/validations';
-import { useNavigation } from '@react-navigation/native';
 import { ScreenName } from '../../navigation/screenName';
 
 const YourCycles = () => {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
 
   const [hasInteracted, setHasInteracted] = useState(false);
   const [hasAttemptedNext, setHasAttemptedNext] = useState(false);
 
-  const [lactating, setLactating] = useState('Yes');
-  const [contraceptive, setContraceptive] = useState('None');
-  const [bleedTimeline, setBleedTimeline] = useState('Less than 3 days');
+  const [lactating, setLactating] = useState('');
+  const [contraceptive, setContraceptive] = useState('');
+  const [bleedTimeline, setBleedTimeline] = useState('');
+
   const [lastMenstruationDate, setLastMenstruationDate] = useState<Date | null>(
     null,
   );
-  const [cycleLength, setCycleLength] = useState('24');
 
-  const cycleOptions = Array.from({ length: 23 }, (_, index) =>
-    String(index + 18),
+  const [cycleLength, setCycleLength] = useState('');
+
+  const areAllFieldsFilled = validateCyclesState(
+    lactating,
+    contraceptive,
+    bleedTimeline,
+    lastMenstruationDate,
+    cycleLength,
   );
 
+  const isNextDisabled = hasAttemptedNext
+    ? !areAllFieldsFilled
+    : !hasInteracted;
+
   const handleNext = async () => {
+    setHasAttemptedNext(true);
+
     if (!areAllFieldsFilled) {
       return;
     }
@@ -62,18 +72,6 @@ const YourCycles = () => {
     navigation.navigate(ScreenName.CatholicCommunity);
   };
 
-  const areAllFieldsFilled = validateCyclesState(
-    lactating,
-    contraceptive,
-    bleedTimeline,
-    lastMenstruationDate,
-    cycleLength,
-  );
-
-  const isNextDisabled = hasAttemptedNext
-    ? !areAllFieldsFilled
-    : !hasInteracted;
-
   return (
     <View style={styles.container}>
       <HeaderSection
@@ -83,16 +81,15 @@ const YourCycles = () => {
         showBackButton
       />
 
-      <BodySection
+      <StepBody
+        root={styles.body}
         titlePrimary={t('cycles.step')}
         titleSecondary={t('cycles.title')}
         headingPrimaryStyle={styles.stepTitle}
         headingSecondaryStyle={styles.screenTitle}
         titleContentStyle={styles.titleContent}
         bottomContent={
-          <View
-            style={[styles.bottomContent, { paddingBottom: insets.bottom }]}
-          >
+          <View style={styles.bottomContent}>
             <PrimaryButton
               title={t('common.next')}
               onPress={handleNext}
@@ -105,11 +102,12 @@ const YourCycles = () => {
 
         <CustomDropdown
           title={t('cycles.lactatingTitle')}
+          placeholder={t('cycles.lactatingTitle')}
           options={lactatingOptions.map(option => t(option))}
           selectedValue={lactating}
           onSelect={value => {
             setLactating(value);
-            setHasAttemptedNext(true);
+            setHasInteracted(true);
           }}
         />
 
@@ -118,11 +116,12 @@ const YourCycles = () => {
         <View style={contraceptive && styles.selectedBorder}>
           <CustomDropdown
             title={t('cycles.contraceptiveTitle')}
+            placeholder={t('cycles.contraceptiveStatus')}
             options={contraceptiveOptions.map(option => t(option))}
             selectedValue={contraceptive}
             onSelect={value => {
               setContraceptive(value);
-              setHasAttemptedNext(true);
+              setHasInteracted(true);
             }}
           />
         </View>
@@ -132,11 +131,12 @@ const YourCycles = () => {
         <View style={bleedTimeline && styles.selectedBorder}>
           <CustomDropdown
             title={t('cycles.bleedTitle')}
+            placeholder={t('cycles.bleedTitle')}
             options={bleedTimelineOptions.map(option => t(option))}
             selectedValue={bleedTimeline}
             onSelect={value => {
               setBleedTimeline(value);
-              setHasAttemptedNext(true);
+              setHasInteracted(true);
             }}
           />
         </View>
@@ -147,7 +147,7 @@ const YourCycles = () => {
           value={lastMenstruationDate}
           onChange={date => {
             setLastMenstruationDate(date);
-            setHasAttemptedNext(true);
+            setHasInteracted(true);
           }}
           placeholder={t('cycles.datePlaceholder')}
         />
@@ -158,18 +158,19 @@ const YourCycles = () => {
           <Image source={image.informationCircle} style={styles.infoIcon} />
         </View>
 
-        <View style={bleedTimeline && styles.selectedBorder}>
+        <View style={cycleLength && styles.selectedBorder}>
           <CustomDropdown
             title={t('cycles.cycleLength')}
+            placeholder={t('cycles.cycleStatus')}
             options={cycleLengthOptions}
             selectedValue={cycleLength}
             onSelect={value => {
               setCycleLength(value);
-              setHasAttemptedNext(true);
+              setHasInteracted(true);
             }}
           />
         </View>
-      </BodySection>
+      </StepBody>
     </View>
   );
 };
