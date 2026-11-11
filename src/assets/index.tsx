@@ -44,6 +44,9 @@ export const image = {
   playButton: require(`${Path}/playButton.png`),
   deleteMedication: require(`${Path}/deleteMedication.png`),
   editMedication: require(`${Path}/editMedication.png`),
+  voucherTick: require(`${Path}/voucherTick.png`),
+  promoApplied: require(`${Path}/promoApplied.png`),
+  plusIcon: require(`${Path}/plusIcon.png`),
 
   // cycleBasics3: require(`${Path}/cycleBasics3.png`),
   // practicalGuidance2: require(`${Path}/practicalGuidance2.png`),
@@ -89,6 +92,12 @@ export const image = {
   addButton: require(`${Path}/addButton.png`),
   deleteReminder: require(`${Path}/deleteReminder.png`),
   dot: require(`${Path}/dot.png`),
+  tickCheckbox: require(`${Path}/tickCheckbox.png`),
+  voucher: require(`${Path}/voucher.png`),
+  giftCard: require(`${Path}/giftCard.png`),
+  deletePromo: require(`${Path}/deletePromo.png`),
+  subscriptionWoman: require(`${Path}/subscriptionWoman.png`),
+  backgroundIMG: require(`${Path}/backgroundIMG.png`),
 };
 
 export const logsImages = {

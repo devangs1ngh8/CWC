@@ -13,3 +13,4 @@ export { default as ErrorMessage } from './errorMessage';
 export { default as CustomDropdown } from './customDropdown';
 export { default as BottomSheetModal } from './bottomSheetModal';
 export { default as ScreenHeader } from './screenHeader';
+export { default as StepBody } from './stepBody';
