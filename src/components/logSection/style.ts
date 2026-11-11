@@ -5,9 +5,8 @@ const styles = StyleSheet.create({
   section: {
     borderTopLeftRadius: normalize(35),
     borderTopRightRadius: normalize(35),
-    // paddingTop: normalize(16),
     marginBottom: normalize(40),
-    paddingHorizontal: normalize(10),
+    paddingHorizontal: normalize(24),
   },
 
   heading: {
@@ -21,8 +20,7 @@ const styles = StyleSheet.create({
   options: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: normalize(10),
-    paddingHorizontal: normalize(24),
+    gap: normalize(11),
   },
 });
 

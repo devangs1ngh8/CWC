@@ -4,8 +4,6 @@ import colors from '../../utils/color';
 
 const styles = StyleSheet.create({
   card: {
-    width: normalize(80),
-    // height: normalize(91),
     borderRadius: normalize(15),
     borderWidth: normalize(1),
     borderColor: colors.border,
@@ -17,8 +15,8 @@ const styles = StyleSheet.create({
   },
 
   image: {
-    width: normalize(64),
-    height: normalize(43),
+    width: normalize(68),
+    height: normalize(50),
     borderRadius: normalize(8),
   },
 
