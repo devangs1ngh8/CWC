@@ -4,10 +4,9 @@ import { useNavigation } from '@react-navigation/native';
 
 import { registerUser } from '../../services/auth/auth';
 
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { setEmail as setReduxEmail } from '../../redux/auth/authSlice';
 
-import { saveProfileData } from '../../utils/profileStorage';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAppDispatch, useAppSelector } from '../../redux/auth/hooks';
 
 import styles from './style';
 import {
@@ -31,10 +30,9 @@ import { ScreenName } from '../../navigation/screenName';
 const SignUp = () => {
   const navigation = useNavigation<any>();
   const { t, i18n } = useTranslation();
+  const dispatch = useAppDispatch();
 
   const inputRef = useRef<any>(null);
-
-  const insets = useSafeAreaInsets();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -44,6 +42,10 @@ const SignUp = () => {
   const [passwordError, setPasswordError] = useState('');
 
   const [isLoading, setIsLoading] = useState(false);
+
+  const savedEmail = useAppSelector(state => state.auth.email);
+
+  console.log('Redux Email:', savedEmail);
 
   const handleRegister = async () => {
     if (isLoading) return;
@@ -66,11 +68,8 @@ const SignUp = () => {
         password,
       });
 
-      // await saveProfileData({
-      //   email: email.trim(),
-      // });
-
-      await AsyncStorage.setItem('savedEmail', email.trim());
+      dispatch(setReduxEmail(email.trim()));
+      console.log('Signup Email Dispatched:', email.trim());
 
       navigation.navigate(ScreenName.VerifyEmail, {
         userId: data.userId,
