@@ -1,10 +1,8 @@
 import { useDispatch, useSelector } from 'react-redux';
-import type { Dispatch } from 'redux';
+import type { TypedUseSelectorHook } from 'react-redux';
 
-import type { AuthState } from './types/authTypes';
-import type { AuthAction } from './actions/authActions';
+import type { RootState, AppDispatch } from './store';
 
-export const useAppDispatch = () => useDispatch<Dispatch<AuthAction>>();
+export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
 
-export const useAppSelector = <T>(selector: (state: AuthState) => T): T =>
-  useSelector(selector);
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
