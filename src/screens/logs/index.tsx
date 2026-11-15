@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 import {
   View,
@@ -36,10 +36,17 @@ import colors from '../../utils/color';
 import { validateTemperature } from '../../utils/validations';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useAppDispatch, useAppSelector } from '../../redux/auth/hooks';
+import { getLogs } from '../../services/logs/logs';
+import { setLogsForDate } from '../../redux/logs/logsSlice';
+import { normalize, SCREEN_WIDTH } from '../../utils/metrics';
+
 const Logs = () => {
   const { t } = useTranslation();
 
   const sections = getLogsSections(t);
+
+  const calendarRef = useRef<ScrollView>(null);
 
   const today = new Date();
 
@@ -65,7 +72,9 @@ const Logs = () => {
 
   const [selectedDate, setSelectedDate] = useState(new Date(today));
 
-  const [selected, setSelected] = useState<Record<string, string>>({});
+  const [selectedByDate, setSelectedByDate] = useState<
+    Record<string, Record<string, string>>
+  >({});
 
   const [temperature, setTemperature] = useState('');
 
@@ -84,6 +93,41 @@ const Logs = () => {
 
     progesterone: '',
   });
+
+  const dispatch = useAppDispatch();
+
+  const logDate = [
+    selectedDate.getFullYear(),
+    String(selectedDate.getMonth() + 1).padStart(2, '0'),
+    String(selectedDate.getDate()).padStart(2, '0'),
+  ].join('-');
+
+  const selected = selectedByDate[logDate] || {};
+
+  const logs = useAppSelector(state => state.logs.logsByDate[logDate]);
+
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const response = await getLogs(logDate);
+
+        console.log('GET LOGS RESPONSE:', response);
+
+        dispatch(
+          setLogsForDate({
+            date: logDate,
+            data: response,
+          }),
+        );
+      } catch (error: any) {
+        console.log('STATUS:', error.response?.status);
+        console.log('ERROR DATA:', error.response?.data);
+        console.log('REQUEST URL:', error.config?.url);
+      }
+    };
+
+    fetchLogs();
+  }, [logDate, dispatch]);
 
   const [medicationName, setMedicationName] = useState('');
 
@@ -190,18 +234,22 @@ const Logs = () => {
   };
 
   const selectOption = (category: string, option: string) => {
-    setSelected(previous => ({
-      ...previous,
+    setSelectedByDate(previous => {
+      const dateSelections = previous[logDate] || {};
 
-      [category]: previous[category] === option ? '' : option,
-    }));
+      return {
+        ...previous,
+        [logDate]: {
+          ...dateSelections,
+          [category]: dateSelections[category] === option ? '' : option,
+        },
+      };
+    });
   };
 
-  const formattedDate = today.toLocaleDateString('en-US', {
+  const formattedDate = selectedDate.toLocaleDateString('en-US', {
     month: 'long',
-
     day: 'numeric',
-
     year: 'numeric',
   });
 
@@ -229,6 +277,29 @@ const Logs = () => {
     };
   });
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const itemWidth = normalize(44);
+      const itemGap = normalize(8);
+
+      const screenCenter = SCREEN_WIDTH / 3;
+
+      const selectedIndex = days.findIndex(
+        day => day.date.getTime() === selectedDate.getTime(),
+      );
+
+      const offset =
+        selectedIndex * (itemWidth + itemGap) - screenCenter + itemWidth / 3;
+
+      calendarRef.current?.scrollTo({
+        x: Math.max(0, offset),
+        animated: false,
+      });
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleNotesChange = (value: string) => {
     if (validateConsecutiveSpaces(value)) {
       setNotes(value);
@@ -247,7 +318,9 @@ const Logs = () => {
             <Text style={styles.headerTitle}>{t('logs.title')}</Text>
 
             <Text style={styles.headerSubtitle}>
-              {t('logs.today')}, {formattedDate}
+              {selectedDate.getTime() === today.getTime()
+                ? `${t('logs.today')}, ${formattedDate}`
+                : formattedDate}
             </Text>
           </View>
 
@@ -265,6 +338,7 @@ const Logs = () => {
 
       <View style={styles.calendar}>
         <ScrollView
+          ref={calendarRef}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.weekRow}
@@ -276,7 +350,23 @@ const Logs = () => {
               <Pressable
                 key={day.key}
                 disabled={day.isFuture}
-                onPress={() => setSelectedDate(new Date(day.date))}
+                onPress={() => {
+                  setSelectedDate(new Date(day.date));
+
+                  const itemWidth = normalize(44);
+                  const itemGap = normalize(8);
+                  const screenCenter = SCREEN_WIDTH / 3;
+
+                  const offset =
+                    day.key * (itemWidth + itemGap) -
+                    screenCenter +
+                    itemWidth / 3;
+
+                  calendarRef.current?.scrollTo({
+                    x: Math.max(0, offset),
+                    animated: true,
+                  });
+                }}
                 style={[styles.dateItem, isSelected && styles.selectedDate]}
               >
                 <Text
