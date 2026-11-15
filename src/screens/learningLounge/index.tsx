@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import styles from './style';
 import { image } from '../../assets';
-import { HeaderSection, ScreenHeader } from '../../components';
+import { ScreenHeader } from '../../components';
 import { learningData } from '../home/learningData';
 import { ScreenName } from '../../navigation/screenName';
 
