@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getProfileData } from '../../utils/profileStorage';
+import { useAppDispatch, useAppSelector } from '../../redux/auth/hooks';
 import { View, Text, Image, Pressable, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -11,30 +11,33 @@ import { ScreenName } from '../../navigation/screenName';
 import { useNavigation } from '@react-navigation/native';
 import { BottomSheetModal } from '../../components';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { resetAuth } from '../../redux/auth/authSlice';
 
 const More = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<any>();
 
-  const [profileName, setProfileName] = useState('Your Name');
-  const [profileEmail, setProfileEmail] = useState('your.email@example.com');
+  const dispatch = useAppDispatch();
+
+  // const [profileName, setProfileName] = useState('Your Name');
+  // const [profileEmail, setProfileEmail] = useState('your.email@example.com');
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
 
   const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
 
-  useEffect(() => {
-    const loadProfile = async () => {
-      const profile = await getProfileData();
-      const savedPhoto = await AsyncStorage.getItem('profilePhotoUri');
+  const profileName = useAppSelector(state => state.auth.profile.name);
 
-      setProfileName(profile.name || 'Your Name');
-      setProfileEmail(profile.email || 'your.email@example.com');
+  const profileEmail = useAppSelector(state => state.auth.email);
+
+  useEffect(() => {
+    const loadProfilePhoto = async () => {
+      const savedPhoto = await AsyncStorage.getItem('profilePhotoUri');
       setProfilePhoto(savedPhoto);
     };
 
-    const unsubscribe = navigation.addListener('focus', loadProfile);
+    const unsubscribe = navigation.addListener('focus', loadProfilePhoto);
 
-    loadProfile();
+    loadProfilePhoto();
 
     return unsubscribe;
   }, [navigation]);
@@ -42,9 +45,11 @@ const More = () => {
   const handleLogout = () => {
     setIsLogoutModalVisible(false);
 
+    dispatch(resetAuth());
+
     navigation.reset({
       index: 0,
-      routes: [{ name: ScreenName.SignUp }],
+      routes: [{ name: ScreenName.Login }],
     });
   };
 
