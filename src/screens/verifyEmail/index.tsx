@@ -16,7 +16,7 @@ const SecurityPin = () => {
   const navigation = useNavigation<any>();
 
   const route = useRoute<any>();
-  const { userId, email } = route.params || {};
+  const { userId } = route.params || {};
 
   const { t } = useTranslation();
   const [otp, setOtp] = useState('');
@@ -24,8 +24,6 @@ const SecurityPin = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
-
-  const insets = useSafeAreaInsets();
 
   const [timer, setTimer] = useState(30);
 
@@ -36,6 +34,8 @@ const SecurityPin = () => {
       setError(t('otp.otpError'));
       return;
     }
+
+    // navigation.navigate(ScreenName.PersonalInformation);
 
     if (!userId) {
       setError('User ID is missing. Please try signing up again.');
