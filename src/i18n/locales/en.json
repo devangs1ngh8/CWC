@@ -92,7 +92,7 @@
     "next": "Next"
   },
   "personalInfo": {
-    "step": "STEP 1 OF 3",
+    "step": "STEP 1 OF 4",
     "title": "Personal Information",
     "fullName": "Full Name",
     "fullNamePlaceholder": "Enter your full name",
@@ -118,7 +118,7 @@
   },
 
   "cycles": {
-    "step": "STEP 2 OF 3",
+    "step": "STEP 2 OF 4",
     "title": "Your Cycle & Health Details",
     "lactatingStatus": "Lactating Status",
     "lactatingTitle": " Select Lactating Status",
@@ -147,7 +147,7 @@
   },
 
   "community": {
-    "step": "STEP 3 OF 3",
+    "step": "STEP 4 OF 4",
     "title": "Catholic Community",
     "question": "Do you belong to a local parish or Catholic community?",
     "yes": "Yes",
