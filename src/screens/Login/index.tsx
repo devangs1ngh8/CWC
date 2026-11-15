@@ -12,7 +12,6 @@ import {
 } from '../../components';
 import {
   validateEmail,
-  validatePassword,
   cleanEmail,
   cleanPassword,
 } from '../../utils/validations';
@@ -26,7 +25,7 @@ import { StorageKeys } from '../../services/storage/keys';
 
 import { useAppDispatch, useAppSelector } from '../../redux/auth/hooks';
 
-import { setEmail as setReduxEmail } from '../../redux/auth/actions/authActions';
+import { setEmail as setReduxEmail } from '../../redux/auth/authSlice';
 
 const Login = () => {
   const navigation = useNavigation<any>();
@@ -43,7 +42,7 @@ const Login = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const savedEmail = useAppSelector(state => state.email);
+  const savedEmail = useAppSelector(state => state.auth.email);
 
   console.log('Redux Email:', savedEmail);
 
@@ -51,12 +50,11 @@ const Login = () => {
     if (isLoading) return;
 
     const validEmail = validateEmail(email);
-    const validPassword = validatePassword(password);
 
     setEmailError(validEmail ? '' : 'Incorrect Email');
-    setPasswordError(validPassword ? '' : t('login.passwordError'));
+    setPasswordError('');
 
-    if (!validEmail || !validPassword) return;
+    if (!validEmail || !password.trim()) return;
 
     Keyboard.dismiss();
     setIsLoading(true);
@@ -90,7 +88,7 @@ const Login = () => {
     }
   };
 
-  const isFormValid = email.trim() !== '' && password.trim() !== '';
+  const isFormValid = email.trim().length > 0 && password.length > 0;
 
   return (
     <View style={styles.container}>
