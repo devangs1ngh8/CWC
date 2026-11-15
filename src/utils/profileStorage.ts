@@ -20,6 +20,12 @@ export type UserProfile = {
   city?: string;
   parish?: string;
   pastor?: string;
+
+  preferences?: {
+    periodPredictions: boolean;
+    cycleDeviationDetection: boolean;
+    fertilityStatusEstimation: boolean;
+  };
 };
 
 export const getProfileData = async (): Promise<UserProfile> => {
