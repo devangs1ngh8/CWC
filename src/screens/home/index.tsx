@@ -1,13 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  Pressable,
-  ScrollView,
-  StatusBar,
-} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, Image, Pressable, ScrollView } from 'react-native';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
@@ -17,12 +10,14 @@ import { learningData } from './learningData';
 import { useNavigation } from '@react-navigation/native';
 import { ScreenName } from '../../navigation/screenName';
 
+import { useAppSelector } from '../../redux/auth/hooks';
+import { normalize, SCREEN_WIDTH } from '../../utils/metrics';
+
 const Home = () => {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const navigation = useNavigation<any>();
 
-  const [userName, setUserName] = useState('');
   const [selectedDate, setSelectedDate] = useState(() => {
     const date = new Date();
     date.setHours(0, 0, 0, 0);
@@ -30,23 +25,14 @@ const Home = () => {
   });
   const [exploreAll, setExploreAll] = useState(false);
 
+  const profile = useAppSelector(state => state.auth.profile);
+  console.log('HOME USER NAME:', profile.name);
+  const userName = profile.name || '';
+
+  const calendarRef = useRef<ScrollView>(null);
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-
-  useEffect(() => {
-    const loadUserName = async () => {
-      try {
-        const name = await AsyncStorage.getItem('userName');
-        if (name) {
-          setUserName(name);
-        }
-      } catch (error) {
-        console.warn('Unable to load user name:', error);
-      }
-    };
-
-    loadUserName();
-  }, []);
 
   const days = Array.from({ length: 15 }, (_, index) => {
     const date = new Date(today);
@@ -76,10 +62,30 @@ const Home = () => {
     ? learningData
     : learningData.slice(0, 4);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const itemWidth = normalize(44);
+      const itemGap = normalize(8);
+
+      const screenCenter = SCREEN_WIDTH / 3;
+      const selectedIndex = days.findIndex(
+        day => day.date.getTime() === selectedDate.getTime(),
+      );
+
+      const offset =
+        selectedIndex * (itemWidth + itemGap) - screenCenter + itemWidth / 3;
+
+      calendarRef.current?.scrollTo({
+        x: Math.max(0, offset),
+        animated: false,
+      });
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
-
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <Image source={image.homeBG} style={styles.headerBackground} />
 
@@ -108,6 +114,7 @@ const Home = () => {
 
       <View style={styles.calendar}>
         <ScrollView
+          ref={calendarRef}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.weekRow}
@@ -119,7 +126,23 @@ const Home = () => {
               <Pressable
                 key={day.key}
                 disabled={day.isFuture}
-                onPress={() => setSelectedDate(new Date(day.date))}
+                onPress={() => {
+                  setSelectedDate(new Date(day.date));
+
+                  const itemWidth = normalize(44);
+                  const itemGap = normalize(8);
+                  const screenCenter = SCREEN_WIDTH / 3;
+
+                  const offset =
+                    day.key * (itemWidth + itemGap) -
+                    screenCenter +
+                    itemWidth / 3;
+
+                  calendarRef.current?.scrollTo({
+                    x: Math.max(0, offset),
+                    animated: true,
+                  });
+                }}
                 style={[styles.dateItem, isSelected && styles.selectedDate]}
               >
                 <Text
