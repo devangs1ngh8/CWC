@@ -15,6 +15,8 @@ import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 
+import { useAppDispatch, useAppSelector } from '../../redux/auth/hooks';
+
 import {
   BottomSheetModal,
   CustomDropdown,
@@ -47,8 +49,9 @@ import {
   validateHeight,
 } from '../../utils/validations';
 
-import { getProfileData, saveProfileData } from '../../utils/profileStorage';
+// import { getProfileData, saveProfileData } from '../../utils/profileStorage';
 import { ScreenName } from '../../navigation/screenName';
+import { updateProfile } from '../../redux/auth/authSlice';
 
 const EditProfile = () => {
   const { t } = useTranslation();
@@ -75,6 +78,9 @@ const EditProfile = () => {
     null,
   );
   const [cycleLength, setCycleLength] = useState('');
+
+  const profile = useAppSelector(state => state.auth.profile);
+  const emailFromRedux = useAppSelector(state => state.auth.email);
 
   const [state, setState] = useState('');
   const [city, setCity] = useState('');
@@ -125,50 +131,42 @@ const EditProfile = () => {
   };
 
   useEffect(() => {
-    const loadProfile = async () => {
-      const profile = await getProfileData();
-      const oldName = await AsyncStorage.getItem('userName');
+    setName(profile.name ?? '');
+    setEmail(emailFromRedux ?? '');
+    setPhone(profile.phone ?? '');
+    setDob(profile.dob ? new Date(profile.dob) : null);
 
+    setHeightUnit(profile.heightUnit ?? 'CM');
+    setHeight(profile.height ?? '');
+
+    setWeight(profile.weight ?? '');
+    setWeightUnit(profile.weightUnit ?? 'KG');
+
+    setLactating(profile.lactating ?? '');
+    setContraceptive(profile.contraceptive ?? '');
+    setBleedTimeline(profile.bleedTimeline ?? '');
+
+    setLastMenstruationDate(
+      profile.lastMenstruationDate
+        ? new Date(profile.lastMenstruationDate)
+        : null,
+    );
+
+    setCycleLength(profile.cycleLength ?? '');
+
+    setState(profile.state ?? '');
+    setCity(profile.city ?? '');
+    setParish(profile.parish ?? '');
+    setPastor(profile.pastor ?? '');
+  }, [profile, emailFromRedux]);
+
+  useEffect(() => {
+    const loadProfilePhoto = async () => {
       const savedPhoto = await AsyncStorage.getItem('profilePhotoUri');
       setPhotoUri(savedPhoto);
-
-      setName(profile.name ?? oldName ?? '');
-      setEmail(profile.email ?? '');
-      setPhone(cleanNumber(profile.phone ?? '').slice(0, 10));
-      setDob(profile.dob ? new Date(profile.dob) : null);
-
-      setHeightUnit(profile.heightUnit ?? 'CM');
-
-      if (profile.heightUnit === 'FT/IN' && profile.height) {
-        const match = profile.height.match(/(\d+)\D+(\d+)/);
-
-        setFeet(match?.[1] ?? '');
-        setInches(match?.[2] ?? '');
-      } else {
-        setHeight(profile.height ?? '');
-      }
-
-      setWeight(profile.weight ?? '');
-      setWeightUnit(profile.weightUnit ?? 'KG');
-
-      setLactating(profile.lactating ?? '');
-      setContraceptive(profile.contraceptive ?? '');
-      setBleedTimeline(profile.bleedTimeline ?? '');
-
-      setLastMenstruationDate(
-        profile.lastMenstruationDate
-          ? new Date(profile.lastMenstruationDate)
-          : null,
-      );
-
-      setCycleLength(profile.cycleLength ?? '');
-      setState(profile.state ?? '');
-      setCity(profile.city ?? '');
-      setParish(profile.parish ?? '');
-      setPastor(profile.pastor ?? '');
     };
 
-    loadProfile();
+    loadProfilePhoto();
   }, []);
 
   const cityOptions = state ? citiesByState[state] ?? [] : [];
@@ -209,31 +207,32 @@ const EditProfile = () => {
     return !Object.values(newErrors).some(Boolean);
   };
 
+  const dispatch = useAppDispatch();
+
   const handleSave = async () => {
     if (!validateForm()) return;
 
     try {
-      await saveProfileData({
-        name: name.trim(),
-        phone,
-        dob: dob?.toISOString() ?? null,
-        height: heightUnit === 'CM' ? height : `${feet}' ${inches}"`,
-        heightUnit,
-        weight,
-        weightUnit,
-        lactating,
-        contraceptive,
-        bleedTimeline,
-        lastMenstruationDate: lastMenstruationDate?.toISOString() ?? null,
-        cycleLength,
-        state,
-        city,
-        parish,
-      });
-
-      await AsyncStorage.setItem('userName', name.trim());
-
-      await saveProfileData({});
+      dispatch(
+        updateProfile({
+          name: name.trim(),
+          phone,
+          dob: dob?.toISOString() ?? null,
+          height: heightUnit === 'CM' ? height : `${feet}' ${inches}"`,
+          heightUnit,
+          weight,
+          weightUnit,
+          lactating,
+          contraceptive,
+          bleedTimeline,
+          lastMenstruationDate: lastMenstruationDate?.toISOString() ?? null,
+          cycleLength,
+          state,
+          city,
+          parish,
+          pastor,
+        }),
+      );
 
       if (photoUri) {
         await AsyncStorage.setItem('profilePhotoUri', photoUri);
@@ -244,29 +243,29 @@ const EditProfile = () => {
       Toast.show({
         type: 'success',
         text1: 'Profile Updated',
-        text2: 'Your details have been saved successfully.',
+        text2: 'Your details have been updated.',
       });
 
-      setTimeout(() => {
-        navigation.reset({
-          index: 0,
-          routes: [
-            {
-              name: ScreenName.MainTabs,
-              params: {
-                screen: 'More',
-              },
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'MainTabs',
+            params: {
+              screen: 'More',
             },
-          ],
-        });
-      }, 2000);
+          },
+        ],
+      });
     } catch (error) {
-      console.log('Error saving profile:', error);
+      console.log('PROFILE UPDATE ERROR:', error);
 
       Toast.show({
         type: 'error',
-        text1: 'Something went wrong',
-        text2: 'Unable to save your profile.',
+        text1: 'Update Failed',
+        text2: 'Unable to update profile. Please try again.',
       });
     }
   };
