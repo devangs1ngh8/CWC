@@ -5,6 +5,9 @@ import { useNavigation } from '@react-navigation/native';
 
 import { saveProfileData } from '../../utils/profileStorage';
 
+import { useAppDispatch, useAppSelector } from '../../redux/auth/hooks';
+import { updateProfile } from '../../redux/auth/authSlice';
+
 import {
   HeaderSection,
   StepBody,
@@ -25,9 +28,23 @@ import styles from './style';
 import { validateCyclesState } from '../../utils/validations';
 import { ScreenName } from '../../navigation/screenName';
 
+const formatDate = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+};
+
 const YourCycles = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<any>();
+
+  const dispatch = useAppDispatch();
+
+  const profile = useAppSelector(state => state.auth.profile);
+
+  console.log('Redux Profile:', profile);
 
   const [hasInteracted, setHasInteracted] = useState(false);
   const [hasAttemptedNext, setHasAttemptedNext] = useState(false);
@@ -61,15 +78,21 @@ const YourCycles = () => {
       return;
     }
 
-    await saveProfileData({
+    const profileData = {
       lactating,
       contraceptive,
       bleedTimeline,
-      lastMenstruationDate: lastMenstruationDate?.toISOString() ?? null,
+      lastMenstruationDate: lastMenstruationDate
+        ? formatDate(lastMenstruationDate)
+        : null,
       cycleLength,
-    });
+    };
 
-    navigation.navigate(ScreenName.CatholicCommunity);
+    dispatch(updateProfile(profileData));
+
+    await saveProfileData(profileData);
+
+    navigation.navigate(ScreenName.YourPreferences);
   };
 
   return (
