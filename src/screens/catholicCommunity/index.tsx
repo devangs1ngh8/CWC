@@ -5,13 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 
 import { saveProfileData } from '../../utils/profileStorage';
 
-import {
-  HeaderSection,
-  StepBody,
-  PrimaryButton,
-  CustomDropdown,
-  ErrorMessage,
-} from '../../components';
+import { useAppDispatch, useAppSelector } from '../../redux/auth/hooks';
+import { updateProfile } from '../../redux/auth/authSlice';
 
 import {
   states,
@@ -20,6 +15,14 @@ import {
   pastorNames,
 } from '../../constants/communityOptions';
 
+import {
+  HeaderSection,
+  StepBody,
+  PrimaryButton,
+  CustomDropdown,
+  ErrorMessage,
+} from '../../components';
+
 import { image } from '../../assets';
 import styles from './style';
 import { ScreenName } from '../../navigation/screenName';
@@ -27,6 +30,12 @@ import { ScreenName } from '../../navigation/screenName';
 const CatholicCommunity = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<any>();
+
+  const dispatch = useAppDispatch();
+
+  const profile = useAppSelector(state => state.auth.profile);
+
+  console.log('Redux Profile:', profile);
 
   const [community, setCommunity] = useState('');
   const [selectedState, setSelectedState] = useState('');
@@ -37,6 +46,9 @@ const CatholicCommunity = () => {
 
   const [hasInteracted, setHasInteracted] = useState(false);
   const [hasAttemptedSave, setHasAttemptedSave] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState('');
 
   const areRequiredFieldsFilled = Boolean(
     community && selectedState && selectedCity && parish && receiveUpdates,
@@ -56,20 +68,37 @@ const CatholicCommunity = () => {
     setHasAttemptedSave(true);
 
     if (!areRequiredFieldsFilled) {
+      setApiError('Please fill all required fields.');
       return;
     }
 
-    await saveProfileData({
-      state: selectedState,
-      city: selectedCity,
-      parish,
-      pastor,
-    });
+    try {
+      setIsLoading(true);
+      setApiError('');
 
-    navigation.reset({
-      index: 0,
-      routes: [{ name: ScreenName.Subscription }],
-    });
+      const profileData = {
+        community,
+        state: selectedState,
+        city: selectedCity,
+        parish,
+        pastor,
+        receiveUpdates,
+      };
+
+      dispatch(updateProfile(profileData));
+
+      await saveProfileData(profileData);
+
+      navigation.reset({
+        index: 0,
+        routes: [{ name: ScreenName.Subscription }],
+      });
+    } catch (error) {
+      console.log('PROFILE STORAGE ERROR:', error);
+      setApiError('Unable to save profile. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -93,27 +122,29 @@ const CatholicCommunity = () => {
         bottomContent={
           <View style={styles.bottomContent}>
             <PrimaryButton
-              title={t('community.save')}
+              title={isLoading ? 'Saving...' : t('community.save')}
               onPress={handleSave}
-              disabled={isSaveDisabled}
+              disabled={isSaveDisabled || isLoading}
             />
           </View>
         }
       >
-        {/* Community selection */}
         <View style={styles.radioRow}>
-          {[t('community.yes'), t('community.no')].map(option => {
-            const isSelected = community === option;
+          {[
+            { label: t('community.yes'), value: 'yes' },
+            { label: t('community.no'), value: 'no' },
+          ].map(option => {
+            const isSelected = community === option.value;
 
             return (
               <Pressable
-                key={option}
+                key={option.value}
                 style={[
                   styles.radioOption,
                   isSelected && styles.radioOptionSelected,
                 ]}
                 onPress={() => {
-                  setCommunity(option);
+                  setCommunity(option.value);
                   setHasInteracted(true);
                 }}
               >
@@ -130,7 +161,7 @@ const CatholicCommunity = () => {
                     isSelected && styles.radioTextSelected,
                   ]}
                 >
-                  {option}
+                  {option.label}
                 </Text>
               </Pressable>
             );
@@ -141,7 +172,6 @@ const CatholicCommunity = () => {
           <ErrorMessage error={t('community.errors.communityRequired')} />
         )}
 
-        {/* State and City */}
         <View style={styles.locationRow}>
           <View style={styles.halfColumn}>
             <Text style={styles.label}>{t('community.state')}</Text>
@@ -179,7 +209,6 @@ const CatholicCommunity = () => {
           </View>
         </View>
 
-        {/* Parish */}
         <Text style={styles.label}>{t('community.localParishName')}</Text>
 
         <CustomDropdown
@@ -197,7 +226,6 @@ const CatholicCommunity = () => {
           <ErrorMessage error={t('community.errors.parishRequired')} />
         )}
 
-        {/* Pastor */}
         <Text style={styles.label}>
           {t('community.pastorName')} ({t('community.optional')})
         </Text>
@@ -213,7 +241,6 @@ const CatholicCommunity = () => {
           }}
         />
 
-        {/* Receive updates */}
         <Pressable
           style={styles.checkboxRow}
           onPress={() => {
@@ -231,6 +258,8 @@ const CatholicCommunity = () => {
             {t('community.receiveUpdates')}
           </Text>
         </Pressable>
+
+        {apiError ? <ErrorMessage error={apiError} /> : null}
       </StepBody>
     </View>
   );
