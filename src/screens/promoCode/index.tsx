@@ -8,19 +8,31 @@ import { HeaderSection, BaseInput } from '../../components';
 import i18n from '../../i18n';
 import { ScreenName } from '../../navigation/screenName';
 
+import { useAppDispatch } from '../../redux/auth/hooks';
+import { setPromoCode as setReduxPromoCode } from '../../redux/subscription/subscriptionSlice';
+
 const PromoCode = () => {
   const navigation = useNavigation<any>();
+
+  const dispatch = useAppDispatch();
 
   const [promoCode, setPromoCode] = useState('');
   const [error, setError] = useState('');
 
   const handleApply = () => {
-    if (!promoCode.trim()) {
+    const code = promoCode.trim();
+
+    if (!code) {
       return;
     }
 
-    if (promoCode.trim().toLowerCase() === 'sin123') {
+    if (code.toLowerCase() === 'sin123') {
       setError('');
+
+      dispatch(setReduxPromoCode(code));
+
+      console.log('Promo Code Saved:', code);
+
       navigation.navigate(ScreenName.PromoApplied);
     } else {
       setError('Invalid promo code. Please try again.');
