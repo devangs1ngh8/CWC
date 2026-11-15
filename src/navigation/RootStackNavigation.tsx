@@ -38,6 +38,7 @@ import PromoCode from '../screens/promoCode';
 import PromoApplied from '../screens/promoApplied';
 import SuccessSubscription from '../screens/successSubscription';
 import MySubscription from '../screens/mySubscription';
+import YourPreferences from '../screens/yourPreferences';
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -75,6 +76,7 @@ export type RootStackParamList = {
   PromoApplied: undefined;
   SuccessSubscription: undefined;
   MySubscription: undefined;
+  YourPreferences: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -170,6 +172,11 @@ const RootStackNavigation = () => {
       <Stack.Screen
         name={ScreenName.MySubscription}
         component={MySubscription}
+      />
+
+      <Stack.Screen
+        name={ScreenName.YourPreferences}
+        component={YourPreferences}
       />
     </Stack.Navigator>
   );

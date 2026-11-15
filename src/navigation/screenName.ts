@@ -12,6 +12,7 @@ export const ScreenName = {
   PrivacyPolicy: 'PrivacyPolicy',
   PersonalInformation: 'PersonalInformation',
   YourCycles: 'YourCycles',
+  YourPreferences: 'YourPreferences',
   CatholicCommunity: 'CatholicCommunity',
   LearningDetail: 'LearningDetail',
   LearningLounge: 'LearningLounge',
