@@ -6,6 +6,9 @@ import { useNavigation } from '@react-navigation/native';
 import { saveProfileData } from '../../utils/profileStorage';
 import styles from './style';
 
+import { useAppDispatch, useAppSelector } from '../../redux/auth/hooks';
+import { updateProfile } from '../../redux/auth/authSlice';
+
 import {
   HeaderSection,
   PrimaryButton,
@@ -26,11 +29,23 @@ import {
 import { image } from '../../assets';
 import { ScreenName } from '../../navigation/screenName';
 
+const formatDate = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+};
+
 const PersonalInformation = () => {
   const navigation = useNavigation<any>();
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
 
-  // Single useRef for all TextInputs
+  const profile = useAppSelector(state => state.auth.profile);
+
+  console.log('Redux Profile:', profile);
+
   const inputRefs = useRef<(TextInput | null)[]>([]);
 
   const focusInput = (index: number) => {
@@ -89,16 +104,24 @@ const PersonalInformation = () => {
 
     const finalHeight = heightUnit === 'CM' ? heightCm : `${feet}' ${inches}"`;
 
-    await saveProfileData({
+    const profileData = {
       name: fullName.trim(),
-      dob: dob?.toISOString() ?? null,
+      dob: dob ? formatDate(dob) : null,
       height: finalHeight,
       heightUnit,
       weight,
       weightUnit,
-    });
+    };
+
+    // Update Redux
+    dispatch(updateProfile(profileData));
+
+    // Save locally
+    await saveProfileData(profileData);
 
     Keyboard.dismiss();
+
+    // Navigate to next screen
     navigation.navigate(ScreenName.YourCycles);
   };
 
@@ -127,7 +150,6 @@ const PersonalInformation = () => {
           </View>
         }
       >
-        {/* Full Name */}
         <FormInput
           label={t('personalInfo.fullName')}
           placeholder={t('personalInfo.fullNamePlaceholder')}
@@ -144,7 +166,6 @@ const PersonalInformation = () => {
           }}
         />
 
-        {/* Date of Birth */}
         <Text style={styles.label}>{t('personalInfo.dateOfBirth')}</Text>
 
         <DateInput
@@ -155,7 +176,6 @@ const PersonalInformation = () => {
           inputStyle={dob ? styles.filledInput : undefined}
         />
 
-        {/* Height */}
         <View style={styles.fieldHeader}>
           <Text style={styles.label}>{t('personalInfo.height')}</Text>
 
@@ -197,7 +217,6 @@ const PersonalInformation = () => {
           />
         )}
 
-        {/* Weight */}
         <View style={styles.fieldHeader}>
           <Text style={styles.label}>{t('personalInfo.weight')}</Text>
 
