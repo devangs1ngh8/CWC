@@ -2843,6 +2843,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@reduxjs/toolkit@npm:^2.14.0":
+  version: 2.14.0
+  resolution: "@reduxjs/toolkit@npm:2.14.0"
+  dependencies:
+    "@standard-schema/spec": ^1.0.0
+    "@standard-schema/utils": ^0.3.0
+    immer: ^11.2.9
+    redux: ^5.0.1
+    redux-thunk: ^3.1.0
+    reselect: ^5.1.0
+  peerDependencies:
+    "@types/react": "*"
+    react: ^16.9.0 || ^17.0.0 || ^18 || ^19
+    react-redux: ^7.2.1 || ^8.1.3 || ^9.0.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    react:
+      optional: true
+    react-redux:
+      optional: true
+  checksum: 7a88bcd18f6d40a783d15c3ba0984f81fe824d3c32e4e06c0e27f21ccbeff89fc2d9a1dc583610ac391706dd05d76618fa808285c4d670f5f63f006457a27ccc
+  languageName: node
+  linkType: hard
+
 "@sideway/address@npm:^4.1.5":
   version: 4.1.5
   resolution: "@sideway/address@npm:4.1.5"
@@ -2888,6 +2913,20 @@ __metadata:
   dependencies:
     "@sinonjs/commons": ^3.0.0
   checksum: 614d30cb4d5201550c940945d44c9e0b6d64a888ff2cd5b357f95ad6721070d6b8839cd10e15b76bf5e14af0bcc1d8f9ec00d49a46318f1f669a4bec1d7f3148
+  languageName: node
+  linkType: hard
+
+"@standard-schema/spec@npm:^1.0.0":
+  version: 1.1.0
+  resolution: "@standard-schema/spec@npm:1.1.0"
+  checksum: 6245ebef5e698bb04752a22e996a7cc40406a404d9f68a9d4e1a7a10f2422da287247508e7b495a2f32bb38f3d57b4daf2c9ab4bf22d9bca13e20a3dc5ec575e
+  languageName: node
+  linkType: hard
+
+"@standard-schema/utils@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "@standard-schema/utils@npm:0.3.0"
+  checksum: 7084f875d322792f2e0a5904009434c8374b9345b09ba89828b68fd56fa3c2b366d35bf340d9e8c72736ef01793c2f70d350c372ed79845dc3566c58d34b4b51
   languageName: node
   linkType: hard
 
@@ -3241,6 +3280,7 @@ __metadata:
     "@react-navigation/bottom-tabs": ^7.21.0
     "@react-navigation/native": ^7.5.1
     "@react-navigation/native-stack": ^7.21.0
+    "@reduxjs/toolkit": ^2.14.0
     "@types/jest": ^29.5.13
     "@types/react": ^19.2.0
     "@types/react-redux": ^7.1.35
@@ -3272,6 +3312,7 @@ __metadata:
     react-redux: ^9.3.1
     react-test-renderer: 19.2.3
     redux: ^5.0.1
+    redux-persist: ^6.0.0
     typescript: ^6.0.3
   languageName: unknown
   linkType: soft
@@ -5878,6 +5919,13 @@ __metadata:
   version: 7.0.12
   resolution: "ignore@npm:7.0.12"
   checksum: 432b514c61d420651fad63f97f346a1f7e666e6e687c72b4a35f93e01e99e395b660d4fcf03bbcbc13be7096f4eb33ed281f4cae0cb04e7556ee2a21b6dd3d9f
+  languageName: node
+  linkType: hard
+
+"immer@npm:^11.2.9":
+  version: 11.2.10
+  resolution: "immer@npm:11.2.10"
+  checksum: 75d22b6089a214554a6f4a7561b1c37da89b5d43e72cf796051aad8f9fc5c2782ab8cefcfd21e6c7119d8ea7b819754a350f9fdb378e895345ecf43289dcd983
   languageName: node
   linkType: hard
 
@@ -8535,6 +8583,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"redux-persist@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "redux-persist@npm:6.0.0"
+  peerDependencies:
+    redux: ">4.0.0"
+  checksum: edaf10dbf17351ce8058d0802357adae8665b3a1ff39371834e37838ddbe1a79cccbc717b8ba54acb5307651ccf51d0f7dc1cbc8dbae0726ff952d11ef61c6b8
+  languageName: node
+  linkType: hard
+
+"redux-thunk@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "redux-thunk@npm:3.1.0"
+  peerDependencies:
+    redux: ^5.0.0
+  checksum: bea96f8233975aad4c9f24ca1ffd08ac7ec91eaefc26e7ba9935544dc55d7f09ba2aa726676dab53dc79d0c91e8071f9729cddfea927f4c41839757d2ade0f50
+  languageName: node
+  linkType: hard
+
 "redux@npm:^4.0.0":
   version: 4.2.1
   resolution: "redux@npm:4.2.1"
@@ -8647,6 +8713,13 @@ __metadata:
   version: 2.0.0
   resolution: "require-main-filename@npm:2.0.0"
   checksum: e9e294695fea08b076457e9ddff854e81bffbe248ed34c1eec348b7abbd22a0d02e8d75506559e2265e96978f3c4720bd77a6dad84755de8162b357eb6c778c7
+  languageName: node
+  linkType: hard
+
+"reselect@npm:^5.1.0":
+  version: 5.3.0
+  resolution: "reselect@npm:5.3.0"
+  checksum: ebe24b04f118302858e6e3086ec5200b27bc190b55fc1499feb8aecd8ddd0e75aeb0e744babc185d42252695846edaf5add0b3bb60aae7091afbbf04ccbbaf5d
   languageName: node
   linkType: hard
 
