@@ -11,6 +11,7 @@ export const UserSpecificStorageKeys = {
   AUTH_TOKEN: 'auth_token',
   USER_ID: 'user_id',
   ACCOUNT_CREATION_DATE: 'account_creation_date',
+  SUBSCRIPTION: 'subscription',
 };
 
 export const StorageKeys = {
