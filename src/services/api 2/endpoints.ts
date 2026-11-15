@@ -8,4 +8,7 @@ export const AUTH_ENDPOINTS = {
   RESEND_OTP: 'user/onboarding/resend-otp',
   VALIDATE_OTP: 'user/onboarding/validate-otp',
   RESEND_USER_OTP: 'user/onboarding/resend-user-otp',
+
+  UPDATE_PROFILE: 'user/onboarding/update-profile',
+  GET_PROFILE: 'user/onboarding/profile',
 };
