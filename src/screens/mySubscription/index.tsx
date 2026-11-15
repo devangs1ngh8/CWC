@@ -1,13 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView, Pressable, Image, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 
 import styles from './style';
 import { image } from '../../assets';
 import { HeaderSection } from '../../components';
 
-const SuccessSubscription = () => {
-  const navigation = useNavigation<any>();
+import { getSubscriptionData } from '../../utils/subscriptionStorage';
+import { normalize } from '../../utils/metrics';
+
+const MySubscription = () => {
+  const subscription = getSubscriptionData();
+
+  const planDetails = {
+    monthlyTrial: {
+      title: 'Monthly',
+      price: '$35',
+      period: '/ month',
+      hasFreeTrial: true,
+      expiryDate: 'Dec 15, 2026',
+    },
+    monthly: {
+      title: 'Monthly',
+      price: '$45',
+      period: '/ month',
+      hasFreeTrial: false,
+      expiryDate: 'Dec 15, 2026',
+    },
+    annual: {
+      title: 'Annual',
+      price: '$35',
+      period: '/ annum',
+      hasFreeTrial: true,
+      expiryDate: 'May 15, 2027',
+    },
+  };
+
+  const selectedPlan = subscription ? planDetails[subscription.planId] : null;
 
   const features = [
     'Track cycle and understand the body based on the science of cervical fluid method.',
@@ -58,81 +86,107 @@ const SuccessSubscription = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          <View style={styles.subscriptionCard}>
-            <View style={styles.planHeader}>
-              <Text style={styles.planTitle}>Annual</Text>
+          {selectedPlan ? (
+            <View style={styles.subscriptionCard}>
+              <View style={styles.planHeader}>
+                <Text style={styles.planTitle}>{selectedPlan.title}</Text>
 
-              <View style={styles.expiryBadge}>
-                <Text style={styles.expiryText}>
-                  Free Trial Ends on Dec 14, 2026
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.priceContainer}>
-              <Text style={styles.price}>$10</Text>
-              <Text style={styles.period}>/ annum</Text>
-            </View>
-
-            <Text style={styles.sectionTitle}>Your Free Access</Text>
-
-            <View style={styles.trialCard}>
-              <Image
-                source={image.giftCard}
-                style={styles.accessIcon}
-                resizeMode="contain"
-              />
-
-              <View style={styles.accessDetails}>
-                <Text style={styles.accessSubtitle}>Included free trial</Text>
-
-                <Text style={styles.accessTitle}>
-                  3 Months <Text style={styles.purpleText}>Free Trial</Text>
-                </Text>
-              </View>
-            </View>
-
-            <Text style={styles.plusSign}>+</Text>
-
-            <View style={styles.promoCard}>
-              <Image
-                source={image.voucher}
-                style={styles.accessIcon}
-                resizeMode="contain"
-              />
-
-              <View style={styles.accessDetails}>
-                <Text style={styles.accessSubtitle}>Promo Code (PARISH12)</Text>
-
-                <Text style={styles.accessTitle}>+6 Months</Text>
-              </View>
-            </View>
-
-            <View style={styles.separator} />
-
-            <Text style={styles.includedHeading}>What's included:</Text>
-
-            <View style={styles.featuresContainer}>
-              {features.map((feature, index) => (
-                <View key={index} style={styles.featureRow}>
-                  <Text style={styles.bullet}>•</Text>
-
-                  <Text style={styles.featureText}>{feature}</Text>
+                <View style={styles.expiryBadge}>
+                  <Text style={styles.expiryText}>
+                    Free Trial Ends on {selectedPlan.expiryDate}
+                  </Text>
                 </View>
-              ))}
-            </View>
+              </View>
 
-            <Pressable
-              style={styles.cancelButton}
-              onPress={handleCancelSubscription}
-            >
-              <Text style={styles.cancelButtonText}>Cancel Subscription</Text>
-            </Pressable>
-          </View>
+              <View style={styles.priceContainer}>
+                <Text style={styles.price}>{selectedPlan.price}</Text>
+                <Text style={styles.period}>{selectedPlan.period}</Text>
+              </View>
+
+              {selectedPlan.hasFreeTrial && (
+                <>
+                  <Text style={styles.sectionTitle}>Your Free Access</Text>
+
+                  <View style={styles.trialCard}>
+                    <Image
+                      source={image.giftCard}
+                      style={styles.accessIcon}
+                      resizeMode="contain"
+                    />
+
+                    <View style={styles.accessDetails}>
+                      <Text style={styles.accessSubtitle}>
+                        Included free trial
+                      </Text>
+                      <Text style={styles.accessTitle}>
+                        3 Months{' '}
+                        <Text style={styles.purpleText}>Free Trial</Text>
+                      </Text>
+                    </View>
+                  </View>
+                </>
+              )}
+
+              {subscription?.promoCode && (
+                <>
+                  {selectedPlan.title === 'Annual' && (
+                    <Text style={styles.plusSign}>+</Text>
+                  )}
+
+                  <View
+                    style={[
+                      styles.promoCard,
+                      selectedPlan.title === 'Monthly' && {
+                        marginTop: normalize(24),
+                      },
+                    ]}
+                  >
+                    <Image source={image.voucher} style={styles.accessIcon} />
+
+                    <View style={styles.accessDetails}>
+                      <Text style={styles.accessSubtitle}>
+                        Promo Code ({subscription.promoCode})
+                      </Text>
+
+                      <Text style={styles.accessTitle}>
+                        {selectedPlan.title === 'Annual'
+                          ? '+6 Months'
+                          : 'Promo Applied'}
+                      </Text>
+                    </View>
+                  </View>
+                </>
+              )}
+
+              <View style={styles.separator} />
+
+              <Text style={styles.includedHeading}>What's included:</Text>
+
+              <View style={styles.featuresContainer}>
+                {features.map((feature, index) => (
+                  <View key={index} style={styles.featureRow}>
+                    <Text style={styles.bullet}>•</Text>
+                    <Text style={styles.featureText}>{feature}</Text>
+                  </View>
+                ))}
+              </View>
+
+              <Pressable
+                style={styles.cancelButton}
+                onPress={handleCancelSubscription}
+              >
+                <Text style={styles.cancelButtonText}>Cancel Subscription</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <Text style={styles.sectionTitle}>
+              No subscription plan selected.
+            </Text>
+          )}
         </ScrollView>
       </View>
     </View>
   );
 };
 
-export default SuccessSubscription;
+export default MySubscription;

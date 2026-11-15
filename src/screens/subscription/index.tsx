@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
+import { View, Text, ScrollView, Pressable, Image } from 'react-native';
+
+import { useAppDispatch } from '../../redux/auth/hooks';
 import {
-  View,
-  Text,
-  ScrollView,
-  Pressable,
-  StatusBar,
-  Image,
-} from 'react-native';
+  selectPlan,
+  type SubscriptionPlanId,
+} from '../../redux/subscription/subscriptionSlice';
 
 import styles from './style';
 import { image } from '../../assets';
@@ -17,6 +16,8 @@ import { ScreenName } from '../../navigation/screenName';
 
 const Subscription = () => {
   const [expandedPlans, setExpandedPlans] = useState<string[]>(['annual']);
+
+  const dispatch = useAppDispatch();
 
   const plans = [
     {
@@ -167,9 +168,10 @@ const Subscription = () => {
 
                 <Pressable
                   style={styles.primaryButton}
-                  onPress={() =>
-                    navigation.navigate(ScreenName.SuccessSubscription)
-                  }
+                  onPress={() => {
+                    dispatch(selectPlan(plan.id as SubscriptionPlanId));
+                    navigation.navigate(ScreenName.SuccessSubscription);
+                  }}
                 >
                   <Text style={styles.primaryButtonText}>{plan.button}</Text>
                 </Pressable>

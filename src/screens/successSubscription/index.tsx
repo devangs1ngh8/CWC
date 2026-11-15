@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, ScrollView, Pressable, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -8,16 +8,27 @@ import { HeaderSection } from '../../components';
 import i18n from '../../i18n';
 import { ScreenName } from '../../navigation/screenName';
 
-type PlanType = 'monthly' | 'annually';
+import { useAppSelector, useAppDispatch } from '../../redux/auth/hooks';
+import {
+  selectPlan,
+  setPromoCode,
+} from '../../redux/subscription/subscriptionSlice';
+
+import { saveSubscriptionData } from '../../utils/subscriptionStorage';
 
 const SuccessSubscription = () => {
   const navigation = useNavigation<any>();
 
-  const [selectedPlan, setSelectedPlan] = useState<PlanType>('annually');
+  const dispatch = useAppDispatch();
 
-  const [promoApplied, setPromoApplied] = useState(true);
+  const selectedPlanId = useAppSelector(
+    state => state.subscription.selectedPlanId,
+  );
 
-  const isAnnual = selectedPlan === 'annually';
+  const promoCode = useAppSelector(state => state.subscription.promoCode);
+
+  const isAnnual =
+    selectedPlanId === 'annual' || selectedPlanId === 'monthlyTrial';
 
   const features = [
     'Daily Catholic faith-based cycle logs',
@@ -27,11 +38,27 @@ const SuccessSubscription = () => {
   ];
 
   const handleRemovePromo = () => {
-    setPromoApplied(false);
+    dispatch(setPromoCode(null));
   };
 
   const handleContinue = () => {
-    navigation.navigate(ScreenName.Login);
+    if (!selectedPlanId) {
+      return;
+    }
+
+    console.log('SAVING SUBSCRIPTION');
+    console.log('Selected Plan:', selectedPlanId);
+    console.log('Promo Code:', promoCode);
+
+    saveSubscriptionData({
+      planId: selectedPlanId,
+      promoCode,
+    });
+
+    navigation.reset({
+      index: 0,
+      routes: [{ name: ScreenName.Login }],
+    });
   };
 
   return (
@@ -65,7 +92,7 @@ const SuccessSubscription = () => {
                 styles.toggleButton,
                 !isAnnual && styles.activeToggleButton,
               ]}
-              onPress={() => setSelectedPlan('monthly')}
+              onPress={() => dispatch(selectPlan('monthly'))}
             >
               <Text
                 style={[
@@ -82,7 +109,7 @@ const SuccessSubscription = () => {
                 styles.toggleButton,
                 isAnnual && styles.activeToggleButton,
               ]}
-              onPress={() => setSelectedPlan('annually')}
+              onPress={() => dispatch(selectPlan('annual'))}
             >
               <Text
                 style={[styles.toggleText, isAnnual && styles.activeToggleText]}
@@ -107,7 +134,7 @@ const SuccessSubscription = () => {
             </View>
           </View>
 
-          {promoApplied && (
+          {promoCode && (
             <View style={styles.freeAccessCard}>
               <Text style={styles.freeAccessHeading}>YOUR FREE ACCESS</Text>
 
@@ -122,7 +149,9 @@ const SuccessSubscription = () => {
               </View>
 
               <View style={styles.accessRow}>
-                <Text style={styles.accessLabel}>Promo Code (sin123):</Text>
+                <Text style={styles.accessLabel}>
+                  Promo Code ({promoCode}):
+                </Text>
 
                 <View style={styles.promoValueContainer}>
                   <Text style={styles.promoValue}>+6 Months</Text>
