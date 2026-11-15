@@ -1,12 +1,15 @@
 import { View, Image } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import styles from './style';
-
-import { image } from '../../assets';
 import { useNavigation } from '@react-navigation/native';
+
+import styles from './style';
+import { image } from '../../assets';
 import i18n from '../../i18n';
 import { ScreenName } from '../../navigation/screenName';
 import { getValues } from '../../utils/commonFunctions';
+
+import { Storage } from '../../services/storage';
+import { StorageKeys } from '../../services/storage/keys';
 
 const Splash = () => {
   const navigation = useNavigation<any>();
@@ -25,12 +28,22 @@ const Splash = () => {
           await i18n.changeLanguage(lang);
         }
 
+        const token = Storage.get<string>(StorageKeys.AUTH_TOKEN);
+
         if (!isMounted) return;
 
         setSavedLanguage(lang);
 
         timer = setTimeout(() => {
           if (!isMounted) return;
+
+          if (token) {
+            navigation.reset({
+              index: 0,
+              routes: [{ name: ScreenName.MainTabs }],
+            });
+            return;
+          }
 
           if (onboardingCompleted === 'true') {
             navigation.reset({
@@ -50,8 +63,10 @@ const Splash = () => {
           }
         }, 2000);
       } catch (error) {
+        console.log('Splash Error:', error);
+
         if (isMounted) {
-          navigation.replace(ScreenName.Language);
+          navigation.replace(ScreenName.Login);
         }
       }
     };
