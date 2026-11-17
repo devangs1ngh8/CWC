@@ -36,9 +36,11 @@ import colors from '../../utils/color';
 import { validateTemperature } from '../../utils/validations';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useAppDispatch, useAppSelector } from '../../redux/auth/hooks';
+import { useAppDispatch, useAppSelector } from '../../redux';
+
+import { setLogsForDate } from '../../redux/slice/logsSlice';
 import { getLogs } from '../../services/logs/logs';
-import { setLogsForDate } from '../../redux/logs/logsSlice';
+
 import { normalize, SCREEN_WIDTH } from '../../utils/metrics';
 
 const Logs = () => {

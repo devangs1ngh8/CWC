@@ -8,9 +8,12 @@ import { useTranslation } from 'react-i18next';
 
 import { validateOtp } from '../../utils/validations';
 import colors from '../../utils/color';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { ScreenName } from '../../navigation/screenName';
 import { verifyOtp, resendOtp } from '../../services/auth/auth';
+
+import { Storage } from '../../services/storage';
+import { StorageKeys } from '../../services/storage/keys';
 
 const SecurityPin = () => {
   const navigation = useNavigation<any>();
@@ -35,22 +38,33 @@ const SecurityPin = () => {
       return;
     }
 
-    // navigation.navigate(ScreenName.PersonalInformation);
-
     if (!userId) {
       setError('User ID is missing. Please try signing up again.');
       return;
     }
 
-    setIsLoading(true);
-    setError('');
-
     try {
-      await verifyOtp({
+      setIsLoading(true);
+      setError('');
+
+      const response = await verifyOtp({
         type: 1,
         otp,
         userId,
       });
+
+      console.log('VERIFY OTP RESPONSE:', response);
+
+      const accessToken = (response as any)?.data?.accessToken;
+
+      if (!accessToken) {
+        setError('Access token not received from server.');
+        return;
+      }
+
+      await Storage.set(StorageKeys.AUTH_TOKEN, accessToken);
+
+      console.log('BEARER TOKEN SAVED:', !!accessToken);
 
       navigation.navigate(ScreenName.PersonalInformation);
     } catch (error: any) {

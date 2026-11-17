@@ -43,6 +43,7 @@ const colors = {
   text10: '#6A747E',
   text11: '#3A4F5F',
   text12: '#98A2B3',
+  placeholderText: '#8F8F9988',
 
   promoText: '#17B26A',
   promoBG: '#E9FFF2',

@@ -8,7 +8,7 @@ import Toast from 'react-native-toast-message';
 
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-import store, { persistor } from './src/redux/auth/store';
+import store, { persistor } from './src/redux';
 
 const App = () => {
   return (

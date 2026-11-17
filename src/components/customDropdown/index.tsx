@@ -11,6 +11,7 @@ const CustomDropdown = ({
   selectedValue,
   onSelect,
   placeholder,
+  disabled = false,
 }: Props) => {
   const [visible, setVisible] = useState(false);
 
@@ -19,7 +20,12 @@ const CustomDropdown = ({
   return (
     <>
       <Pressable
-        style={[styles.dropdown, isSelected && styles.dropdownSelected]}
+        disabled={disabled}
+        style={[
+          styles.dropdown,
+          isSelected && styles.dropdownSelected,
+          disabled && { opacity: 0.5 },
+        ]}
         onPress={() => setVisible(true)}
       >
         <Text

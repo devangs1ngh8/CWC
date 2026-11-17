@@ -24,43 +24,39 @@ http.interceptors.request.use(async configuration => {
     startTime: Date.now(),
   };
 
-  const token = Storage.get<string>(StorageKeys.AUTH_TOKEN);
+  // Get all stored values
+  const [token, deviceModel, language] = await Promise.all([
+    Storage.get<string>(StorageKeys.AUTH_TOKEN),
+    Storage.get<string>(StorageKeys.DEVICE_MODEL),
+    Storage.get<string>(StorageKeys.LANGUAGE),
+  ]);
 
   const isAuthRequest =
     config.url?.includes('user/onboarding/login') ||
     config.url?.includes('user/onboarding/register') ||
     config.url?.includes('user/onboarding/verify-otp') ||
     config.url?.includes('user/onboarding/resend-otp') ||
+    config.url?.includes('user/onboarding/forget-password') ||
     config.url?.includes('user/onboarding/validate-otp') ||
     config.url?.includes('user/onboarding/resend-user-otp');
 
   if (isAuthRequest) {
-    // Login always uses Basic Authentication
     config.auth = undefined;
-
     config.headers.set('Authorization', 'BASIC Q1dDX1VTRVI6Q1dDX1BBU1NXT1JE');
   } else if (token) {
-    // Authenticated APIs use the saved Bearer token
     config.auth = undefined;
     config.headers.set('Authorization', `Bearer ${token}`);
   } else {
-    // Public APIs use Basic Authentication
     config.auth = {
       username: 'CWC_USER',
       password: 'CWC_PASSWORD',
     };
-
     config.headers.delete('Authorization');
   }
 
-  const deviceModel = Storage.get<string>(StorageKeys.DEVICE_MODEL) || '';
-
-  config.headers.set('lang', Storage.get(StorageKeys.LANGUAGE) || 'en');
-
-  // Match the iOS value in your working cURL
+  config.headers.set('lang', language || 'en');
   config.headers.set('device_type', isAndroid ? '1' : '2');
-
-  config.headers.set('device_name', deviceModel);
+  config.headers.set('device_name', deviceModel || '');
   config.headers.set('device_id', '1234567890');
 
   config.headers.set(

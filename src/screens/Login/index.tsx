@@ -23,9 +23,13 @@ import { loginUser } from '../../services/auth/auth';
 import { Storage } from '../../services/storage';
 import { StorageKeys } from '../../services/storage/keys';
 
-import { useAppDispatch, useAppSelector } from '../../redux/auth/hooks';
+import { useAppDispatch, useAppSelector } from '../../redux';
 
-import { setEmail as setReduxEmail } from '../../redux/auth/authSlice';
+import {
+  setEmail as setReduxEmail,
+  updateProfile,
+} from '../../redux/slice/authSlice';
+import { getProfileData } from '../../utils/profileStorage';
 
 const Login = () => {
   const navigation = useNavigation<any>();
@@ -67,8 +71,20 @@ const Login = () => {
       });
 
       await Storage.set(StorageKeys.AUTH_TOKEN, data.accessToken);
+      // const token = await Storage.get(StorageKeys.AUTH_TOKEN);
+      // console.log('token', token);
+
+      // await Storage.set(StorageKeys.AUTH_TOKEN, data.accessToken);
+
+      console.log('LOGIN TOKEN SAVED:', {
+        exists: !!data.accessToken,
+        length: data.accessToken?.length,
+      });
 
       dispatch(setReduxEmail(email.trim()));
+
+      const profileData = await getProfileData();
+      dispatch(updateProfile(profileData));
 
       navigation.reset({
         index: 0,

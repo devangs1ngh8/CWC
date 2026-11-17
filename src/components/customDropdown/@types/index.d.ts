@@ -4,4 +4,5 @@ export interface Props {
   selectedValue: string;
   onSelect: (value: string) => void;
   placeholder?: string;
+  disabled?: boolean;
 }

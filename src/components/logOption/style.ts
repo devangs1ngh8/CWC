@@ -12,6 +12,7 @@ const styles = StyleSheet.create({
     gap: normalize(10),
     padding: normalize(8),
     marginBottom: normalize(12),
+    width: '22%',
   },
 
   image: {
@@ -22,6 +23,8 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: normalize(10),
+    // width: SCREEN_HEIGHT > 700 ? normalize(70) : normalize(60),
+    // width: '80%',
     fontFamily: 'Manrope-Bold',
     color: colors.bleedingSubtitle,
     textAlign: 'center',

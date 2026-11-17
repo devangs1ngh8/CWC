@@ -4,12 +4,11 @@ import { useNavigation } from '@react-navigation/native';
 
 import { saveProfileData } from '../../utils/profileStorage';
 
-import { useAppDispatch, useAppSelector } from '../../redux/auth/hooks';
-import { updateProfile } from '../../redux/auth/authSlice';
+import { useAppDispatch, useAppSelector } from '../../redux';
+import { updateProfile } from '../../redux/slice/authSlice';
+import { UserPreferences } from '../../redux/slice/authTypes';
 
 import { HeaderSection, StepBody, PrimaryButton } from '../../components';
-
-import { UserPreferences } from '../../redux/auth/authTypes';
 
 import { image } from '../../assets';
 import styles from './style';

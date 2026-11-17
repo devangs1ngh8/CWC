@@ -1,34 +1,84 @@
 import { View, Text, TextInput, Pressable } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './style';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { BodySection, HeaderSection, PrimaryButton } from '../../components';
 import { image } from '../../assets';
 import { useTranslation } from 'react-i18next';
 
 import { validateOtp } from '../../utils/validations';
 import colors from '../../utils/color';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScreenName } from '../../navigation/screenName';
+
+import { verifyOtp, resendOtp } from '../../services/auth/auth';
 
 const SecurityPin = () => {
   const navigation = useNavigation<any>();
+  const route = useRoute<any>();
+  const { email, userId } = route.params || {};
+
   const { t } = useTranslation();
+
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
-  const insets = useSafeAreaInsets();
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
   const [timer, setTimer] = useState(30);
 
   const inputRefs = useRef<any[]>([]);
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     if (otp.length !== 6) {
       setError(t('otp.otpError'));
       return;
     }
-    navigation.navigate(ScreenName.ResetPassword);
+
+    if (!userId) {
+      setError('User ID missing. Please try again.');
+      return;
+    }
+
+    if (isLoading) return;
+
+    try {
+      setIsLoading(true);
+      setError('');
+
+      console.log('VERIFY OTP REQUEST:', {
+        type: 1,
+        otpLength: otp.length,
+        userId,
+        userIdLength: userId?.length,
+      });
+
+      const response = await verifyOtp({
+        type: 2,
+        otp: otp.trim(),
+        userId,
+      });
+
+      console.log('FORGOT PASSWORD OTP RESPONSE:', response);
+
+      if (response?.status === 200 || response?.status === 201) {
+        navigation.navigate(ScreenName.ResetPassword, {
+          email,
+          userId,
+        });
+      } else {
+        setError(response?.message || 'Invalid OTP. Please try again.');
+      }
+    } catch (error: any) {
+      console.log('OTP VERIFICATION ERROR:', error.response?.data || error);
+
+      setError(
+        error.response?.data?.message ||
+          error.message ||
+          'Invalid OTP. Please try again.',
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleOtpChange = (value: string, index: number) => {
@@ -36,7 +86,6 @@ const SecurityPin = () => {
     if (!digit) return;
 
     const updatedOtp = otp.split('');
-
     const targetIndex = updatedOtp[index] ? index + 1 : index;
 
     if (targetIndex >= 6) return;
@@ -65,17 +114,49 @@ const SecurityPin = () => {
   };
 
   useEffect(() => {
-    if (timer === 0) return;
-
     const interval = setInterval(() => {
-      setTimer(prev => Math.max(prev - 1, 0));
+      setTimer(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+
+        return prev - 1;
+      });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [timer]);
+  }, []);
 
-  const handleResend = () => {
-    setTimer(30);
+  const handleResend = async () => {
+    if (!userId || isResending) return;
+
+    try {
+      setIsResending(true);
+      setError('');
+
+      const response = await resendOtp(userId);
+
+      console.log('RESEND OTP SUCCESS:', response);
+
+      if (response?.status === 200) {
+        setOtp('');
+        setTimer(30);
+        setActiveIndex(0);
+        inputRefs.current[0]?.focus();
+      } else {
+        setError(response?.message || 'Unable to resend OTP.');
+      }
+    } catch (error: any) {
+      console.log('RESEND OTP ERROR:', error.response?.data || error);
+
+      setError(
+        error.response?.data?.message ||
+          'Unable to resend OTP. Please try again.',
+      );
+    } finally {
+      setIsResending(false);
+    }
   };
 
   return (
@@ -95,9 +176,9 @@ const SecurityPin = () => {
         bottomContent={
           <View style={styles.bottomContainer}>
             <PrimaryButton
-              title={t('securityPin.verifyCode')}
+              title={isLoading ? 'Verifying...' : t('securityPin.verifyCode')}
               onPress={handleVerify}
-              disabled={otp.length !== 6}
+              disabled={otp.length !== 6 || isLoading}
             />
           </View>
         }
@@ -116,7 +197,7 @@ const SecurityPin = () => {
                   activeIndex === index && styles.activeOtpBox,
                 ]}
                 value={otp[index] || ''}
-                maxLength={26}
+                maxLength={1}
                 editable={true}
                 selectionColor={colors.primary}
                 onFocus={() => setActiveIndex(index)}
@@ -142,8 +223,10 @@ const SecurityPin = () => {
               00:{String(timer).padStart(2, '0')}
             </Text>
           ) : (
-            <Pressable onPress={handleResend}>
-              <Text style={styles.resendButton}>Resend OTP</Text>
+            <Pressable onPress={handleResend} disabled={isResending}>
+              <Text style={styles.resendButton}>
+                {isResending ? 'Sending...' : 'Resend OTP'}
+              </Text>
             </Pressable>
           )}
         </View>

@@ -67,7 +67,7 @@ export default StyleSheet.create({
   },
 
   placeholderText: {
-    color: colors.textSecondary,
+    color: colors.placeholderText,
     fontSize: normalize(14),
     fontFamily: 'Manrope-Medium',
   },

@@ -5,7 +5,6 @@ const mmkv = createMMKV({
   id: 'app-storage',
 });
 
-/** Storage utility for persistent data using MMKV */
 export const Storage = {
   set(key: StorageKey, value: unknown) {
     mmkv.set(key, JSON.stringify(value));

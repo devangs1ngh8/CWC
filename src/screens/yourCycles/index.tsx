@@ -5,8 +5,10 @@ import { useNavigation } from '@react-navigation/native';
 
 import { saveProfileData } from '../../utils/profileStorage';
 
-import { useAppDispatch, useAppSelector } from '../../redux/auth/hooks';
-import { updateProfile } from '../../redux/auth/authSlice';
+import { useAppDispatch, useAppSelector } from '../../redux';
+import { updateProfile } from '../../redux/slice/authSlice';
+
+import { completeOnboarding } from '../../services/auth/auth';
 
 import {
   HeaderSection,
@@ -44,7 +46,7 @@ const YourCycles = () => {
 
   const profile = useAppSelector(state => state.auth.profile);
 
-  console.log('Redux Profile:', profile);
+  // console.log('Redux Profile:', profile);
 
   const [hasInteracted, setHasInteracted] = useState(false);
   const [hasAttemptedNext, setHasAttemptedNext] = useState(false);
@@ -52,6 +54,8 @@ const YourCycles = () => {
   const [lactating, setLactating] = useState('');
   const [contraceptive, setContraceptive] = useState('');
   const [bleedTimeline, setBleedTimeline] = useState('');
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const [lastMenstruationDate, setLastMenstruationDate] = useState<Date | null>(
     null,
@@ -67,14 +71,17 @@ const YourCycles = () => {
     cycleLength,
   );
 
-  const isNextDisabled = hasAttemptedNext
-    ? !areAllFieldsFilled
-    : !hasInteracted;
+  const isNextDisabled = !areAllFieldsFilled || !hasInteracted || isLoading;
 
   const handleNext = async () => {
     setHasAttemptedNext(true);
 
-    if (!areAllFieldsFilled) {
+    if (!areAllFieldsFilled || isLoading) {
+      return;
+    }
+
+    if (!profile.dob) {
+      console.log('DOB is missing from Redux profile');
       return;
     }
 
@@ -88,11 +95,48 @@ const YourCycles = () => {
       cycleLength,
     };
 
-    dispatch(updateProfile(profileData));
+    const payload = {
+      step: 2,
+      basicDetails: {
+        name: profile.name,
+        dob: profile.dob,
+        heightUnit: profile.heightUnit === 'CM' ? 1 : 2,
+        height: profile.height,
+        weightUnit: profile.weightUnit === 'KG' ? 1 : 2,
+        weight: profile.weight,
+      },
+      healthDetail: {
+        lactationStatus: 0,
+        contraceptionStatus: 0,
+        bleedingTimeline: 0,
+        cycleLength: 0,
+        lastMenstruationDate: lastMenstruationDate
+          ? formatDate(lastMenstruationDate)
+          : '',
+      },
+    };
 
-    await saveProfileData(profileData);
+    try {
+      setIsLoading(true);
 
-    navigation.navigate(ScreenName.YourPreferences);
+      console.log('COMPLETE ONBOARDING REQUEST:', payload);
+
+      const response = await completeOnboarding(payload);
+
+      console.log('COMPLETE ONBOARDING SUCCESS:', response);
+
+      dispatch(updateProfile(profileData));
+
+      await saveProfileData(profileData);
+
+      console.log('PROFILE SAVED IN REDUX:', profileData);
+
+      navigation.navigate(ScreenName.CatholicCommunity);
+    } catch (error: any) {
+      console.log('COMPLETE ONBOARDING ERROR:', error.response?.data || error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -114,9 +158,9 @@ const YourCycles = () => {
         bottomContent={
           <View style={styles.bottomContent}>
             <PrimaryButton
-              title={t('common.next')}
+              title={isLoading ? 'Please wait...' : t('common.next')}
               onPress={handleNext}
-              disabled={isNextDisabled}
+              disabled={isNextDisabled || isLoading}
             />
           </View>
         }

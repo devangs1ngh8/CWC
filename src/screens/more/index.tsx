@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../redux/auth/hooks';
+import { useAppDispatch, useAppSelector } from '../../redux';
+
+import { resetAuth } from '../../redux/slice/authSlice';
 import { View, Text, Image, Pressable, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -11,7 +13,9 @@ import { ScreenName } from '../../navigation/screenName';
 import { useNavigation } from '@react-navigation/native';
 import { BottomSheetModal } from '../../components';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { resetAuth } from '../../redux/auth/authSlice';
+
+import { Storage } from '../../services/storage';
+import { StorageKeys } from '../../services/storage/keys';
 
 const More = () => {
   const { t } = useTranslation();
@@ -42,8 +46,10 @@ const More = () => {
     return unsubscribe;
   }, [navigation]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setIsLogoutModalVisible(false);
+
+    await Storage.remove(StorageKeys.AUTH_TOKEN);
 
     dispatch(resetAuth());
 

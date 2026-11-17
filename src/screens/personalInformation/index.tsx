@@ -6,8 +6,11 @@ import { useNavigation } from '@react-navigation/native';
 import { saveProfileData } from '../../utils/profileStorage';
 import styles from './style';
 
-import { useAppDispatch, useAppSelector } from '../../redux/auth/hooks';
-import { updateProfile } from '../../redux/auth/authSlice';
+import { useAppDispatch, useAppSelector } from '../../redux';
+
+import { updateProfile } from '../../redux/slice/authSlice';
+
+import { completeOnboarding } from '../../services/auth/auth';
 
 import {
   HeaderSection,
@@ -44,7 +47,7 @@ const PersonalInformation = () => {
 
   const profile = useAppSelector(state => state.auth.profile);
 
-  console.log('Redux Profile:', profile);
+  // console.log('Redux Profile:', profile);
 
   const inputRefs = useRef<(TextInput | null)[]>([]);
 
@@ -65,17 +68,20 @@ const PersonalInformation = () => {
 
   const [hasAttemptedNext, setHasAttemptedNext] = useState(false);
 
-  const { isFormValid, areAllFieldsFilled, isNextDisabled } =
-    validatePersonalInfoState(
-      fullName,
-      dob,
-      heightUnit,
-      heightCm,
-      feet,
-      inches,
-      weight,
-      hasAttemptedNext,
-    );
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { isFormValid, areAllFieldsFilled } = validatePersonalInfoState(
+    fullName,
+    dob,
+    heightUnit,
+    heightCm,
+    feet,
+    inches,
+    weight,
+    hasAttemptedNext,
+  );
+
+  const isNextDisabled = !isFormValid || !areAllFieldsFilled || isLoading;
 
   const errors = getPersonalInfoErrors(
     fullName,
@@ -98,31 +104,60 @@ const PersonalInformation = () => {
   const handleNext = async () => {
     setHasAttemptedNext(true);
 
-    if (!areAllFieldsFilled || !isFormValid) {
+    if (!areAllFieldsFilled || !isFormValid || isLoading) {
       return;
     }
 
     const finalHeight = heightUnit === 'CM' ? heightCm : `${feet}' ${inches}"`;
 
+    const formattedDob = dob ? formatDate(dob) : '';
+
     const profileData = {
       name: fullName.trim(),
-      dob: dob ? formatDate(dob) : null,
+      dob: formattedDob,
       height: finalHeight,
       heightUnit,
       weight,
       weightUnit,
     };
 
-    // Update Redux
-    dispatch(updateProfile(profileData));
+    const payload = {
+      step: 1,
+      basicDetails: {
+        name: fullName.trim(),
+        dob: formattedDob,
+        heightUnit: heightUnit === 'CM' ? 1 : 2,
+        height: finalHeight,
+        weightUnit: weightUnit === 'KG' ? 1 : 2,
+        weight,
+      },
+    };
 
-    // Save locally
-    await saveProfileData(profileData);
+    try {
+      setIsLoading(true);
 
-    Keyboard.dismiss();
+      console.log('COMPLETE ONBOARDING PAYLOAD:', payload);
 
-    // Navigate to next screen
-    navigation.navigate(ScreenName.YourCycles);
+      const response = await completeOnboarding(payload);
+
+      console.log('COMPLETE ONBOARDING RESPONSE:', response);
+
+      if (response?.status === 200) {
+        dispatch(updateProfile(profileData));
+
+        await saveProfileData(profileData);
+
+        console.log('PROFILE SAVED IN REDUX:', profileData);
+
+        Keyboard.dismiss();
+
+        navigation.navigate(ScreenName.YourCycles);
+      }
+    } catch (error: any) {
+      console.log('COMPLETE ONBOARDING ERROR:', error.response?.data || error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -143,8 +178,8 @@ const PersonalInformation = () => {
         bottomContent={
           <View style={styles.bottomContent}>
             <PrimaryButton
-              title={t('common.next')}
-              disabled={isNextDisabled}
+              title={isLoading ? 'Please wait...' : t('common.next')}
+              disabled={isNextDisabled || isLoading}
               onPress={handleNext}
             />
           </View>

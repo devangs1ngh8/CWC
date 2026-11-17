@@ -8,8 +8,8 @@ import { HeaderSection, BaseInput } from '../../components';
 import i18n from '../../i18n';
 import { ScreenName } from '../../navigation/screenName';
 
-import { useAppDispatch } from '../../redux/auth/hooks';
-import { setPromoCode as setReduxPromoCode } from '../../redux/subscription/subscriptionSlice';
+import { useAppDispatch } from '../../redux';
+import { setPromoCode as setReduxPromoCode } from '../../redux/slice/subscriptionSlice';
 
 const PromoCode = () => {
   const navigation = useNavigation<any>();

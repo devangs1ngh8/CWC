@@ -10,29 +10,59 @@ import {
 } from '../../components';
 import { image } from '../../assets';
 import { useTranslation } from 'react-i18next';
-import { validateEmail } from '../../utils/validations';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { ScreenName } from '../../navigation/screenName';
+
+import { validateEmail, cleanEmail } from '../../utils/validations';
+import { forgotPassword } from '../../services/auth/auth';
 
 const ForgotPassword = () => {
   const navigation = useNavigation<any>();
   const { t } = useTranslation();
 
-  const insets = useSafeAreaInsets();
-
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
 
-  const handleSendCode = () => {
-    const validEmail = validateEmail(email);
-    setEmailError(validEmail ? '' : t('forgotPassword.emailError'));
+  const [isLoading, setIsLoading] = useState(false);
 
-    if (validEmail) {
-      navigation.navigate(ScreenName.SecurityPin);
+  const handleSendCode = async () => {
+    if (isLoading) return;
+
+    const enteredEmail = email.trim();
+
+    if (!validateEmail(enteredEmail)) {
+      setEmailError('Please enter a valid email address.');
+      return;
+    }
+
+    setEmailError('');
+    setIsLoading(true);
+
+    try {
+      const response = await forgotPassword({
+        email: enteredEmail,
+      });
+
+      if (response?.status === 200 && response?.data?.userId) {
+        navigation.navigate(ScreenName.SecurityPin, {
+          email: enteredEmail,
+          userId: response.data.userId,
+        });
+      } else {
+        setEmailError(response?.message || 'Unable to send OTP.');
+      }
+    } catch (error: any) {
+      console.log('FORGOT PASSWORD ERROR:', error.response?.data || error);
+
+      setEmailError(
+        error.response?.data?.message ||
+          error.message ||
+          'Unable to send OTP. Please try again.',
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  const isFormValid = email.trim() !== '';
 
   return (
     <View style={styles.container}>
@@ -52,8 +82,8 @@ const ForgotPassword = () => {
           <View>
             <PrimaryButton
               onPress={handleSendCode}
-              disabled={!isFormValid}
-              title={t('forgotPassword.sendCode')}
+              disabled={!email.trim() || isLoading}
+              title={isLoading ? 'Sending...' : t('forgotPassword.sendCode')}
             />
           </View>
         }
@@ -64,7 +94,10 @@ const ForgotPassword = () => {
             placeholder={t('forgotPassword.enterEmail')}
             keyboardType="email-address"
             value={email}
-            onChangeText={setEmail}
+            onChangeText={value => {
+              setEmail(cleanEmail(value));
+              setEmailError('');
+            }}
             maxLength={50}
             autoCapitalize="none"
             autoCorrect={false}

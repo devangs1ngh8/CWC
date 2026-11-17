@@ -10,7 +10,7 @@ import { learningData } from './learningData';
 import { useNavigation } from '@react-navigation/native';
 import { ScreenName } from '../../navigation/screenName';
 
-import { useAppSelector } from '../../redux/auth/hooks';
+import { useAppSelector } from '../../redux';
 import { normalize, SCREEN_WIDTH } from '../../utils/metrics';
 
 const Home = () => {
@@ -27,7 +27,7 @@ const Home = () => {
 
   const profile = useAppSelector(state => state.auth.profile);
   console.log('HOME USER NAME:', profile.name);
-  const userName = profile.name || '';
+  const userName = profile.name?.trim() || 'there';
 
   const calendarRef = useRef<ScrollView>(null);
 
@@ -91,9 +91,7 @@ const Home = () => {
 
         <View style={styles.headerTop}>
           <View style={styles.headerText}>
-            <Text style={styles.headerTitle}>
-              Hi {userName.trim() || 'there'}
-            </Text>
+            <Text style={styles.headerTitle}>Hi {userName}</Text>
 
             <Text style={styles.headerSubtitle}>
               {t('logs.today')}, {formattedDate}

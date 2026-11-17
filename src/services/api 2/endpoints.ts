@@ -8,7 +8,15 @@ export const AUTH_ENDPOINTS = {
   RESEND_OTP: 'user/onboarding/resend-otp',
   VALIDATE_OTP: 'user/onboarding/validate-otp',
   RESEND_USER_OTP: 'user/onboarding/resend-user-otp',
-
   UPDATE_PROFILE: 'user/onboarding/update-profile',
+
+  COMPLETE_ONBOARDING: 'user/onboarding/complete-onboarding',
   GET_PROFILE: 'user/onboarding/profile',
+};
+
+export const COMMUNITY_ENDPOINTS = {
+  STATES: 'user/community/states',
+  CITIES: 'user/community/city',
+  PARISH: 'user/community/parish',
+  PASTOR: 'user/community/pastor',
 };

@@ -26,11 +26,11 @@ const initialState: AuthState = {
     pastor: '',
     receiveUpdates: false,
 
-    preferences: {
-      periodPredictions: false,
-      cycleDeviationDetection: false,
-      fertilityStatusEstimation: false,
-    },
+    // preferences: {
+    //   periodPredictions: false,
+    //   cycleDeviationDetection: false,
+    //   fertilityStatusEstimation: false,
+    // },
   },
 };
 

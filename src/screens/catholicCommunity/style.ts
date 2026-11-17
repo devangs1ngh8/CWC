@@ -156,4 +156,15 @@ export default StyleSheet.create({
     borderWidth: 1,
     borderRadius: normalize(16),
   },
+
+  pastorInput: {
+    // Reuse your existing input styling
+    backgroundColor: '#F8F4F7',
+    borderWidth: 1,
+    borderColor: '#EEDFEA',
+    borderRadius: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    color: '#34434A',
+  },
 });

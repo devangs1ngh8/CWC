@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Pressable, Image } from 'react-native';
 
-import { useAppDispatch } from '../../redux/auth/hooks';
+import { useAppDispatch } from '../../redux';
 import {
   selectPlan,
   type SubscriptionPlanId,
-} from '../../redux/subscription/subscriptionSlice';
+} from '../../redux/slice/subscriptionSlice';
 
 import styles from './style';
 import { image } from '../../assets';

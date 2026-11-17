@@ -8,11 +8,8 @@ import { HeaderSection } from '../../components';
 import i18n from '../../i18n';
 import { ScreenName } from '../../navigation/screenName';
 
-import { useAppSelector, useAppDispatch } from '../../redux/auth/hooks';
-import {
-  selectPlan,
-  setPromoCode,
-} from '../../redux/subscription/subscriptionSlice';
+import { useAppSelector, useAppDispatch } from '../../redux';
+import { selectPlan, setPromoCode } from '../../redux/slice/subscriptionSlice';
 
 import { saveSubscriptionData } from '../../utils/subscriptionStorage';
 

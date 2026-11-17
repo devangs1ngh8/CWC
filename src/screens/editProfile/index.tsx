@@ -15,7 +15,14 @@ import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 
-import { useAppDispatch, useAppSelector } from '../../redux/auth/hooks';
+import { useAppDispatch, useAppSelector } from '../../redux';
+
+import { resetAuth, updateProfile } from '../../redux/slice/authSlice';
+
+import { deleteAccount } from '../../services/userService'; // apne actual service path ke according
+
+import { Storage } from '../../services/storage/index';
+import { StorageKeys } from '../../services/storage/keys';
 
 import {
   BottomSheetModal,
@@ -51,7 +58,6 @@ import {
 
 // import { getProfileData, saveProfileData } from '../../utils/profileStorage';
 import { ScreenName } from '../../navigation/screenName';
-import { updateProfile } from '../../redux/auth/authSlice';
 
 const EditProfile = () => {
   const { t } = useTranslation();
@@ -97,6 +103,8 @@ const EditProfile = () => {
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [isPhotoModalVisible, setIsPhotoModalVisible] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleChoosePhoto = async () => {
     const result = await launchImageLibrary({
@@ -287,6 +295,57 @@ const EditProfile = () => {
 
     if (field === 'weight') {
       setErrors(previous => ({ ...previous, weight: '' }));
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (isDeleting) return;
+
+    try {
+      setIsDeleting(true);
+
+      console.log('DELETE ACCOUNT: API CALL STARTED');
+
+      const response = await deleteAccount();
+
+      console.log('DELETE ACCOUNT: API RESPONSE:', response);
+
+      Storage.remove(StorageKeys.AUTH_TOKEN);
+      Storage.remove(StorageKeys.USER_ID);
+      Storage.remove(StorageKeys.SUBSCRIPTION);
+
+      await AsyncStorage.removeItem('profilePhotoUri');
+
+      dispatch(resetAuth());
+
+      setIsDeleteModalVisible(false);
+
+      Toast.show({
+        type: 'success',
+        text1: 'Account Deleted',
+        text2: 'Your account has been deleted successfully.',
+      });
+
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
+    } catch (error: any) {
+      console.log('DELETE ACCOUNT FAILED:', {
+        status: error?.response?.status,
+        data: error?.response?.data,
+        message: error?.message,
+      });
+
+      Toast.show({
+        type: 'error',
+        text1: 'Delete Failed',
+        text2:
+          error?.response?.data?.message ||
+          'Unable to delete account. Please try again.',
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -665,12 +724,13 @@ const EditProfile = () => {
 
             <Pressable
               style={styles.confirmDeleteButton}
-              onPress={() => {
-                setIsDeleteModalVisible(false);
-              }}
+              onPress={handleDeleteAccount}
+              disabled={isDeleting}
             >
               <Text style={styles.confirmDeleteText}>
-                {t('editProfile.deleteAccountModal.confirm')}
+                {isDeleting
+                  ? 'Deleting...'
+                  : t('editProfile.deleteAccountModal.confirm')}
               </Text>
             </Pressable>
           </View>

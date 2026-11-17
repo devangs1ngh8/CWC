@@ -23,7 +23,7 @@ export interface Profile {
   pastor: string;
   receiveUpdates: boolean;
 
-  preferences: UserPreferences;
+  // preferences: UserPreferences;
 }
 
 export interface AuthState {
@@ -31,8 +31,8 @@ export interface AuthState {
   profile: Profile;
 }
 
-export interface UserPreferences {
-  periodPredictions: boolean;
-  cycleDeviationDetection: boolean;
-  fertilityStatusEstimation: boolean;
-}
+// export interface UserPreferences {
+//   periodPredictions: boolean;
+//   cycleDeviationDetection: boolean;
+//   fertilityStatusEstimation: boolean;
+// }

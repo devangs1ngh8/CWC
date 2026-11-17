@@ -4,9 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 
 import { registerUser } from '../../services/auth/auth';
 
-import { setEmail as setReduxEmail } from '../../redux/auth/authSlice';
-
-import { useAppDispatch, useAppSelector } from '../../redux/auth/hooks';
+import { setEmail as setReduxEmail } from '../../redux/slice/authSlice';
+import { useAppDispatch, useAppSelector } from '../../redux';
 
 import styles from './style';
 import {
