@@ -15,17 +15,22 @@ import styles from './style';
 import { image } from '../../assets';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { cleanPassword, validatePassword } from '../../utils/validations';
 
 import { ScreenName } from '../../navigation/screenName';
 
+import { changePassword } from '../../services/auth/auth';
+
 const ResetPassword = () => {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
+
+  const route = useRoute<any>();
+  const { userId } = route.params || {};
 
   const inputRef = useRef<any>(null);
 
@@ -44,7 +49,9 @@ const ResetPassword = () => {
     const passwordsMatch = password === confirmPassword;
 
     setPasswordError(
-      isPasswordValid ? '' : 'Invalid password. Please enter a valid password.',
+      isPasswordValid
+        ? ''
+        : 'Password must contain 8-15 characters, uppercase, lowercase, number and special character.',
     );
 
     setConfirmPasswordError(passwordsMatch ? '' : 'Passwords do not match.');
@@ -53,32 +60,49 @@ const ResetPassword = () => {
       return;
     }
 
+    if (!userId) {
+      Toast.show({
+        type: 'error',
+        text1: 'Reset Failed',
+        text2: 'User ID not found. Please verify OTP again.',
+      });
+      return;
+    }
+
     try {
       setIsResetting(true);
 
-      await AsyncStorage.setItem('savedPassword', password);
-
-      Toast.show({
-        type: 'success',
-        text1: 'Password Reset',
-        text2: 'Your password has been reset successfully.',
+      const response = await changePassword({
+        password,
+        userId,
       });
 
-      setTimeout(() => {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: ScreenName.Login }],
+      if (response.status === 200) {
+        Toast.show({
+          type: 'success',
+          text1: 'Password Reset',
+          text2: 'Your password has been reset successfully.',
         });
-      }, 2000);
-    } catch (error) {
-      setIsResetting(false);
-      console.log('Error resetting password:', error);
+
+        setTimeout(() => {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: ScreenName.Login }],
+          });
+        }, 1500);
+      }
+    } catch (error: any) {
+      console.log('RESET PASSWORD ERROR:', error?.response?.data || error);
 
       Toast.show({
         type: 'error',
         text1: 'Reset Failed',
-        text2: 'Something went wrong. Please try again.',
+        text2:
+          error?.response?.data?.message ||
+          'Unable to reset password. Please try again.',
       });
+    } finally {
+      setIsResetting(false);
     }
   };
 
@@ -131,7 +155,7 @@ const ResetPassword = () => {
           }}
           maxLength={15}
           onSubmitEditing={() => Keyboard.dismiss()}
-          error={passwordError}
+          error={confirmPasswordError}
         />
 
         <View style={styles.warningContainer}>
