@@ -29,7 +29,9 @@ import {
   setEmail as setReduxEmail,
   updateProfile,
 } from '../../redux/slice/authSlice';
-import { getProfileData } from '../../utils/profileStorage';
+// import { getProfileData } from '../../utils/profileStorage';
+
+import { getUserProfile } from '../../services/auth/auth';
 
 const Login = () => {
   const navigation = useNavigation<any>();
@@ -83,8 +85,41 @@ const Login = () => {
 
       dispatch(setReduxEmail(email.trim()));
 
-      const profileData = await getProfileData();
-      dispatch(updateProfile(profileData));
+      const profileResponse = await getUserProfile();
+
+      console.log(
+        'LOGIN PROFILE RESPONSE:',
+        JSON.stringify(profileResponse, null, 2),
+      );
+
+      const user = profileResponse.data;
+
+      dispatch(
+        updateProfile({
+          // Personal Information
+          name: user.basicDetails?.name ?? user.name ?? '',
+          phone: user.phone ?? '',
+          dob: user.basicDetails?.dob ?? null,
+          height: user.basicDetails?.height ?? '',
+          heightUnit: user.basicDetails?.heightUnit === 1 ? 'CM' : 'FT/IN',
+          weight: user.basicDetails?.weight ?? '',
+          weightUnit: user.basicDetails?.weightUnit === 1 ? 'KG' : 'LBS',
+
+          // Your Cycles
+          lactating: String(user.healthDetail?.lactationStatus ?? ''),
+          contraceptive: String(user.healthDetail?.contraceptionStatus ?? ''),
+          bleedTimeline: String(user.healthDetail?.bleedingTimeline ?? ''),
+          cycleLength: String(user.healthDetail?.cycleLength ?? ''),
+          lastMenstruationDate: user.healthDetail?.lastMenstruationDate ?? null,
+
+          // Catholic Community
+          community: String(user.communityPreference?.isCatholic ?? ''),
+          state: user.communityPreference?.state ?? '',
+          city: user.communityPreference?.city ?? '',
+          parish: user.communityPreference?.parish ?? '',
+          pastor: user.communityPreference?.pastor ?? '',
+        }),
+      );
 
       navigation.reset({
         index: 0,
