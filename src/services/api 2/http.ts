@@ -38,7 +38,8 @@ http.interceptors.request.use(async configuration => {
     config.url?.includes('user/onboarding/resend-otp') ||
     config.url?.includes('user/onboarding/forget-password') ||
     config.url?.includes('user/onboarding/validate-otp') ||
-    config.url?.includes('user/onboarding/resend-user-otp');
+    config.url?.includes('user/onboarding/resend-user-otp') ||
+    config.url?.includes('user/onboarding/change-password');
 
   if (isAuthRequest) {
     config.auth = undefined;
