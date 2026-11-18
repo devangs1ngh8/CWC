@@ -11,20 +11,9 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 
-import { saveProfileData } from '../../utils/profileStorage';
-
-import { useAppDispatch, useAppSelector } from '../../redux';
-
-import { updateProfile } from '../../redux/slice/authSlice';
+import { getUserProfile } from '../../services/auth/auth';
 
 import { completeOnboarding } from '../../services/auth/auth';
-
-// import {
-//   states,
-//   citiesByState,
-//   parishNames,
-//   pastorNames,
-// } from '../../constants/communityOptions';
 
 import {
   HeaderSection,
@@ -41,10 +30,6 @@ import { ScreenName } from '../../navigation/screenName';
 const CatholicCommunity = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<any>();
-
-  const dispatch = useAppDispatch();
-
-  const profile = useAppSelector(state => state.auth.profile);
 
   // console.log('Redux Profile:', profile);
 
@@ -170,43 +155,8 @@ const CatholicCommunity = () => {
       return;
     }
 
-    if (!profile.dob || !profile.name || !profile.height || !profile.weight) {
-      setApiError('Previous profile details are missing.');
-      return;
-    }
-
-    const profileData = {
-      community,
-      state: selectedState,
-      city: selectedCity,
-      parish,
-      pastor,
-      receiveUpdates,
-    };
-
     const payload = {
       step: 4,
-
-      // Step 1: PersonalInformation data
-      basicDetails: {
-        name: profile.name,
-        dob: profile.dob,
-        heightUnit: profile.heightUnit === 'CM' ? 1 : 2,
-        height: profile.height,
-        weightUnit: profile.weightUnit === 'KG' ? 1 : 2,
-        weight: profile.weight,
-      },
-
-      // Step 2: YourCycles data
-      healthDetail: {
-        lactationStatus: 0,
-        contraceptionStatus: 0,
-        bleedingTimeline: 0,
-        cycleLength: Number(profile.cycleLength),
-        lastMenstruationDate: profile.lastMenstruationDate || '',
-      },
-
-      // Step 4: CatholicCommunity data
       communityPreference: {
         isCatholic: community === 'yes' ? 1 : 0,
         comment: '',
@@ -223,29 +173,29 @@ const CatholicCommunity = () => {
       setApiError('');
 
       console.log(
-        'COMPLETE ONBOARDING STEP 4 REQUEST:',
+        'CATHOLIC COMMUNITY PAYLOAD:',
         JSON.stringify(payload, null, 2),
       );
 
       const response = await completeOnboarding(payload);
 
-      console.log('COMPLETE ONBOARDING STEP 4 SUCCESS:', response);
+      console.log('CATHOLIC COMMUNITY RESPONSE:', response);
 
-      dispatch(updateProfile(profileData));
+      if (response?.status === 200) {
+        const profileResponse = await getUserProfile();
 
-      await saveProfileData(profileData);
+        console.log(
+          'VERIFIED COMMUNITY PROFILE:',
+          JSON.stringify(profileResponse, null, 2),
+        );
 
-      console.log('STEP 4 PROFILE SAVED:', profileData);
-
-      navigation.reset({
-        index: 0,
-        routes: [{ name: ScreenName.Subscription }],
-      });
+        navigation.reset({
+          index: 0,
+          routes: [{ name: ScreenName.Subscription }],
+        });
+      }
     } catch (error: any) {
-      console.log(
-        'COMPLETE ONBOARDING STEP 4 ERROR:',
-        error.response?.data || error,
-      );
+      console.log('CATHOLIC COMMUNITY ERROR:', error.response?.data || error);
 
       setApiError(
         error.response?.data?.message ||
