@@ -1,5 +1,5 @@
 import { AUTH_ENDPOINTS } from '../api 2/endpoints';
-import { apiGet, apiPost, apiPut } from '../api 2/http';
+import { apiGet, apiPost, apiPut, apiPatch } from '../api 2/http';
 
 import type {
   LoginRequest,
@@ -15,6 +15,9 @@ import type {
   CompleteOnboardingRequest,
   CompleteOnboardingResponse,
   GetProfileResponse,
+  ChangePasswordRequest,
+  ChangePasswordResponse,
+  UpdatePasswordRequest,
 } from '../auth/@types/types';
 
 export const loginUser = async (payload: LoginRequest) => {
@@ -117,4 +120,42 @@ export const getUserProfile = async (): Promise<GetProfileResponse> => {
   }
 
   throw new Error(response?.message || 'Failed to fetch profile');
+};
+
+export const changePassword = async (
+  payload: ChangePasswordRequest,
+): Promise<ChangePasswordResponse> => {
+  try {
+    const response = await apiPatch<ChangePasswordResponse>(
+      AUTH_ENDPOINTS.CHANGE_PASSWORD,
+      payload,
+    );
+
+    if (response?.status === 200) {
+      return response;
+    }
+
+    throw new Error(response?.message || 'Password reset failed');
+  } catch (error: any) {
+    console.log('CHANGE PASSWORD STATUS:', error.response?.status);
+    console.log('CHANGE PASSWORD ERROR:', error.response?.data);
+    console.log('CHANGE PASSWORD URL:', error.config?.url);
+
+    throw error;
+  }
+};
+
+export const updatePassword = async (
+  payload: UpdatePasswordRequest,
+): Promise<ChangePasswordResponse> => {
+  const response = await apiPatch<ChangePasswordResponse>(
+    AUTH_ENDPOINTS.UPDATE_PASSWORD,
+    payload,
+  );
+
+  if (response?.status === 200 && response?.success) {
+    return response;
+  }
+
+  throw new Error(response?.message || 'Password update failed');
 };

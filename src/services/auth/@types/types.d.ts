@@ -36,7 +36,9 @@ export interface RegisterResponse {
 export interface OtpResponse {
   status: number;
   message: string;
-  data?: unknown;
+  data?: {
+    userId?: string;
+  };
 }
 
 export interface UpdateProfileRequest {
@@ -129,5 +131,82 @@ export interface CompleteOnboardingResponse {
 export interface GetProfileResponse {
   status: number;
   message: string;
+  data: {
+    userId: string;
+    name: string;
+    email: string;
+    phone?: string;
+    completionStep: number;
+
+    basicDetails?: {
+      name: string;
+      dob: string;
+      height: string;
+      weight: string;
+      heightUnit: number;
+      weightUnit: number;
+    };
+
+    healthDetail?: {
+      lactationStatus: number;
+      contraceptionStatus: number;
+      bleedingTimeline: number;
+      cycleLength: number;
+      lastMenstruationDate: string;
+    };
+
+    communityPreference?: {
+      isCatholic: number;
+      state: string;
+      city: string;
+      parish: string;
+      pastor: string;
+      committedToCatholicTeachings: number;
+    };
+
+    personalPreference?: {
+      periodsPredictions: number;
+      fertilityPredictions: number;
+      cycleDeviation: number;
+      periodNotifications: number;
+      fertilityStatusNotification: number;
+    };
+
+    isSubscriptionPurchased: boolean;
+    isSubscriptionExpired: boolean;
+  };
+  timestamp: string;
+}
+
+export interface ChangePasswordRequest {
+  password: string;
+  userId: string;
+}
+
+export interface ChangePasswordResponse {
+  status: number;
+  success: boolean;
+  message: string;
   data?: unknown;
+}
+
+export interface UpdatePasswordRequest {
+  oldPassword: string;
+  newPassword: string;
+}
+
+export interface EducationItem {
+  id: string | number;
+  title: string;
+  description: string;
+  image?: string;
+  videoUrl?: string;
+  [key: string]: any;
+}
+
+export interface EducationResponse {
+  status: number;
+  success?: boolean;
+  message?: string;
+  data: any;
 }
