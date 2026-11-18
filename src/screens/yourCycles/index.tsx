@@ -3,12 +3,9 @@ import { View, Text, Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 
-import { saveProfileData } from '../../utils/profileStorage';
-
-import { useAppDispatch, useAppSelector } from '../../redux';
-import { updateProfile } from '../../redux/slice/authSlice';
-
 import { completeOnboarding } from '../../services/auth/auth';
+
+import { getUserProfile } from '../../services/auth/auth';
 
 import {
   HeaderSection,
@@ -38,13 +35,21 @@ const formatDate = (date: Date) => {
   return `${year}-${month}-${day}`;
 };
 
+const getOptionId = (
+  options: string[],
+  selectedValue: string,
+  t: (key: string) => string,
+) => {
+  const translatedOptions = options.map(option => t(option));
+
+  const selectedIndex = translatedOptions.indexOf(selectedValue);
+
+  return selectedIndex === -1 ? 0 : selectedIndex + 1;
+};
+
 const YourCycles = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<any>();
-
-  const dispatch = useAppDispatch();
-
-  const profile = useAppSelector(state => state.auth.profile);
 
   // console.log('Redux Profile:', profile);
 
@@ -80,36 +85,21 @@ const YourCycles = () => {
       return;
     }
 
-    if (!profile.dob) {
-      console.log('DOB is missing from Redux profile');
-      return;
-    }
-
-    const profileData = {
-      lactating,
-      contraceptive,
-      bleedTimeline,
-      lastMenstruationDate: lastMenstruationDate
-        ? formatDate(lastMenstruationDate)
-        : null,
-      cycleLength,
-    };
-
     const payload = {
       step: 2,
-      basicDetails: {
-        name: profile.name,
-        dob: profile.dob,
-        heightUnit: profile.heightUnit === 'CM' ? 1 : 2,
-        height: profile.height,
-        weightUnit: profile.weightUnit === 'KG' ? 1 : 2,
-        weight: profile.weight,
-      },
       healthDetail: {
-        lactationStatus: 0,
-        contraceptionStatus: 0,
-        bleedingTimeline: 0,
-        cycleLength: 0,
+        lactationStatus: getOptionId(lactatingOptions, lactating, t),
+
+        contraceptionStatus: getOptionId(
+          contraceptiveOptions,
+          contraceptive,
+          t,
+        ),
+
+        bleedingTimeline: getOptionId(bleedTimelineOptions, bleedTimeline, t),
+
+        cycleLength: Number(cycleLength),
+
         lastMenstruationDate: lastMenstruationDate
           ? formatDate(lastMenstruationDate)
           : '',
@@ -119,21 +109,33 @@ const YourCycles = () => {
     try {
       setIsLoading(true);
 
-      console.log('COMPLETE ONBOARDING REQUEST:', payload);
+      console.log('YOUR CYCLES PAYLOAD:', payload);
 
       const response = await completeOnboarding(payload);
 
-      console.log('COMPLETE ONBOARDING SUCCESS:', response);
+      console.log('YOUR CYCLES RESPONSE:', response);
 
-      dispatch(updateProfile(profileData));
+      if (response?.status === 200) {
+        const profileResponse = await getUserProfile();
 
-      await saveProfileData(profileData);
+        console.log(
+          'YOUR CYCLES SAVED DATA:',
+          JSON.stringify(profileResponse.data.healthDetail, null, 2),
+        );
 
-      console.log('PROFILE SAVED IN REDUX:', profileData);
+        console.log('SELECTED VALUES:', {
+          lactating,
+          contraceptive,
+          bleedTimeline,
+          cycleLength,
+        });
 
-      navigation.navigate(ScreenName.CatholicCommunity);
+        console.log('API PAYLOAD:', JSON.stringify(payload, null, 2));
+
+        navigation.navigate(ScreenName.CatholicCommunity);
+      }
     } catch (error: any) {
-      console.log('COMPLETE ONBOARDING ERROR:', error.response?.data || error);
+      console.log('YOUR CYCLES ERROR:', error.response?.data || error);
     } finally {
       setIsLoading(false);
     }
