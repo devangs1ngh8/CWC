@@ -3,12 +3,7 @@ import { View, Text, TextInput, Keyboard } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 
-import { saveProfileData } from '../../utils/profileStorage';
 import styles from './style';
-
-import { useAppDispatch, useAppSelector } from '../../redux';
-
-import { updateProfile } from '../../redux/slice/authSlice';
 
 import { completeOnboarding } from '../../services/auth/auth';
 
@@ -43,11 +38,6 @@ const formatDate = (date: Date) => {
 const PersonalInformation = () => {
   const navigation = useNavigation<any>();
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
-
-  const profile = useAppSelector(state => state.auth.profile);
-
-  // console.log('Redux Profile:', profile);
 
   const inputRefs = useRef<(TextInput | null)[]>([]);
 
@@ -112,15 +102,6 @@ const PersonalInformation = () => {
 
     const formattedDob = dob ? formatDate(dob) : '';
 
-    const profileData = {
-      name: fullName.trim(),
-      dob: formattedDob,
-      height: finalHeight,
-      heightUnit,
-      weight,
-      weightUnit,
-    };
-
     const payload = {
       step: 1,
       basicDetails: {
@@ -136,25 +117,18 @@ const PersonalInformation = () => {
     try {
       setIsLoading(true);
 
-      console.log('COMPLETE ONBOARDING PAYLOAD:', payload);
+      console.log('PERSONAL INFORMATION PAYLOAD:', payload);
 
       const response = await completeOnboarding(payload);
 
-      console.log('COMPLETE ONBOARDING RESPONSE:', response);
+      console.log('PERSONAL INFORMATION RESPONSE:', response);
 
       if (response?.status === 200) {
-        dispatch(updateProfile(profileData));
-
-        await saveProfileData(profileData);
-
-        console.log('PROFILE SAVED IN REDUX:', profileData);
-
         Keyboard.dismiss();
-
         navigation.navigate(ScreenName.YourCycles);
       }
     } catch (error: any) {
-      console.log('COMPLETE ONBOARDING ERROR:', error.response?.data || error);
+      console.log('PERSONAL INFORMATION ERROR:', error.response?.data || error);
     } finally {
       setIsLoading(false);
     }
