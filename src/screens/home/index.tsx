@@ -10,13 +10,19 @@ import { learningData } from './learningData';
 import { useNavigation } from '@react-navigation/native';
 import { ScreenName } from '../../navigation/screenName';
 
-import { useAppSelector } from '../../redux';
 import { normalize, SCREEN_WIDTH } from '../../utils/metrics';
+
+import { useAppDispatch, useAppSelector } from '../../redux';
+import { updateProfile, setEmail } from '../../redux/slice/authSlice';
+import { getUserProfile } from '../../services/auth/auth';
 
 const Home = () => {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const navigation = useNavigation<any>();
+
+  const dispatch = useAppDispatch();
+  const profile = useAppSelector(state => state.auth.profile);
 
   const [selectedDate, setSelectedDate] = useState(() => {
     const date = new Date();
@@ -25,8 +31,8 @@ const Home = () => {
   });
   const [exploreAll, setExploreAll] = useState(false);
 
-  const profile = useAppSelector(state => state.auth.profile);
-  console.log('HOME USER NAME:', profile.name);
+  console.log('REDUX PROFILE:', JSON.stringify(profile, null, 2));
+
   const userName = profile.name?.trim() || 'there';
 
   const calendarRef = useRef<ScrollView>(null);
@@ -83,6 +89,87 @@ const Home = () => {
 
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await getUserProfile();
+
+        if (response?.status === 200 && response?.data) {
+          const data = response.data;
+
+          const apiProfile = {
+            ...(data.name || data.basicDetails?.name
+              ? { name: data.basicDetails?.name || data.name }
+              : {}),
+
+            ...(data.phone ? { phone: data.phone } : {}),
+
+            ...(data.basicDetails?.dob ? { dob: data.basicDetails.dob } : {}),
+
+            ...(data.basicDetails?.height !== undefined
+              ? { height: data.basicDetails.height }
+              : {}),
+
+            ...(data.basicDetails?.heightUnit !== undefined
+              ? {
+                  heightUnit:
+                    Number(data.basicDetails.heightUnit) === 2 ? 'FT/IN' : 'CM',
+                }
+              : {}),
+
+            ...(data.basicDetails?.weight !== undefined
+              ? { weight: data.basicDetails.weight }
+              : {}),
+
+            ...(data.basicDetails?.weightUnit !== undefined
+              ? {
+                  weightUnit:
+                    Number(data.basicDetails.weightUnit) === 2 ? 'LBS' : 'KG',
+                }
+              : {}),
+
+            ...(data.healthDetail
+              ? {
+                  lactating: String(data.healthDetail.lactationStatus ?? ''),
+                  contraceptive: String(
+                    data.healthDetail.contraceptionStatus ?? '',
+                  ),
+                  bleedTimeline: String(
+                    data.healthDetail.bleedingTimeline ?? '',
+                  ),
+                  cycleLength: String(data.healthDetail.cycleLength ?? ''),
+                  lastMenstruationDate:
+                    data.healthDetail.lastMenstruationDate || null,
+                }
+              : {}),
+
+            ...(data.communityPreference
+              ? {
+                  state: data.communityPreference.state ?? '',
+                  city: data.communityPreference.city ?? '',
+                  parish: data.communityPreference.parish ?? '',
+                  pastor: data.communityPreference.pastor ?? '',
+                }
+              : {}),
+          };
+
+          dispatch(updateProfile(apiProfile));
+
+          if (data.email) {
+            dispatch(setEmail(data.email));
+          }
+
+          console.log('PROFILE FETCHED SUCCESSFULLY:', data);
+          console.log('PROFILE STORED IN REDUX:', apiProfile);
+        }
+      } catch (error: any) {
+        console.log('HOME PROFILE API ERROR:', error?.response?.data || error);
+      }
+    };
+
+    fetchProfile();
+  }, [dispatch]);
 
   return (
     <View style={styles.container}>

@@ -108,4 +108,100 @@ export const learningData: LearningItem[] = [
     image: image.cycleBasics,
     videoUrl: 'https://www.youtube.com/watch?v=034wCMLjaDM',
   },
+  {
+    id: '14',
+    title: 'Cycle Basics',
+    description: 'What is Basal Body Temperature and Why Track It?',
+    image: image.cycleBasics,
+    videoUrl: 'https://www.youtube.com/watch?v=034wCMLjaDM',
+  },
+  {
+    id: '15',
+    title: 'NFP Methods & Faith Context',
+    description: 'Catholic Teaching on Fertility & Family Planning',
+    image: image.nfpMethods,
+    videoUrl: 'https://www.youtube.com/watch?v=034wCMLjaDM',
+  },
+  {
+    id: '16',
+    title: 'Cycle Basics',
+    description: 'What is Basal Body Temperature and Why Track It?',
+    image: image.cycleBasics2,
+    videoUrl: 'https://www.youtube.com/watch?v=034wCMLjaDM',
+  },
+  {
+    id: '17',
+    title: 'Practical Guidance for Couples',
+    description:
+      "In this video, we'll cover 10 essential care tips for couples.",
+    image: image.practicalGuidance,
+    videoUrl: 'https://www.youtube.com/watch?v=034wCMLjaDM',
+  },
+  {
+    id: '18',
+    title: 'Cycle Basics',
+    description:
+      'Learn how temperature tracking can help you understand your cycle.',
+    image: image.cycleBasics2,
+    videoUrl: 'https://www.youtube.com/watch?v=034wCMLjaDM',
+  },
+  {
+    id: '19',
+    title: 'Practical Guidance for Couples',
+    description:
+      'Build healthy habits and communicate confidently with your partner.',
+    image: image.practicalGuidance,
+    videoUrl: 'https://www.youtube.com/watch?v=034wCMLjaDM',
+  },
+  {
+    id: '20',
+    title: 'Understanding Your Cycle',
+    description: 'Discover the different phases of the menstrual cycle.',
+    image: image.cycleBasics,
+    videoUrl: 'https://www.youtube.com/watch?v=034wCMLjaDM',
+  },
+  {
+    id: '21',
+    title: 'Fertility Awareness',
+    description: 'Understand fertility signs and how to observe them.',
+    image: image.nfpMethods,
+    videoUrl: 'https://www.youtube.com/watch?v=034wCMLjaDM',
+  },
+  {
+    id: '22',
+    title: 'Tracking Your Period',
+    description: 'Learn how consistent cycle logging helps reveal patterns.',
+    image: image.cycleBasics,
+    videoUrl: 'https://www.youtube.com/watch?v=034wCMLjaDM',
+  },
+  {
+    id: '23',
+    title: 'Cervical Fluid Basics',
+    description: 'Learn about cervical fluid changes throughout your cycle.',
+    image: image.cycleBasics2,
+    videoUrl: 'https://www.youtube.com/watch?v=034wCMLjaDM',
+  },
+  {
+    id: '24',
+    title: 'Healthy Daily Habits',
+    description:
+      'Explore how sleep, stress and routines can affect your cycle.',
+    image: image.practicalGuidance,
+    videoUrl: 'https://www.youtube.com/watch?v=034wCMLjaDM',
+  },
+  {
+    id: '25',
+    title: 'Preparing for Parenthood',
+    description: 'Start conversations about fertility and family planning.',
+    image: image.nfpMethods,
+    videoUrl: 'https://www.youtube.com/watch?v=034wCMLjaDM',
+  },
+  {
+    id: '26',
+    title: 'NFP: Getting Started',
+    description:
+      'Explore natural family planning and the basics of cycle awareness.',
+    image: image.cycleBasics,
+    videoUrl: 'https://www.youtube.com/watch?v=034wCMLjaDM',
+  },
 ];
