@@ -11,7 +11,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
-import HeaderSection from '../../components/headerSection';
 import { PasswordInput, PrimaryButton, ScreenHeader } from '../../components';
 import { image } from '../../assets';
 import styles from './style';
