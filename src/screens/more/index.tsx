@@ -33,9 +33,18 @@ const More = () => {
 
   const profileEmail = useAppSelector(state => state.auth.email);
 
+  const profilePhotoKey = `profilePhotoUri_${profileEmail
+    ?.toLowerCase()
+    .trim()}`;
+
   useEffect(() => {
     const loadProfilePhoto = async () => {
-      const savedPhoto = await AsyncStorage.getItem('profilePhotoUri');
+      if (!profileEmail) {
+        setProfilePhoto(null);
+        return;
+      }
+
+      const savedPhoto = await AsyncStorage.getItem(profilePhotoKey);
       setProfilePhoto(savedPhoto);
     };
 
@@ -44,7 +53,7 @@ const More = () => {
     loadProfilePhoto();
 
     return unsubscribe;
-  }, [navigation]);
+  }, [navigation, profilePhotoKey, profileEmail]);
 
   const handleLogout = async () => {
     setIsLogoutModalVisible(false);
