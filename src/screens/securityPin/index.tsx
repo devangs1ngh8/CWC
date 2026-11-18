@@ -46,7 +46,7 @@ const SecurityPin = () => {
       setError('');
 
       console.log('VERIFY OTP REQUEST:', {
-        type: 1,
+        type: 2,
         otpLength: otp.length,
         userId,
         userIdLength: userId?.length,
@@ -61,9 +61,11 @@ const SecurityPin = () => {
       console.log('FORGOT PASSWORD OTP RESPONSE:', response);
 
       if (response?.status === 200 || response?.status === 201) {
+        const verifiedUserId = response?.data?.userId || userId;
+
         navigation.navigate(ScreenName.ResetPassword, {
           email,
-          userId,
+          userId: verifiedUserId,
         });
       } else {
         setError(response?.message || 'Invalid OTP. Please try again.');
@@ -114,19 +116,14 @@ const SecurityPin = () => {
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTimer(prev => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
+    if (timer <= 0) return;
 
-        return prev - 1;
-      });
+    const timeout = setTimeout(() => {
+      setTimer(prev => prev - 1);
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, []);
+    return () => clearTimeout(timeout);
+  }, [timer]);
 
   const handleResend = async () => {
     if (!userId || isResending) return;
