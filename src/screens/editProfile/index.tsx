@@ -17,7 +17,13 @@ import { useNavigation } from '@react-navigation/native';
 
 import { useAppDispatch, useAppSelector } from '../../redux';
 
-import { resetAuth, updateProfile } from '../../redux/slice/authSlice';
+import {
+  resetAuth,
+  updateProfile,
+  setEmail as setEmailAction,
+} from '../../redux/slice/authSlice';
+
+import { getUserProfile } from '../../services/auth/auth';
 
 import { deleteAccount } from '../../services/userService'; // apne actual service path ke according
 
@@ -59,6 +65,30 @@ import {
 // import { getProfileData, saveProfileData } from '../../utils/profileStorage';
 import { ScreenName } from '../../navigation/screenName';
 
+const getOptionLabel = (
+  options: string[],
+  value: string | number,
+  t: (key: string) => string,
+) => {
+  const id = Number(value);
+
+  if (!Number.isInteger(id) || id < 1 || id > options.length) {
+    return '';
+  }
+
+  return t(options[id - 1]);
+};
+
+const getOptionId = (
+  options: string[],
+  selectedValue: string,
+  t: (key: string) => string,
+) => {
+  const index = options.findIndex(option => t(option) === selectedValue);
+
+  return index === -1 ? '' : String(index + 1);
+};
+
 const EditProfile = () => {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -85,8 +115,14 @@ const EditProfile = () => {
   );
   const [cycleLength, setCycleLength] = useState('');
 
+  const dispatch = useAppDispatch();
+
   const profile = useAppSelector(state => state.auth.profile);
   const emailFromRedux = useAppSelector(state => state.auth.email);
+  const profileCacheKey = `profileData_${emailFromRedux?.toLowerCase().trim()}`;
+  const profilePhotoKey = `profilePhotoUri_${emailFromRedux
+    ?.toLowerCase()
+    .trim()}`;
 
   const [state, setState] = useState('');
   const [city, setCity] = useState('');
@@ -150,9 +186,15 @@ const EditProfile = () => {
     setWeight(profile.weight ?? '');
     setWeightUnit(profile.weightUnit ?? 'KG');
 
-    setLactating(profile.lactating ?? '');
-    setContraceptive(profile.contraceptive ?? '');
-    setBleedTimeline(profile.bleedTimeline ?? '');
+    setLactating(getOptionLabel(lactatingOptions, profile.lactating, t));
+
+    setContraceptive(
+      getOptionLabel(contraceptiveOptions, profile.contraceptive, t),
+    );
+
+    setBleedTimeline(
+      getOptionLabel(bleedTimelineOptions, profile.bleedTimeline, t),
+    );
 
     setLastMenstruationDate(
       profile.lastMenstruationDate
@@ -169,13 +211,64 @@ const EditProfile = () => {
   }, [profile, emailFromRedux]);
 
   useEffect(() => {
-    const loadProfilePhoto = async () => {
-      const savedPhoto = await AsyncStorage.getItem('profilePhotoUri');
-      setPhotoUri(savedPhoto);
+    if (!emailFromRedux) return;
+
+    const loadProfile = async () => {
+      try {
+        // 1. Check local profile first
+        const savedProfile = await AsyncStorage.getItem(profileCacheKey);
+
+        if (savedProfile) {
+          const parsedProfile = JSON.parse(savedProfile);
+
+          dispatch(updateProfile(parsedProfile));
+
+          console.log('LOCAL PROFILE RESTORED:', parsedProfile);
+          return;
+        }
+
+        // 2. No local profile? Fetch from API
+        const response = await getUserProfile();
+        const data = response.data;
+
+        const apiProfile = {
+          name: data.basicDetails?.name ?? '',
+          phone: data.phone ?? '',
+          dob: data.basicDetails?.dob ?? null,
+
+          height: data.basicDetails?.height ?? '',
+          heightUnit:
+            Number(data.basicDetails?.heightUnit) === 2 ? 'FT/IN' : 'CM',
+
+          weight: data.basicDetails?.weight ?? '',
+          weightUnit:
+            Number(data.basicDetails?.weightUnit) === 2 ? 'LBS' : 'KG',
+
+          lactating: String(data.healthDetail?.lactationStatus ?? ''),
+          contraceptive: String(data.healthDetail?.contraceptionStatus ?? ''),
+          bleedTimeline: String(data.healthDetail?.bleedingTimeline ?? ''),
+
+          cycleLength: String(data.healthDetail?.cycleLength ?? ''),
+          lastMenstruationDate: data.healthDetail?.lastMenstruationDate ?? null,
+
+          state: data.communityPreference?.state ?? '',
+          city: data.communityPreference?.city ?? '',
+          parish: data.communityPreference?.parish ?? '',
+          pastor: data.communityPreference?.pastor ?? '',
+        };
+
+        dispatch(updateProfile(apiProfile));
+
+        await AsyncStorage.setItem(profileCacheKey, JSON.stringify(apiProfile));
+
+        console.log('API PROFILE SAVED LOCALLY:', apiProfile);
+      } catch (error: any) {
+        console.log('GET PROFILE ERROR:', error?.response?.data || error);
+      }
     };
 
-    loadProfilePhoto();
-  }, []);
+    loadProfile();
+  }, [dispatch, emailFromRedux, profileCacheKey]);
 
   const cityOptions = state ? citiesByState[state] ?? [] : [];
 
@@ -215,46 +308,142 @@ const EditProfile = () => {
     return !Object.values(newErrors).some(Boolean);
   };
 
-  const dispatch = useAppDispatch();
+  useEffect(() => {
+    const loadProfile = async () => {
+      let hasLocalProfile = false;
+
+      try {
+        // 1. First load locally saved profile
+        const savedProfile = emailFromRedux
+          ? await AsyncStorage.getItem(profileCacheKey)
+          : null;
+
+        if (savedProfile) {
+          const parsedProfile = JSON.parse(savedProfile);
+
+          dispatch(updateProfile(parsedProfile));
+          hasLocalProfile = true;
+
+          console.log('LOCAL PROFILE RESTORED:', parsedProfile);
+        }
+
+        // 2. Fetch latest profile from backend
+        const response = await getUserProfile();
+        const data = response.data;
+
+        const accountEmail = data.email ?? emailFromRedux;
+
+        if (data.email) {
+          dispatch(setEmailAction(data.email));
+        }
+
+        // 3. If local changes exist, do not overwrite them with old API data
+        if (hasLocalProfile) {
+          console.log('Using locally saved profile');
+          return;
+        }
+
+        // 4. Otherwise use backend profile
+        const apiProfile = {
+          name: data.basicDetails?.name ?? '',
+          phone: data.phone ?? '',
+          dob: data.basicDetails?.dob ?? null,
+
+          height: data.basicDetails?.height ?? '',
+          heightUnit:
+            Number(data.basicDetails?.heightUnit) === 2 ? 'FT/IN' : 'CM',
+
+          weight: data.basicDetails?.weight ?? '',
+          weightUnit:
+            Number(data.basicDetails?.weightUnit) === 2 ? 'LBS' : 'KG',
+
+          lactating: String(data.healthDetail?.lactationStatus ?? ''),
+          contraceptive: String(data.healthDetail?.contraceptionStatus ?? ''),
+          bleedTimeline: String(data.healthDetail?.bleedingTimeline ?? ''),
+
+          cycleLength: String(data.healthDetail?.cycleLength ?? ''),
+          lastMenstruationDate: data.healthDetail?.lastMenstruationDate ?? null,
+
+          state: data.communityPreference?.state ?? '',
+          city: data.communityPreference?.city ?? '',
+          parish: data.communityPreference?.parish ?? '',
+          pastor: data.communityPreference?.pastor ?? '',
+        };
+
+        dispatch(updateProfile(apiProfile));
+
+        // Cache initial backend profile too
+        if (accountEmail) {
+          const key = `profileData_${accountEmail.toLowerCase().trim()}`;
+          await AsyncStorage.setItem(key, JSON.stringify(apiProfile));
+        }
+      } catch (error: any) {
+        console.log('GET PROFILE ERROR:', error?.response?.data || error);
+
+        // If API fails, locally saved profile remains available
+      }
+    };
+
+    loadProfile();
+  }, [dispatch, emailFromRedux, profileCacheKey]);
 
   const handleSave = async () => {
     if (!validateForm()) return;
 
     try {
-      dispatch(
-        updateProfile({
-          name: name.trim(),
-          phone,
-          dob: dob?.toISOString() ?? null,
-          height: heightUnit === 'CM' ? height : `${feet}' ${inches}"`,
-          heightUnit,
-          weight,
-          weightUnit,
-          lactating,
-          contraceptive,
-          bleedTimeline,
-          lastMenstruationDate: lastMenstruationDate?.toISOString() ?? null,
-          cycleLength,
-          state,
-          city,
-          parish,
-          pastor,
-        }),
-      );
+      const updatedProfile = {
+        name: name.trim(),
+        phone,
+        dob: dob?.toISOString() ?? null,
 
-      if (photoUri) {
-        await AsyncStorage.setItem('profilePhotoUri', photoUri);
-      } else {
-        await AsyncStorage.removeItem('profilePhotoUri');
+        height: heightUnit === 'CM' ? height : `${feet}' ${inches}"`,
+        heightUnit,
+
+        weight,
+        weightUnit,
+
+        lactating: getOptionId(lactatingOptions, lactating, t),
+        contraceptive: getOptionId(contraceptiveOptions, contraceptive, t),
+        bleedTimeline: getOptionId(bleedTimelineOptions, bleedTimeline, t),
+
+        cycleLength,
+
+        lastMenstruationDate: lastMenstruationDate?.toISOString() ?? null,
+
+        state,
+        city,
+        parish,
+        pastor,
+      };
+
+      const accountEmail = emailFromRedux || email;
+
+      if (!accountEmail) {
+        throw new Error('User email not found');
       }
+
+      const key = `profileData_${accountEmail.toLowerCase().trim()}`;
+
+      // 1. Save profile in Redux
+      dispatch(updateProfile(updatedProfile));
+
+      // 2. Save profile locally in AsyncStorage
+      await AsyncStorage.setItem(key, JSON.stringify(updatedProfile));
+
+      // 3. Save profile photo locally
+      if (photoUri) {
+        await AsyncStorage.setItem(profilePhotoKey, photoUri);
+      } else {
+        await AsyncStorage.removeItem(profilePhotoKey);
+      }
+
+      console.log('PROFILE SAVED LOCALLY:', updatedProfile);
 
       Toast.show({
         type: 'success',
         text1: 'Profile Updated',
-        text2: 'Your details have been updated.',
+        text2: 'Your details have been saved on this device.',
       });
-
-      await new Promise(resolve => setTimeout(resolve, 2000));
 
       navigation.reset({
         index: 0,
@@ -273,7 +462,7 @@ const EditProfile = () => {
       Toast.show({
         type: 'error',
         text1: 'Update Failed',
-        text2: 'Unable to update profile. Please try again.',
+        text2: 'Unable to save profile. Please try again.',
       });
     }
   };
@@ -314,7 +503,7 @@ const EditProfile = () => {
       Storage.remove(StorageKeys.USER_ID);
       Storage.remove(StorageKeys.SUBSCRIPTION);
 
-      await AsyncStorage.removeItem('profilePhotoUri');
+      await AsyncStorage.removeItem(profilePhotoKey);
 
       dispatch(resetAuth());
 
