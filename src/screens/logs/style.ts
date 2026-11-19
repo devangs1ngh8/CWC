@@ -356,6 +356,7 @@ const styles = StyleSheet.create({
     paddingTop: normalize(16),
     paddingHorizontal: normalize(24),
     marginBottom: normalize(20),
+    paddingBottom: normalize(20),
   },
 
   emptyMedicationCard: {
@@ -530,17 +531,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.textTertiary,
-    borderWidth: 1,
+    borderWidth: normalize(0.5),
     borderColor: '#69B9E5',
-    borderRadius: normalize(24),
-    padding: normalize(18),
-    marginBottom: normalize(16),
+    borderRadius: normalize(16),
+    padding: normalize(16),
+    marginBottom: normalize(12),
   },
 
   medicationCardIcon: {
-    width: normalize(68),
-    height: normalize(68),
-    marginRight: normalize(16),
+    width: normalize(50),
+    height: normalize(50),
+    marginRight: normalize(12),
   },
 
   medicationCardContent: {
@@ -550,16 +551,18 @@ const styles = StyleSheet.create({
   medicationCardName: {
     fontSize: normalize(18),
     color: colors.textPrimary,
+    // fontFamily: 'Manrope-Bold',
   },
 
   medicationCardDetails: {
-    fontSize: normalize(15),
+    fontSize: normalize(14),
     color: colors.textSecondary,
-    marginTop: normalize(8),
+    marginTop: normalize(6),
+    fontFamily: 'Manrope-Medium',
   },
 
   medicationDot: {
-    color: colors.border,
+    color: colors.dotColor,
   },
 
   medicationMore: {
@@ -580,20 +583,10 @@ const styles = StyleSheet.create({
     marginTop: normalize(4),
   },
 
-  addMedicationIcon: {
-    width: normalize(42),
-    height: normalize(42),
-    borderRadius: normalize(10),
-    backgroundColor: colors.backgroundBG8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: normalize(8),
-  },
-
   addMedicationPlus: {
-    fontSize: normalize(34),
-    color: colors.textTertiary,
-    lineHeight: normalize(38),
+    width: normalize(24),
+    height: normalize(24),
+    marginRight: normalize(8),
   },
 
   addMedicationText: {

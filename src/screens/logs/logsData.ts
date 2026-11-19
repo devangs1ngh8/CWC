@@ -31,10 +31,12 @@ export const getLogsSections = (t: (key: string) => string) => [
       { title: t('logs.vulvalSensation.sticky'), source: logsImages.sticky },
       { title: t('logs.vulvalSensation.moist'), source: logsImages.moist },
       { title: t('logs.vulvalSensation.wet'), source: logsImages.wet },
+      { title: t('logs.vulvalSensation.drip'), source: logsImages.drip },
       {
         title: t('logs.vulvalSensation.slippery'),
         source: logsImages.slippery,
       },
+      { title: t('logs.vulvalSensation.bubble'), source: logsImages.bubble },
     ],
   },
 

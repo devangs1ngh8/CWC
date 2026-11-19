@@ -15,6 +15,12 @@ import {
 
 import { useTranslation } from 'react-i18next';
 
+import {
+  addMedication,
+  updateMedication,
+  deleteMedication,
+} from '../../services/medication/medication';
+
 import styles from './style';
 
 import { image } from '../../assets';
@@ -31,6 +37,9 @@ import LogSection from '../../components/logSection';
 
 import LogOption from '../../components/logOption';
 
+import { Storage } from '../../services/storage/index';
+import { StorageKeys } from '../../services/storage/keys';
+
 import colors from '../../utils/color';
 
 import { validateTemperature } from '../../utils/validations';
@@ -39,7 +48,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppDispatch, useAppSelector } from '../../redux';
 
 import { setLogsForDate } from '../../redux/slice/logsSlice';
-import { getLogs } from '../../services/logs/logs';
+import { getLogs, saveLogs } from '../../services/logs/logs';
 
 import { normalize, SCREEN_WIDTH } from '../../utils/metrics';
 
@@ -60,25 +69,59 @@ const Logs = () => {
 
   type Medication = {
     id: string;
-
     name: string;
-
     dosage: string;
-
     dosageUnit: 'mg' | 'ml';
-
     time: string;
   };
+
+  type HormoneValues = {
+    lh: string;
+    fsh: string;
+    estrogen: string;
+    progesterone: string;
+  };
+
+  type LogsDetails = {
+    temperature: string;
+    temperatureUnit: '°C' | '°F';
+    savedHormones: Record<string, string>;
+    hormones: HormoneValues;
+    medications: Medication[];
+    notes: string;
+  };
+
+  const createEmptyLogsDetails = (): LogsDetails => ({
+    temperature: '',
+    temperatureUnit: '°C',
+    savedHormones: {},
+    hormones: {
+      lh: '',
+      fsh: '',
+      estrogen: '',
+      progesterone: '',
+    },
+    medications: [],
+    notes: '',
+  });
 
   const [medications, setMedications] = useState<Medication[]>([]);
 
   const [selectedDate, setSelectedDate] = useState(new Date(today));
 
   const [selectedByDate, setSelectedByDate] = useState<
-    Record<string, Record<string, string>>
+    Record<string, Record<string, string[]>>
   >({});
 
-  const [temperature, setTemperature] = useState('');
+  const [isStorageLoaded, setIsStorageLoaded] = useState(false);
+
+  const [detailsByDate, setDetailsByDate] = useState<
+    Record<string, LogsDetails>
+  >({});
+
+  const [isDetailsLoaded, setIsDetailsLoaded] = useState(false);
+
+  // const [temperature, setTemperature] = useState('');
 
   const [temperatureUnit, setTemperatureUnit] = useState<'°C' | '°F'>('°C');
 
@@ -106,14 +149,131 @@ const Logs = () => {
 
   const selected = selectedByDate[logDate] || {};
 
+  const currentDetails = detailsByDate[logDate] ?? createEmptyLogsDetails();
+
+  const updateDetailsForDate = (updates: Partial<LogsDetails>) => {
+    setDetailsByDate(prev => ({
+      ...prev,
+      [logDate]: {
+        ...(prev[logDate] ?? createEmptyLogsDetails()),
+        ...updates,
+      },
+    }));
+  };
+
+  const handleSaveTemperature = async () => {
+    if (!currentDetails.temperature.trim()) {
+      return;
+    }
+
+    try {
+      const response = await saveLogs({
+        logType: 2,
+        logDate,
+        basalBodyTemperature: {
+          category: 8,
+          categoryNameKey: 'LOG.CATEGORY.BASAL_BODY_TEMPERATURE',
+          unit: 1,
+          value: Number(currentDetails.temperature),
+        },
+      });
+
+      console.log('Temperature saved:', response);
+    } catch (error) {
+      console.log('Temperature save error:', error);
+    }
+  };
+
+  const handleSaveHormones = async () => {
+    const selectedHormones = hormonesData
+      .filter(hormone => hormones[hormone.key].trim() !== '')
+      .map(hormone => ({
+        optionNameKey: `LOG.URINARY_HORMONES.${hormone.key.toUpperCase()}`,
+        value: Number(hormones[hormone.key]),
+        unit: hormone.unit,
+      }));
+
+    try {
+      const response = await saveLogs({
+        logType: 3,
+        logDate,
+        urinaryHormones: {
+          category: 9,
+          categoryNameKey: 'LOG.CATEGORY.URINARY_HORMONES',
+          selectedOption: selectedHormones,
+        },
+      });
+
+      console.log('Hormones saved:', response);
+    } catch (error: any) {
+      console.log('SAVE HORMONES ERROR:', error.response?.data || error);
+    }
+  };
+
+  const handleSaveNotes = async () => {
+    const note = currentDetails.notes.trim();
+
+    if (!note) return;
+
+    try {
+      const response = await saveLogs({
+        logType: 4,
+        logDate,
+        notes: {
+          category: 11,
+          categoryNameKey: 'LOG.CATEGORY.NOTES',
+          note,
+        },
+      });
+
+      console.log('Notes saved:', response);
+    } catch (error: any) {
+      console.log('SAVE NOTES ERROR:', error.response?.data || error);
+    }
+  };
+
   const logs = useAppSelector(state => state.logs.logsByDate[logDate]);
 
+  const fetchedCategories = logs?.data?.logs ?? [];
+
   useEffect(() => {
+    const savedSelections = Storage.get<
+      Record<string, Record<string, string | string[]>>
+    >(StorageKeys.LOGS_SELECTIONS);
+
+    if (savedSelections && typeof savedSelections === 'object') {
+      const normalizedSelections: Record<string, Record<string, string[]>> = {};
+
+      Object.entries(savedSelections).forEach(([date, sections]) => {
+        normalizedSelections[date] = {};
+
+        Object.entries(sections).forEach(([sectionKey, value]) => {
+          normalizedSelections[date][sectionKey] = Array.isArray(value)
+            ? value
+            : value
+            ? [value]
+            : [];
+        });
+      });
+
+      setSelectedByDate(normalizedSelections);
+    }
+
+    setIsStorageLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isStorageLoaded) return;
+
+    Storage.set(StorageKeys.LOGS_SELECTIONS, selectedByDate);
+  }, [selectedByDate, isStorageLoaded]);
+
+  useEffect(() => {
+    if (!isStorageLoaded) return;
+
     const fetchLogs = async () => {
       try {
         const response = await getLogs(logDate);
-
-        console.log('GET LOGS RESPONSE:', response);
 
         dispatch(
           setLogsForDate({
@@ -129,7 +289,25 @@ const Logs = () => {
     };
 
     fetchLogs();
-  }, [logDate, dispatch]);
+  }, [logDate, dispatch, isStorageLoaded]);
+
+  useEffect(() => {
+    const savedDetails = Storage.get<Record<string, LogsDetails>>(
+      StorageKeys.LOGS_DETAILS,
+    );
+
+    if (savedDetails && typeof savedDetails === 'object') {
+      setDetailsByDate(savedDetails);
+    }
+
+    setIsDetailsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isDetailsLoaded) return;
+
+    Storage.set(StorageKeys.LOGS_DETAILS, detailsByDate);
+  }, [detailsByDate, isDetailsLoaded]);
 
   const [medicationName, setMedicationName] = useState('');
 
@@ -149,6 +327,8 @@ const Logs = () => {
   const [medicationOptionsVisible, setMedicationOptionsVisible] =
     useState(false);
   const [deleteMedicationVisible, setDeleteMedicationVisible] = useState(false);
+
+  const [loadingOptionKey, setLoadingOptionKey] = useState<string | null>(null);
 
   const resetMedicationForm = () => {
     setMedicationName('');
@@ -170,7 +350,7 @@ const Logs = () => {
   };
 
   const editMedication = () => {
-    const medication = medications.find(
+    const medication = currentDetails.medications.find(
       item => item.id === selectedMedicationId,
     );
 
@@ -190,63 +370,182 @@ const Logs = () => {
     setDeleteMedicationVisible(true);
   };
 
-  const saveMedication = () => {
+  const saveMedication = async () => {
     if (!medicationName.trim() || !dosage.trim()) return;
 
-    if (isEditingMedication && selectedMedicationId) {
-      setMedications(previous =>
-        previous.map(item =>
-          item.id === selectedMedicationId
-            ? {
-                ...item,
-                name: medicationName.trim(),
-                dosage,
-                dosageUnit,
-                time: medicationTime,
-              }
-            : item,
-        ),
-      );
-    } else {
-      setMedications(previous => [
-        ...previous,
-        {
-          id: Date.now().toString(),
-          name: medicationName.trim(),
-          dosage,
-          dosageUnit,
-          time: medicationTime,
-        },
-      ]);
-    }
+    const payload = {
+      name: medicationName.trim(),
+      dosage,
+      unit: dosageUnit === 'mg' ? 1 : 2,
+      time: 1,
+      logDate,
+    };
 
-    setMedicationModalVisible(false);
-    resetMedicationForm();
+    try {
+      if (isEditingMedication && selectedMedicationId) {
+        const response = await updateMedication({
+          medicationId: selectedMedicationId,
+          ...payload,
+        });
+
+        if (!response || (response.status !== 200 && response.status !== 201)) {
+          console.log('UPDATE MEDICATION FAILED:', response);
+          return;
+        }
+
+        // Update local state only after API success
+        updateDetailsForDate({
+          medications: currentDetails.medications.map(item =>
+            item.id === selectedMedicationId
+              ? {
+                  ...item,
+                  name: medicationName.trim(),
+                  dosage,
+                  dosageUnit,
+                  time: medicationTime,
+                }
+              : item,
+          ),
+        });
+      } else {
+        const response = await addMedication(payload);
+
+        if (!response || response.status !== 201) {
+          console.log('ADD MEDICATION FAILED:', response);
+          return;
+        }
+
+        updateDetailsForDate({
+          medications: [
+            ...currentDetails.medications,
+            {
+              id: response.data._id,
+              name: response.data.name,
+              dosage: response.data.dosage,
+              dosageUnit,
+              time: medicationTime,
+            },
+          ],
+        });
+      }
+
+      setMedicationModalVisible(false);
+      resetMedicationForm();
+    } catch (error: any) {
+      console.log('SAVE MEDICATION ERROR:', error.response?.data || error);
+    }
   };
 
-  const confirmDeleteMedication = () => {
+  const confirmDeleteMedication = async () => {
     if (!selectedMedicationId) return;
 
-    setMedications(previous =>
-      previous.filter(item => item.id !== selectedMedicationId),
-    );
+    try {
+      const response = await deleteMedication(selectedMedicationId);
 
-    setDeleteMedicationVisible(false);
-    setSelectedMedicationId(null);
+      if (!response || response.status !== 200) {
+        console.log('DELETE MEDICATION FAILED:', response);
+        return;
+      }
+
+      updateDetailsForDate({
+        medications: currentDetails.medications.filter(
+          item => item.id !== selectedMedicationId,
+        ),
+      });
+
+      setDeleteMedicationVisible(false);
+      setSelectedMedicationId(null);
+    } catch (error: any) {
+      console.log('DELETE MEDICATION ERROR:', error.response?.data || error);
+    }
   };
 
-  const selectOption = (category: string, option: string) => {
-    setSelectedByDate(previous => {
-      const dateSelections = previous[logDate] || {};
+  const selectOption = async (sectionKey: string, optionTitle: string) => {
+    const optionKey = `${sectionKey}-${optionTitle}`;
+
+    setLoadingOptionKey(optionKey);
+
+    const dripTitle = t('logs.vulvalSensation.drip');
+    const bubbleTitle = t('logs.vulvalSensation.bubble');
+    const noneTitle = t('logs.symptoms.blockGreen');
+
+    setSelectedByDate(prev => {
+      const currentSelections = prev[logDate]?.[sectionKey] || [];
+
+      let updatedSelections: string[] = [];
+
+      // VULVAL SENSATION
+      if (sectionKey === 'sensation') {
+        if (optionTitle === dripTitle) {
+          updatedSelections = currentSelections.filter(
+            item => item !== dripTitle && item !== bubbleTitle,
+          );
+
+          if (!currentSelections.includes(dripTitle)) {
+            updatedSelections.push(dripTitle);
+          }
+        } else if (optionTitle === bubbleTitle) {
+          updatedSelections = currentSelections.filter(
+            item => item !== dripTitle && item !== bubbleTitle,
+          );
+
+          if (!currentSelections.includes(bubbleTitle)) {
+            updatedSelections.push(bubbleTitle);
+          }
+        } else {
+          updatedSelections = currentSelections.includes(optionTitle)
+            ? currentSelections.filter(item => item !== optionTitle)
+            : [...currentSelections, optionTitle];
+        }
+      }
+
+      // SYMPTOMS
+      else if (sectionKey === 'symptoms') {
+        if (optionTitle === noneTitle) {
+          updatedSelections = currentSelections.includes(noneTitle)
+            ? []
+            : [noneTitle];
+        } else {
+          updatedSelections = currentSelections.filter(
+            item => item !== noneTitle,
+          );
+
+          updatedSelections = updatedSelections.includes(optionTitle)
+            ? updatedSelections.filter(item => item !== optionTitle)
+            : [...updatedSelections, optionTitle];
+        }
+      }
+
+      // OTHER SECTIONS: KEEP SINGLE SELECTION BEHAVIOUR
+      else {
+        updatedSelections = currentSelections.includes(optionTitle)
+          ? []
+          : [optionTitle];
+      }
 
       return {
-        ...previous,
+        ...prev,
         [logDate]: {
-          ...dateSelections,
-          [category]: dateSelections[category] === option ? '' : option,
+          ...(prev[logDate] || {}),
+          [sectionKey]: updatedSelections,
         },
       };
     });
+
+    try {
+      const response = await getLogs(logDate);
+
+      dispatch(
+        setLogsForDate({
+          date: logDate,
+          data: response,
+        }),
+      );
+    } catch (error: any) {
+      console.log('Error fetching logs:', error.response?.data || error);
+    } finally {
+      setLoadingOptionKey(null);
+    }
   };
 
   const formattedDate = selectedDate.toLocaleDateString('en-US', {
@@ -304,7 +603,7 @@ const Logs = () => {
 
   const handleNotesChange = (value: string) => {
     if (validateConsecutiveSpaces(value)) {
-      setNotes(value);
+      updateDetailsForDate({ notes: value });
     }
   };
 
@@ -411,8 +710,13 @@ const Logs = () => {
                 key={option.title}
                 title={option.title}
                 source={option.source}
-                selected={selected[section.key] === option.title}
+                selected={
+                  selected[section.key]?.includes(option.title) || false
+                }
                 selectedCard={section.selectedCard}
+                isLoading={
+                  loadingOptionKey === `${section.key}-${option.title}`
+                }
                 onPress={() => selectOption(section.key, option.title)}
               />
             ))}
@@ -436,10 +740,13 @@ const Logs = () => {
                 placeholder={t('logs.temperature.placeholder')}
                 placeholderTextColor={colors.textFourth}
                 keyboardType="decimal-pad"
-                value={temperature}
+                value={currentDetails.temperature}
                 onChangeText={value =>
-                  setTemperature(validateTemperature(value))
+                  updateDetailsForDate({
+                    temperature: validateTemperature(value),
+                  })
                 }
+                onEndEditing={handleSaveTemperature}
               />
             </View>
 
@@ -447,18 +754,22 @@ const Logs = () => {
               {(['°C', '°F'] as const).map(unit => (
                 <Pressable
                   key={unit}
-                  onPress={() => setTemperatureUnit(unit)}
+                  onPress={() =>
+                    updateDetailsForDate({ temperatureUnit: unit })
+                  }
                   style={[
                     styles.unitButton,
 
-                    temperatureUnit === unit && styles.activeUnitButton,
+                    currentDetails.temperatureUnit === unit &&
+                      styles.activeUnitButton,
                   ]}
                 >
                   <Text
                     style={[
                       styles.unitText,
 
-                      temperatureUnit === unit && styles.activeUnitText,
+                      currentDetails.temperatureUnit === unit &&
+                        styles.activeUnitText,
                     ]}
                   >
                     {unit}
@@ -481,10 +792,15 @@ const Logs = () => {
 
                 <View style={styles.pencilRow}>
                   <Text style={styles.hormoneValue}>
-                    {savedHormones[hormone.key] || '----'}
+                    {currentDetails.savedHormones[hormone.key] || '----'}
                   </Text>
 
-                  <Pressable onPress={() => setEditingHormone(hormone.key)}>
+                  <Pressable
+                    onPress={() => {
+                      setHormones(currentDetails.hormones);
+                      setEditingHormone(hormone.key);
+                    }}
+                  >
                     <Image
                       source={image.editPencil}
                       style={styles.hormoneEdit}
@@ -501,7 +817,7 @@ const Logs = () => {
             {t('logs.medications.title')}
           </Text>
 
-          {medications.length === 0 ? (
+          {currentDetails.medications.length === 0 ? (
             <View style={styles.emptyMedicationCard}>
               <Image
                 source={image.medicines}
@@ -523,7 +839,7 @@ const Logs = () => {
             </View>
           ) : (
             <>
-              {medications.map(medication => (
+              {currentDetails.medications.map(medication => (
                 <View key={medication.id} style={styles.medicationCard}>
                   <Image
                     source={image.medicines}
@@ -553,9 +869,10 @@ const Logs = () => {
                 style={styles.addMedicationCard}
                 onPress={openAddMedication}
               >
-                <View style={styles.addMedicationIcon}>
-                  <Text style={styles.addMedicationPlus}>+</Text>
-                </View>
+                <Image
+                  source={image.addMedication}
+                  style={styles.addMedicationPlus}
+                />
 
                 <Text style={styles.addMedicationText}>
                   {t('logs.medications.addMedication')}
@@ -572,7 +889,8 @@ const Logs = () => {
             placeholder={t('logs.notes.placeholder')}
             style={styles.notesInput}
             placeholderTextColor={colors.textFourth}
-            value={notes}
+            value={currentDetails.notes}
+            onEndEditing={handleSaveNotes}
             onChangeText={handleNotesChange}
             maxLength={100}
             multiline
@@ -660,7 +978,7 @@ const Logs = () => {
 
                 <Pressable
                   style={styles.modalSaveButton}
-                  onPress={() => {
+                  onPress={async () => {
                     const isValid = hormonesData.every(hormone => {
                       const value = hormones[hormone.key];
                       return value === '' || validateHormoneValue(value);
@@ -668,17 +986,22 @@ const Logs = () => {
 
                     if (!isValid) return;
 
-                    setSavedHormones(previous => ({
-                      ...previous,
-                      ...Object.fromEntries(
-                        hormonesData.map(hormone => [
-                          hormone.key,
-                          hormones[hormone.key]
-                            ? `${hormones[hormone.key]} ${hormone.unit}`
-                            : '',
-                        ]),
-                      ),
-                    }));
+                    await handleSaveHormones();
+
+                    updateDetailsForDate({
+                      hormones: { ...hormones },
+                      savedHormones: {
+                        ...currentDetails.savedHormones,
+                        ...Object.fromEntries(
+                          hormonesData.map(hormone => [
+                            hormone.key,
+                            hormones[hormone.key]
+                              ? `${hormones[hormone.key]} ${hormone.unit}`
+                              : '',
+                          ]),
+                        ),
+                      },
+                    });
 
                     Keyboard.dismiss();
                     setEditingHormone(null);
