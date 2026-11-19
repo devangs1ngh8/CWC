@@ -47,6 +47,9 @@ export const image = {
   voucherTick: require(`${Path}/voucherTick.png`),
   promoApplied: require(`${Path}/promoApplied.png`),
   plusIcon: require(`${Path}/plusIcon.png`),
+  addMedication: require(`${Path}/addMedication.png`),
+  defaultLearningSpanish: require(`${Path}/defaultLearningSpanish.png`),
+  defaultLearningEnglish: require(`${Path}/defaultLearningEnglish.png`),
 
   // cycleBasics3: require(`${Path}/cycleBasics3.png`),
   // practicalGuidance2: require(`${Path}/practicalGuidance2.png`),
@@ -154,6 +157,8 @@ export const logsImages = {
   slippery: require(`${Path}/logs/vulval/slippery.png`),
   sticky: require(`${Path}/logs/vulval/sticky.png`),
   wet: require(`${Path}/logs/vulval/wet.png`),
+  drip: require(`${Path}/drip.png`),
+  bubble: require(`${Path}/bubble.png`),
 };
 
 // export { image, logsImages };
