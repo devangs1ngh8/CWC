@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next';
 
 import styles from './style';
 import { image } from '../../assets';
-import { learningData } from './learningData';
+import { getEducationList } from '../../services/home';
+import i18n from '../../i18n';
 import { useNavigation } from '@react-navigation/native';
 import { ScreenName } from '../../navigation/screenName';
 
@@ -29,7 +30,9 @@ const Home = () => {
     date.setHours(0, 0, 0, 0);
     return date;
   });
-  const [exploreAll, setExploreAll] = useState(false);
+
+  const [learningItems, setLearningItems] = useState<any[]>([]);
+  const [isLearningLoading, setIsLearningLoading] = useState(false);
 
   console.log('REDUX PROFILE:', JSON.stringify(profile, null, 2));
 
@@ -64,9 +67,7 @@ const Home = () => {
     year: 'numeric',
   });
 
-  const visibleLearningData = exploreAll
-    ? learningData
-    : learningData.slice(0, 4);
+  const visibleLearningData = learningItems.slice(0, 4);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -171,6 +172,37 @@ const Home = () => {
     fetchProfile();
   }, [dispatch]);
 
+  useEffect(() => {
+    const fetchEducation = async () => {
+      try {
+        setIsLearningLoading(true);
+
+        const response = await getEducationList(1, 10);
+
+        // Handle both Axios response and response body
+        const candidates = [response?.data?.data, response?.data, response];
+
+        const result = candidates.find(item => Array.isArray(item?.data));
+
+        const items = result?.data || [];
+
+        setLearningItems(items);
+
+        console.log('HOME EDUCATION ITEMS COUNT:', items.length);
+        console.log('HOME EDUCATION ITEMS:', items);
+      } catch (error: any) {
+        console.log(
+          'HOME EDUCATION API ERROR:',
+          error?.response?.data || error,
+        );
+      } finally {
+        setIsLearningLoading(false);
+      }
+    };
+
+    fetchEducation();
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
@@ -274,28 +306,40 @@ const Home = () => {
           <View style={styles.learningGrid}>
             {visibleLearningData.map(item => (
               <Pressable
-                key={item.id}
+                key={item._id}
                 style={styles.learningCard}
                 onPress={() =>
                   navigation.navigate(ScreenName.LearningDetail, { item })
                 }
               >
                 <Image
-                  source={item.image}
+                  source={
+                    item.mediaFile?.url
+                      ? { uri: item.mediaFile.url }
+                      : item.mediaFile?.path
+                      ? { uri: item.mediaFile.path }
+                      : i18n.language?.startsWith('es')
+                      ? image.defaultLearningSpanish
+                      : image.defaultLearningEnglish
+                  }
                   style={styles.learningImage}
                   resizeMode="cover"
                 />
 
-                <Text style={styles.learningTitle} numberOfLines={2}>
+                <Text style={styles.learningTitle} numberOfLines={1}>
                   {item.title}
                 </Text>
 
                 <Text style={styles.learningDescription} numberOfLines={2}>
-                  {item.description}
+                  {item.description?.replace(/<[^>]*>/g, '').trim()}
                 </Text>
               </Pressable>
             ))}
           </View>
+
+          {isLearningLoading && (
+            <Text style={{ textAlign: 'center' }}>Loading...</Text>
+          )}
 
           <Pressable
             style={styles.exploreButton}
