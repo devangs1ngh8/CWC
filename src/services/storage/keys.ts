@@ -17,6 +17,8 @@ export const UserSpecificStorageKeys = {
 export const StorageKeys = {
   ...AppSpecificStorageKeys,
   ...UserSpecificStorageKeys,
+  LOGS_SELECTIONS: 'logs_selections',
+  LOGS_DETAILS: 'logs_details',
 } satisfies Record<string, string>;
 
 export type StorageKey = (typeof StorageKeys)[keyof typeof StorageKeys];
