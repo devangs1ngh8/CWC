@@ -242,7 +242,9 @@
       "sticky": "Sticky",
       "moist": "Moist",
       "wet": "Wet",
-      "slippery": "Slippery"
+      "slippery": "Slippery",
+      "drip": "Drip",
+      "bubble": "Bubble"
     },
     "cervicalFluidColor": {
       "white": "White",
