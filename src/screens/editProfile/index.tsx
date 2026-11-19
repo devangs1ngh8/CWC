@@ -14,6 +14,7 @@ import Toast from 'react-native-toast-message';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { updateUserProfile } from '../../services/auth/auth';
 
 import { useAppDispatch, useAppSelector } from '../../redux';
 
@@ -25,7 +26,14 @@ import {
 
 import { getUserProfile } from '../../services/auth/auth';
 
-import { deleteAccount } from '../../services/userService'; // apne actual service path ke according
+import {
+  getCommunityStates,
+  getCommunityCities,
+  getCommunityParishes,
+  getCommunityPastors,
+} from '../../services/community/community';
+
+import { deleteAccount } from '../../services/userService';
 
 import { Storage } from '../../services/storage/index';
 import { StorageKeys } from '../../services/storage/keys';
@@ -36,17 +44,18 @@ import {
   DateInput,
   PrimaryButton,
   HeaderSection,
+  ScreenHeader,
 } from '../../components';
 
 import { image } from '../../assets';
 import styles from './style';
 import colors from '../../utils/color';
 
-import {
-  states,
-  citiesByState,
-  parishNames,
-} from '../../constants/communityOptions';
+// import {
+//   states,
+//   citiesByState,
+//   parishNames,
+// } from '../../constants/communityOptions';
 
 import {
   lactatingOptions,
@@ -64,6 +73,7 @@ import {
 
 // import { getProfileData, saveProfileData } from '../../utils/profileStorage';
 import { ScreenName } from '../../navigation/screenName';
+// import { citiesByState } from '../../constants/communityOptions';
 
 const getOptionLabel = (
   options: string[],
@@ -124,10 +134,57 @@ const EditProfile = () => {
     ?.toLowerCase()
     .trim()}`;
 
+  const [states, setStates] = useState<string[]>([]);
+  const [cities, setCities] = useState<string[]>([]);
+  const [parishes, setParishes] = useState<string[]>([]);
+
   const [state, setState] = useState('');
   const [city, setCity] = useState('');
   const [parish, setParish] = useState('');
   const [pastor, setPastor] = useState('');
+
+  const [loadingStates, setLoadingStates] = useState(false);
+  const [loadingCities, setLoadingCities] = useState(false);
+
+  useEffect(() => {
+    const fetchStates = async () => {
+      try {
+        setLoadingStates(true);
+
+        const data = await getCommunityStates();
+        setStates(data || []);
+      } catch (error) {
+        console.log('FETCH STATES ERROR:', error);
+      } finally {
+        setLoadingStates(false);
+      }
+    };
+
+    fetchStates();
+  }, []);
+
+  const handleStateChange = async (value: string) => {
+    setState(value);
+
+    // Reset dependent selections
+    setCity('');
+    setParish('');
+    setPastor('');
+
+    setCities([]);
+    setParishes([]);
+
+    try {
+      setLoadingCities(true);
+
+      const data = await getCommunityCities(value);
+      setCities(data || []);
+    } catch (error) {
+      console.log('FETCH CITIES ERROR:', error);
+    } finally {
+      setLoadingCities(false);
+    }
+  };
 
   const [errors, setErrors] = useState({
     name: '',
@@ -210,67 +267,7 @@ const EditProfile = () => {
     setPastor(profile.pastor ?? '');
   }, [profile, emailFromRedux]);
 
-  useEffect(() => {
-    if (!emailFromRedux) return;
-
-    const loadProfile = async () => {
-      try {
-        // 1. Check local profile first
-        const savedProfile = await AsyncStorage.getItem(profileCacheKey);
-
-        if (savedProfile) {
-          const parsedProfile = JSON.parse(savedProfile);
-
-          dispatch(updateProfile(parsedProfile));
-
-          console.log('LOCAL PROFILE RESTORED:', parsedProfile);
-          return;
-        }
-
-        // 2. No local profile? Fetch from API
-        const response = await getUserProfile();
-        const data = response.data;
-
-        const apiProfile = {
-          name: data.basicDetails?.name ?? '',
-          phone: data.phone ?? '',
-          dob: data.basicDetails?.dob ?? null,
-
-          height: data.basicDetails?.height ?? '',
-          heightUnit:
-            Number(data.basicDetails?.heightUnit) === 2 ? 'FT/IN' : 'CM',
-
-          weight: data.basicDetails?.weight ?? '',
-          weightUnit:
-            Number(data.basicDetails?.weightUnit) === 2 ? 'LBS' : 'KG',
-
-          lactating: String(data.healthDetail?.lactationStatus ?? ''),
-          contraceptive: String(data.healthDetail?.contraceptionStatus ?? ''),
-          bleedTimeline: String(data.healthDetail?.bleedingTimeline ?? ''),
-
-          cycleLength: String(data.healthDetail?.cycleLength ?? ''),
-          lastMenstruationDate: data.healthDetail?.lastMenstruationDate ?? null,
-
-          state: data.communityPreference?.state ?? '',
-          city: data.communityPreference?.city ?? '',
-          parish: data.communityPreference?.parish ?? '',
-          pastor: data.communityPreference?.pastor ?? '',
-        };
-
-        dispatch(updateProfile(apiProfile));
-
-        await AsyncStorage.setItem(profileCacheKey, JSON.stringify(apiProfile));
-
-        console.log('API PROFILE SAVED LOCALLY:', apiProfile);
-      } catch (error: any) {
-        console.log('GET PROFILE ERROR:', error?.response?.data || error);
-      }
-    };
-
-    loadProfile();
-  }, [dispatch, emailFromRedux, profileCacheKey]);
-
-  const cityOptions = state ? citiesByState[state] ?? [] : [];
+  // const cityOptions = state ? citiesByState[state] ?? [] : [];
 
   const validateForm = () => {
     const newErrors = {
@@ -313,7 +310,6 @@ const EditProfile = () => {
       let hasLocalProfile = false;
 
       try {
-        // 1. First load locally saved profile
         const savedProfile = emailFromRedux
           ? await AsyncStorage.getItem(profileCacheKey)
           : null;
@@ -327,7 +323,6 @@ const EditProfile = () => {
           console.log('LOCAL PROFILE RESTORED:', parsedProfile);
         }
 
-        // 2. Fetch latest profile from backend
         const response = await getUserProfile();
         const data = response.data;
 
@@ -337,13 +332,11 @@ const EditProfile = () => {
           dispatch(setEmailAction(data.email));
         }
 
-        // 3. If local changes exist, do not overwrite them with old API data
         if (hasLocalProfile) {
-          console.log('Using locally saved profile');
+          // console.log('Using locally saved profile');
           return;
         }
 
-        // 4. Otherwise use backend profile
         const apiProfile = {
           name: data.basicDetails?.name ?? '',
           phone: data.phone ?? '',
@@ -372,15 +365,12 @@ const EditProfile = () => {
 
         dispatch(updateProfile(apiProfile));
 
-        // Cache initial backend profile too
         if (accountEmail) {
           const key = `profileData_${accountEmail.toLowerCase().trim()}`;
           await AsyncStorage.setItem(key, JSON.stringify(apiProfile));
         }
       } catch (error: any) {
         console.log('GET PROFILE ERROR:', error?.response?.data || error);
-
-        // If API fails, locally saved profile remains available
       }
     };
 
@@ -424,13 +414,10 @@ const EditProfile = () => {
 
       const key = `profileData_${accountEmail.toLowerCase().trim()}`;
 
-      // 1. Save profile in Redux
       dispatch(updateProfile(updatedProfile));
 
-      // 2. Save profile locally in AsyncStorage
       await AsyncStorage.setItem(key, JSON.stringify(updatedProfile));
 
-      // 3. Save profile photo locally
       if (photoUri) {
         await AsyncStorage.setItem(profilePhotoKey, photoUri);
       } else {
@@ -805,17 +792,15 @@ const EditProfile = () => {
             title={t('community.selectState')}
             options={states}
             selectedValue={state}
-            onSelect={value => {
-              setState(value);
-              setCity('');
-            }}
+            onSelect={handleStateChange}
+            disabled={loadingStates}
           />
 
           <Text style={styles.label}>{t('community.city')}</Text>
 
           <CustomDropdown
             title={t('community.selectCity')}
-            options={cityOptions}
+            options={cities}
             selectedValue={city}
             onSelect={setCity}
           />
@@ -824,7 +809,7 @@ const EditProfile = () => {
 
           <CustomDropdown
             title={t('community.selectParish')}
-            options={parishNames}
+            options={parishes}
             selectedValue={parish}
             onSelect={setParish}
           />
