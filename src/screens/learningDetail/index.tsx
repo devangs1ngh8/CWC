@@ -15,7 +15,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 
 import styles from './style';
 import { image } from '../../assets';
-import { LearningItem } from '../home/learningData';
+
+import i18n from '../../i18n';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -33,7 +34,7 @@ const LearningDetail = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
 
-  const { item } = route.params as { item: LearningItem };
+  const { item } = route.params as { item: any };
 
   const videoId = getYouTubeVideoId(item.videoUrl);
 
@@ -135,18 +136,27 @@ const LearningDetail = () => {
         <>
           <View style={styles.imageHeader}>
             <Image
-              source={item.image}
+              source={
+                item.mediaFile?.url
+                  ? { uri: item.mediaFile.url }
+                  : item.mediaFile?.path
+                  ? { uri: item.mediaFile.path }
+                  : i18n.language === 'es'
+                  ? image.defaultLearningSpanish
+                  : image.defaultLearningEnglish
+              }
               style={styles.headerImage}
-              resizeMode="cover"
             />
 
             <Pressable style={styles.backButton} onPress={handleBack}>
               <Image source={image.goBack} style={styles.backIcon} />
             </Pressable>
 
-            <Pressable style={styles.playButton} onPress={handlePlay}>
-              <Image style={styles.playIcon} source={image.playButton} />
-            </Pressable>
+            {videoId && (
+              <Pressable style={styles.playButton} onPress={handlePlay}>
+                <Image style={styles.playIcon} source={image.playButton} />
+              </Pressable>
+            )}
           </View>
 
           <View style={styles.content}>
