@@ -25,3 +25,7 @@ export const COMMUNITY_ENDPOINTS = {
 export const HOME_ENDPOINTS = {
   EDUCATION: 'user/home/education',
 };
+
+export const LOGS_ENDPOINTS = {
+  LOGS: 'user/logs',
+};

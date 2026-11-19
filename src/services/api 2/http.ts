@@ -24,12 +24,14 @@ http.interceptors.request.use(async configuration => {
     startTime: Date.now(),
   };
 
-  // Get all stored values
   const [token, deviceModel, language] = await Promise.all([
     Storage.get<string>(StorageKeys.AUTH_TOKEN),
     Storage.get<string>(StorageKeys.DEVICE_MODEL),
     Storage.get<string>(StorageKeys.LANGUAGE),
   ]);
+
+  // console.log('AUTH TOKEN EXISTS:', !!token);
+  // console.log('AUTH TOKEN LENGTH:', token?.length ?? 0);
 
   const isAuthRequest =
     config.url?.includes('user/onboarding/login') ||
@@ -65,6 +67,9 @@ http.interceptors.request.use(async configuration => {
     Intl.DateTimeFormat().resolvedOptions().timeZone,
   );
 
+  // console.log('REQUEST METHOD:', config.method?.toUpperCase());
+  // console.log('REQUEST URL:', `${config.baseURL}${config.url}`);
+
   return config;
 });
 
@@ -93,6 +98,9 @@ http.interceptors.response.use(
   (error: AxiosError<{ message?: string }>) => {
     // eslint-disable-next-line no-console
     console.log('API Error: ', error);
+
+    console.log('API ERROR STATUS:', error.response?.status);
+    console.log('API ERROR DATA:', error.response?.data);
 
     // Generic api_error analytics event — keep payload primitive-only and
     // strip URL query string so we don't leak tokens/PII.

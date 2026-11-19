@@ -42,24 +42,24 @@ export interface OtpResponse {
 }
 
 export interface UpdateProfileRequest {
-  basicDetails?: {
+  basicDetails?: Partial<{
     name: string;
     dob: string;
     heightUnit: number;
     height: string;
     weightUnit: number;
     weight: string;
-  };
+  }>;
 
-  healthDetail?: {
+  healthDetail?: Partial<{
     lactationStatus: number;
     contraceptionStatus: number;
     bleedingTimeline: number;
     cycleLength: number;
     lastMenstruationDate: string;
-  };
+  }>;
 
-  communityPreference?: {
+  communityPreference?: Partial<{
     isCatholic: number;
     comment: string;
     state: string;
@@ -67,7 +67,7 @@ export interface UpdateProfileRequest {
     parish: string;
     pastor: string;
     committedToCatholicTeachings: number;
-  };
+  }>;
 }
 
 export interface UpdateProfileResponse {
