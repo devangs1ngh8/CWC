@@ -1,7 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { LogsResponse } from '../../services/logs/@types/types';
 
 type LogsState = {
-  logsByDate: Record<string, any>;
+  logsByDate: Record<string, LogsResponse>;
 };
 
 type SetLogsPayload = {
