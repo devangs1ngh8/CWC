@@ -27,10 +27,13 @@ const styles = StyleSheet.create({
   // Scrollable content
   scrollView: {
     flex: 1,
-    marginTop: -normalize(20),
+    // marginTop: -normalize(20),
     borderTopLeftRadius: normalize(35),
     borderTopRightRadius: normalize(35),
     backgroundColor: colors.backgroundBG2,
+    // paddingHorizontal: HORIZONTAL_PADDING,
+    // paddingTop: normalize(30),
+    // paddingBottom: normalize(30),
   },
 
   content: {
@@ -143,6 +146,22 @@ const styles = StyleSheet.create({
   backText: {
     color: colors.textTertiary,
     fontSize: normalize(28),
+  },
+
+  loader: {
+    paddingVertical: normalize(20),
+    color: colors.primary,
+  },
+
+  // loaderText: {
+  //   alignSelf: 'center',
+  //   fontSize: normalize(12),
+  // },
+
+  noData: {
+    textAlign: 'center',
+    paddingVertical: 15,
+    fontSize: normalize(13),
   },
 });
 

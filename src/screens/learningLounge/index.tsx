@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   NativeSyntheticEvent,
   NativeScrollEvent,
+  FlatList,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -16,9 +17,11 @@ import { useTranslation } from 'react-i18next';
 import styles from './style';
 import { image } from '../../assets';
 import { ScreenHeader } from '../../components';
-import { learningData } from '../home/learningData';
+
 import { ScreenName } from '../../navigation/screenName';
 import { getEducationList } from '../../services/home';
+import colors from '../../utils/color';
+import i18n from '../../i18n';
 
 const PAGE_SIZE = 10;
 const SCROLL_THRESHOLD = 100;
@@ -27,31 +30,14 @@ const LearningLounge = () => {
   const navigation = useNavigation<any>();
   const { t } = useTranslation();
 
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [learningItems, setLearningItems] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const isLoadingRef = useRef(false);
   const hasTriggeredRef = useRef(false);
-
-  const visibleLearningData = learningData.slice(0, visibleCount);
-
-  const hasMoreData = visibleCount < learningData.length;
-
-  const loadMoreData = () => {
-    if (isLoadingRef.current || !hasMoreData) {
-      return;
-    }
-
-    isLoadingRef.current = true;
-    setIsLoading(true);
-
-    setTimeout(() => {
-      setVisibleCount(prev => Math.min(prev + PAGE_SIZE, learningData.length));
-
-      setIsLoading(false);
-      isLoadingRef.current = false;
-    }, 1000);
-  };
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
@@ -62,31 +48,93 @@ const LearningLounge = () => {
 
     if (isAtBottom && !hasTriggeredRef.current) {
       hasTriggeredRef.current = true;
-      loadMoreData();
+
+      if (page < totalPages) {
+        fetchEducation(page + 1);
+      }
     }
 
-    // Allow the next pagination trigger after scrolling away
     if (!isAtBottom) {
       hasTriggeredRef.current = false;
     }
   };
 
+  const fetchEducation = async (pageNumber: number) => {
+    if (isLoadingRef.current) return;
+
+    isLoadingRef.current = true;
+    setIsLoading(true);
+
+    try {
+      const response = await getEducationList(pageNumber, PAGE_SIZE);
+      const candidates = [response?.data?.data, response?.data, response];
+
+      const result = candidates.find(item => Array.isArray(item?.data));
+
+      const newItems = result?.data || [];
+
+      console.log('EDUCATION ITEMS COUNT:', newItems.length);
+      console.log('FIRST EDUCATION ITEM:', newItems[0]);
+
+      setLearningItems(prev =>
+        pageNumber === 1 ? newItems : [...prev, ...newItems],
+      );
+
+      setPage(result?.currentPage || pageNumber);
+      setTotalPages(result?.totalPages || 1);
+    } catch (error: any) {
+      console.log('EDUCATION API ERROR:', error?.response?.data || error);
+    } finally {
+      isLoadingRef.current = false;
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchEducation = async () => {
-      try {
-        const response = await getEducationList(1, 10);
-
-        // console.log('EDUCATION API RESPONSE:', response);
-      } catch (error: any) {
-        // console.log(
-        //   'EDUCATION API ERROR:',
-        //   error.response?.data || error.message,
-        // );
-      }
-    };
-
-    fetchEducation();
+    fetchEducation(1);
   }, []);
+
+  const renderLearningItem = ({ item }: { item: any }) => {
+    return (
+      <Pressable
+        style={styles.learningCard}
+        onPress={() => navigation.navigate(ScreenName.LearningDetail, { item })}
+      >
+        <Image
+          source={
+            item.mediaFile?.url
+              ? { uri: item.mediaFile.url }
+              : item.mediaFile?.path
+              ? { uri: item.mediaFile.path }
+              : i18n.language === 'es'
+              ? image.defaultLearningSpanish
+              : image.defaultLearningEnglish
+          }
+          style={styles.learningImage}
+        />
+
+        <Text style={styles.learningTitle} numberOfLines={1}>
+          {item.title}
+        </Text>
+
+        <Text style={styles.learningDescription} numberOfLines={2}>
+          {item.description?.replace(/<[^>]*>/g, '').trim()}
+        </Text>
+      </Pressable>
+    );
+  };
+
+  const renderFooter = () => {
+    if (isLoading) {
+      return <ActivityIndicator size="small" style={styles.loader} />;
+    }
+
+    if (page >= totalPages) {
+      return <Text style={styles.noData}>No more learning content</Text>;
+    }
+
+    return undefined;
+  };
 
   return (
     <View style={styles.container}>
@@ -96,53 +144,23 @@ const LearningLounge = () => {
         style={styles.header}
       />
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-      >
-        <View style={styles.learningGrid}>
-          {visibleLearningData.map(item => (
-            <Pressable
-              key={item.id}
-              style={styles.learningCard}
-              onPress={() =>
-                navigation.navigate(ScreenName.LearningDetail, { item })
-              }
-            >
-              <Image
-                source={item.image}
-                style={styles.learningImage}
-                resizeMode="cover"
-              />
-
-              <Text style={styles.learningTitle} numberOfLines={1}>
-                {item.title}
-              </Text>
-
-              <Text style={styles.learningDescription} numberOfLines={2}>
-                {item.description}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-
-        {isLoading && (
-          <ActivityIndicator
-            size="large"
-            color="#793466"
-            style={{ paddingVertical: 20 }}
-          />
-        )}
-
-        {!hasMoreData && (
-          <Text style={{ textAlign: 'center', paddingVertical: 15 }}>
-            No more learning content
-          </Text>
-        )}
-      </ScrollView>
+      <View style={styles.scrollView}>
+        <FlatList
+          data={learningItems}
+          renderItem={renderLearningItem}
+          keyExtractor={item => item._id}
+          numColumns={2}
+          contentContainerStyle={styles.content}
+          columnWrapperStyle={styles.learningGrid}
+          showsVerticalScrollIndicator={false}
+          onEndReached={() => {
+            if (!isLoading && page < totalPages) {
+              fetchEducation(page + 1);
+            }
+          }}
+          ListFooterComponent={renderFooter}
+        />
+      </View>
     </View>
   );
 };
