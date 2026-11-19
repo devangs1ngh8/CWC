@@ -6,4 +6,5 @@ export interface Props {
   selected: boolean;
   selectedCard: string;
   onPress: () => void;
+  isLoading?: boolean;
 }

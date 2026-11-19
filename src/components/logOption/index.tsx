@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Image } from 'react-native';
+import { View, Text, Pressable, Image, ActivityIndicator } from 'react-native';
 import React from 'react';
 import { Props } from './@types';
 import styles from './style';
@@ -9,6 +9,7 @@ const LogOption = ({
   selected,
   selectedCard,
   onPress,
+  isLoading,
 }: Props) => {
   return (
     <Pressable
@@ -17,7 +18,11 @@ const LogOption = ({
     >
       <Image source={source} style={styles.image} />
 
-      <Text style={styles.title}>{title}</Text>
+      {isLoading ? (
+        <ActivityIndicator size="small" color={selectedCard} />
+      ) : (
+        <Text style={styles.title}>{title}</Text>
+      )}
     </Pressable>
   );
 };
