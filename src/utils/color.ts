@@ -62,6 +62,8 @@ const colors = {
   border7: '#E5CDE2',
   border8: '#B5EAE6',
 
+  dotColor: '#C9C9C9',
+
   shadowColor: '#000000',
 
   error: '#F10000',
