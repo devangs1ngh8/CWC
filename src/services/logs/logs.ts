@@ -1,9 +1,9 @@
-import { apiGet, apiPost } from '../api 2/http';
-import { LOGS_ENDPOINTS } from '../api 2/endpoints';
+import { apiGet, apiPost } from '../api/http';
+import { LOGS_ENDPOINTS } from '../api/endpoints';
 import { LogsResponse, SaveLogRequest } from './@types/types';
 
 export const getLogs = (logDate: string) => {
-  return apiGet(`${LOGS_ENDPOINTS.LOGS}?logDate=${logDate}`);
+  return apiGet<LogsResponse>(`${LOGS_ENDPOINTS.LOGS}?logDate=${logDate}`);
 };
 
 export const saveLogs = (payload: SaveLogRequest) => {
