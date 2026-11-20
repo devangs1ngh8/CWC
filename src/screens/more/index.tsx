@@ -8,10 +8,9 @@ import { useTranslation } from 'react-i18next';
 import styles from './style';
 import { image } from '../../assets';
 import { moreData } from './moreData';
-import { HeaderSection, ScreenHeader } from '../../components';
+import { ScreenHeader, BottomSheetModal } from '../../components';
 import { ScreenName } from '../../navigation/screenName';
 import { useNavigation } from '@react-navigation/native';
-import { BottomSheetModal } from '../../components';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Storage } from '../../services/storage';
@@ -23,13 +22,13 @@ const More = () => {
 
   const dispatch = useAppDispatch();
 
-  // const [profileName, setProfileName] = useState('Your Name');
-  // const [profileEmail, setProfileEmail] = useState('your.email@example.com');
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
 
   const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
 
-  const profileName = useAppSelector(state => state.auth.profile.name);
+  const profileName = useAppSelector(
+    state => state.auth.profile.basicDetails.name?.trim() || 'Your Name',
+  );
 
   const profileEmail = useAppSelector(state => state.auth.email);
 
@@ -59,6 +58,7 @@ const More = () => {
     setIsLogoutModalVisible(false);
 
     await Storage.remove(StorageKeys.AUTH_TOKEN);
+    await Storage.remove(StorageKeys.USER_ID);
 
     dispatch(resetAuth());
 
