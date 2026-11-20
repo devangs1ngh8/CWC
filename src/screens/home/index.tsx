@@ -36,7 +36,7 @@ const Home = () => {
 
   console.log('REDUX PROFILE:', JSON.stringify(profile, null, 2));
 
-  const userName = profile.name?.trim() || 'there';
+  const userName = profile.basicDetails.name?.trim() || 'there';
 
   const calendarRef = useRef<ScrollView>(null);
 
@@ -100,59 +100,55 @@ const Home = () => {
           const data = response.data;
 
           const apiProfile = {
-            ...(data.name || data.basicDetails?.name
-              ? { name: data.basicDetails?.name || data.name }
-              : {}),
+            basicDetails: {
+              name: data.basicDetails?.name ?? data.name ?? '',
+              dob: data.basicDetails?.dob ?? null,
+              height: data.basicDetails?.height ?? '',
+              heightUnit:
+                Number(data.basicDetails?.heightUnit) === 2 ? 'FT/IN' : 'CM',
+              weight: data.basicDetails?.weight ?? '',
+              weightUnit:
+                Number(data.basicDetails?.weightUnit) === 2 ? 'LBS' : 'KG',
+            },
 
-            ...(data.phone ? { phone: data.phone } : {}),
+            healthDetail: {
+              lactationStatus: String(data.healthDetail?.lactationStatus ?? ''),
+              contraceptionStatus: String(
+                data.healthDetail?.contraceptionStatus ?? '',
+              ),
+              bleedingTimeline: String(
+                data.healthDetail?.bleedingTimeline ?? '',
+              ),
+              cycleLength: String(data.healthDetail?.cycleLength ?? ''),
+              lastMenstruationDate:
+                data.healthDetail?.lastMenstruationDate ?? null,
+            },
 
-            ...(data.basicDetails?.dob ? { dob: data.basicDetails.dob } : {}),
+            communityPreference: {
+              isCatholic: Number(data.communityPreference?.isCatholic ?? 0),
+              state: data.communityPreference?.state ?? '',
+              city: data.communityPreference?.city ?? '',
+              parish: data.communityPreference?.parish ?? '',
+              pastor: data.communityPreference?.pastor ?? '',
+            },
 
-            ...(data.basicDetails?.height !== undefined
-              ? { height: data.basicDetails.height }
-              : {}),
-
-            ...(data.basicDetails?.heightUnit !== undefined
-              ? {
-                  heightUnit:
-                    Number(data.basicDetails.heightUnit) === 2 ? 'FT/IN' : 'CM',
-                }
-              : {}),
-
-            ...(data.basicDetails?.weight !== undefined
-              ? { weight: data.basicDetails.weight }
-              : {}),
-
-            ...(data.basicDetails?.weightUnit !== undefined
-              ? {
-                  weightUnit:
-                    Number(data.basicDetails.weightUnit) === 2 ? 'LBS' : 'KG',
-                }
-              : {}),
-
-            ...(data.healthDetail
-              ? {
-                  lactating: String(data.healthDetail.lactationStatus ?? ''),
-                  contraceptive: String(
-                    data.healthDetail.contraceptionStatus ?? '',
-                  ),
-                  bleedTimeline: String(
-                    data.healthDetail.bleedingTimeline ?? '',
-                  ),
-                  cycleLength: String(data.healthDetail.cycleLength ?? ''),
-                  lastMenstruationDate:
-                    data.healthDetail.lastMenstruationDate || null,
-                }
-              : {}),
-
-            ...(data.communityPreference
-              ? {
-                  state: data.communityPreference.state ?? '',
-                  city: data.communityPreference.city ?? '',
-                  parish: data.communityPreference.parish ?? '',
-                  pastor: data.communityPreference.pastor ?? '',
-                }
-              : {}),
+            personalPreference: {
+              periodsPredictions: Number(
+                data.personalPreference?.periodsPredictions ?? 0,
+              ),
+              fertilityPredictions: Number(
+                data.personalPreference?.fertilityPredictions ?? 0,
+              ),
+              cycleDeviation: Number(
+                data.personalPreference?.cycleDeviation ?? 0,
+              ),
+              periodNotifications: Number(
+                data.personalPreference?.periodNotifications ?? 0,
+              ),
+              fertilityStatusNotification: Number(
+                data.personalPreference?.fertilityStatusNotification ?? 0,
+              ),
+            },
           };
 
           dispatch(updateProfile(apiProfile));
