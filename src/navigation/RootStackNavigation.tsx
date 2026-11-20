@@ -19,7 +19,6 @@ import LearningLounge from '../screens/learningLounge';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 import { ScreenName } from './screenName';
-import { LearningItem } from '../screens/home/learningData';
 import EditProfile from '../screens/editProfile';
 import More from '../screens/more';
 import ManageGoals from '../screens/manageGoals';
@@ -56,7 +55,6 @@ export type RootStackParamList = {
   YourCycles: undefined;
   CatholicCommunity: undefined;
   MainTabs: undefined;
-  LearningDetail: { item: LearningItem };
   LearningLounge: undefined;
   EditProfile: undefined;
   More: undefined;
@@ -123,10 +121,6 @@ const RootStackNavigation = () => {
         name="MainTabs"
         component={BottomTabNavigator}
         options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name={ScreenName.LearningDetail}
-        component={LearningDetail}
       />
       <Stack.Screen
         name={ScreenName.LearningLounge}
