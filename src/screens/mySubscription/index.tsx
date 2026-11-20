@@ -1,49 +1,51 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+  getMySubscription,
+  MySubscriptionType,
+} from '../../services/subscription/subscription';
 import { View, Text, ScrollView, Pressable, Image, Alert } from 'react-native';
 
 import styles from './style';
 import { image } from '../../assets';
 import { HeaderSection } from '../../components';
 
-import { getSubscriptionData } from '../../utils/subscriptionStorage';
-import { normalize } from '../../utils/metrics';
-
 const MySubscription = () => {
-  const subscription = getSubscriptionData();
+  const [subscription, setSubscription] = useState<MySubscriptionType | null>(
+    null,
+  );
+  const [loading, setLoading] = useState(true);
 
-  const planDetails = {
-    monthlyTrial: {
-      title: 'Monthly',
-      price: '$35',
-      period: '/ month',
-      hasFreeTrial: true,
-      expiryDate: 'Dec 15, 2026',
-    },
-    monthly: {
-      title: 'Monthly',
-      price: '$45',
-      period: '/ month',
-      hasFreeTrial: false,
-      expiryDate: 'Dec 15, 2026',
-    },
-    annual: {
-      title: 'Annual',
-      price: '$35',
-      period: '/ annum',
-      hasFreeTrial: true,
-      expiryDate: 'May 15, 2027',
-    },
-  };
+  useEffect(() => {
+    let isMounted = true;
 
-  const selectedPlan = subscription ? planDetails[subscription.planId] : null;
+    const fetchSubscription = async () => {
+      try {
+        const response = await getMySubscription();
 
-  const features = [
-    'Track cycle and understand the body based on the science of cervical fluid method.',
-    'Visual cycle timeline and hormonal phase breakdown',
-    'Learning Lounge explaining fertility signs and cycles',
-    'Faith-based content rooted in Catholic teaching on marriage and family',
-    'Access to Fertility experts',
-  ];
+        console.log('MY SUBSCRIPTION:', response);
+
+        if (isMounted) {
+          setSubscription(response.data);
+        }
+      } catch (error: any) {
+        console.log('GET SUBSCRIPTION ERROR:', error.response?.data || error);
+
+        if (isMounted) {
+          setSubscription(null);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchSubscription();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleCancelSubscription = () => {
     Alert.alert(
@@ -86,84 +88,62 @@ const MySubscription = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {selectedPlan ? (
+          {loading ? (
+            <Text style={styles.sectionTitle}>Loading subscription...</Text>
+          ) : subscription ? (
             <View style={styles.subscriptionCard}>
               <View style={styles.planHeader}>
-                <Text style={styles.planTitle}>{selectedPlan.title}</Text>
+                <Text style={styles.planTitle}>{subscription.planName}</Text>
 
-                <View style={styles.expiryBadge}>
-                  <Text style={styles.expiryText}>
-                    Free Trial Ends on {selectedPlan.expiryDate}
-                  </Text>
-                </View>
+                {subscription.isFreeTrial === 1 && (
+                  <View style={styles.expiryBadge}>
+                    <Text style={styles.expiryText}>
+                      Free Trial Ends on{' '}
+                      {new Date(
+                        subscription.expireAt.replace(' ', 'T'),
+                      ).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </Text>
+                  </View>
+                )}
               </View>
 
               <View style={styles.priceContainer}>
-                <Text style={styles.price}>{selectedPlan.price}</Text>
-                <Text style={styles.period}>{selectedPlan.period}</Text>
+                <Text style={styles.price}>
+                  {subscription.price.unit}
+                  {subscription.price.amount}
+                </Text>
+
+                <Text style={styles.period}>/ {subscription.planName}</Text>
               </View>
 
-              {selectedPlan.hasFreeTrial && (
-                <>
-                  <Text style={styles.sectionTitle}>Your Free Access</Text>
+              {subscription.isFreeTrial === 1 && (
+                <View style={styles.trialCard}>
+                  <Image
+                    source={image.giftCard}
+                    style={styles.accessIcon}
+                    resizeMode="contain"
+                  />
 
-                  <View style={styles.trialCard}>
-                    <Image
-                      source={image.giftCard}
-                      style={styles.accessIcon}
-                      resizeMode="contain"
-                    />
+                  <View style={styles.accessDetails}>
+                    <Text style={styles.accessSubtitle}>
+                      Included free trial
+                    </Text>
 
-                    <View style={styles.accessDetails}>
-                      <Text style={styles.accessSubtitle}>
-                        Included free trial
-                      </Text>
-                      <Text style={styles.accessTitle}>
-                        3 Months{' '}
-                        <Text style={styles.purpleText}>Free Trial</Text>
-                      </Text>
-                    </View>
+                    <Text style={styles.accessTitle}>Free Trial</Text>
                   </View>
-                </>
-              )}
-
-              {subscription?.promoCode && (
-                <>
-                  {selectedPlan.title === 'Annual' && (
-                    <Text style={styles.plusSign}>+</Text>
-                  )}
-
-                  <View
-                    style={[
-                      styles.promoCard,
-                      selectedPlan.title === 'Monthly' && {
-                        marginTop: normalize(24),
-                      },
-                    ]}
-                  >
-                    <Image source={image.voucher} style={styles.accessIcon} />
-
-                    <View style={styles.accessDetails}>
-                      <Text style={styles.accessSubtitle}>
-                        Promo Code ({subscription.promoCode})
-                      </Text>
-
-                      <Text style={styles.accessTitle}>
-                        {selectedPlan.title === 'Annual'
-                          ? '+6 Months'
-                          : 'Promo Applied'}
-                      </Text>
-                    </View>
-                  </View>
-                </>
+                </View>
               )}
 
               <View style={styles.separator} />
 
-              <Text style={styles.includedHeading}>What's included:</Text>
+              <Text style={styles.includedHeading}>{subscription.title}:</Text>
 
               <View style={styles.featuresContainer}>
-                {features.map((feature, index) => (
+                {subscription.description.map((feature, index) => (
                   <View key={index} style={styles.featureRow}>
                     <Text style={styles.bullet}>•</Text>
                     <Text style={styles.featureText}>{feature}</Text>
@@ -180,7 +160,7 @@ const MySubscription = () => {
             </View>
           ) : (
             <Text style={styles.sectionTitle}>
-              No subscription plan selected.
+              No active subscription found.
             </Text>
           )}
         </ScrollView>
