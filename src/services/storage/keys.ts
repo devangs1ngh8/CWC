@@ -21,4 +21,7 @@ export const StorageKeys = {
   LOGS_DETAILS: 'logs_details',
 } satisfies Record<string, string>;
 
-export type StorageKey = (typeof StorageKeys)[keyof typeof StorageKeys];
+export type StorageKey =
+  | (typeof StorageKeys)[keyof typeof StorageKeys]
+  | `logs_selections_${string}`
+  | `logs_details_${string}`;
