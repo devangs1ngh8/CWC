@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, Switch, ScrollView, Image } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAppDispatch, useAppSelector } from '../../redux';
+import { updateProfile } from '../../redux/slice/authSlice';
+import { updateManageGoals } from '../../services/user/manageGoals';
 import { useTranslation } from 'react-i18next';
 
 import ScreenHeader from '../../components/screenHeader';
@@ -16,65 +18,70 @@ type GoalsState = {
   fertilityNotifications: boolean;
 };
 
-const defaultGoals: GoalsState = {
-  periodPredictions: true,
-  periodNotifications: false,
-  fertilityEstimation: false,
-  fertilityNotifications: false,
-};
-
 const ManageGoals = () => {
   const { t } = useTranslation();
 
-  const [goals, setGoals] = useState<GoalsState>(defaultGoals);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const dispatch = useAppDispatch();
 
-  // Load saved goals
-  useEffect(() => {
-    const loadGoals = async () => {
-      try {
-        const savedGoals = await AsyncStorage.getItem('manageGoals');
+  const personalPreference = useAppSelector(
+    state => state.auth.profile.personalPreference,
+  );
 
-        if (savedGoals) {
-          const parsedGoals = JSON.parse(savedGoals);
+  const [isSaving, setIsSaving] = useState(false);
 
-          setGoals({
-            ...defaultGoals,
-            ...parsedGoals,
-          });
-        }
-      } catch (error) {
-        console.log('Error loading goals:', error);
-      } finally {
-        setIsLoaded(true);
-      }
-    };
-
-    loadGoals();
-  }, []);
-
-  // Save goals whenever they change
-  useEffect(() => {
-    if (!isLoaded) return;
-
-    const saveGoals = async () => {
-      try {
-        await AsyncStorage.setItem('manageGoals', JSON.stringify(goals));
-      } catch (error) {
-        console.log('Error saving goals:', error);
-      }
-    };
-
-    saveGoals();
-  }, [goals, isLoaded]);
-
-  const handleGoalChange = (key: keyof GoalsState, value: boolean) => {
-    setGoals(previous => ({
-      ...previous,
-      [key]: value,
-    }));
+  const goals: GoalsState = {
+    periodPredictions: personalPreference.periodsPredictions === 1,
+    periodNotifications: personalPreference.periodNotifications === 1,
+    fertilityEstimation: personalPreference.fertilityPredictions === 1,
+    fertilityNotifications:
+      personalPreference.fertilityStatusNotification === 1,
   };
 
+  const handleGoalChange = async (key: keyof GoalsState, value: boolean) => {
+    if (isSaving) return;
+
+    const previousPreference = personalPreference;
+
+    const updatedPreference = {
+      ...previousPreference,
+
+      periodsPredictions:
+        key === 'periodPredictions'
+          ? Number(value)
+          : previousPreference.periodsPredictions,
+
+      periodNotifications:
+        key === 'periodNotifications'
+          ? Number(value)
+          : previousPreference.periodNotifications,
+
+      fertilityPredictions:
+        key === 'fertilityEstimation'
+          ? Number(value)
+          : previousPreference.fertilityPredictions,
+
+      fertilityStatusNotification:
+        key === 'fertilityNotifications'
+          ? Number(value)
+          : previousPreference.fertilityStatusNotification,
+    };
+
+    try {
+      setIsSaving(true);
+
+      await updateManageGoals(updatedPreference);
+
+      dispatch(
+        updateProfile({
+          personalPreference: updatedPreference,
+        }),
+      );
+    } catch (error: any) {
+      console.log('MANAGE GOALS UPDATE ERROR:', error?.response?.data || error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
   return (
     <View style={styles.container}>
       <ScreenHeader
@@ -108,7 +115,7 @@ const ManageGoals = () => {
                   <Switch
                     style={{ transform: [{ scaleX: 0.67 }, { scaleY: 0.67 }] }}
                     value={goals[goalKey]}
-                    disabled={goal.disabled}
+                    disabled={goal.disabled || isSaving}
                     onValueChange={value => handleGoalChange(goalKey, value)}
                     trackColor={{
                       false: colors.borderColor,
