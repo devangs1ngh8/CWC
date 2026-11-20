@@ -1,5 +1,5 @@
-import { apiGet } from '../api 2/http';
-import { COMMUNITY_ENDPOINTS } from '../api 2/endpoints';
+import { apiGet } from '../api/http';
+import { COMMUNITY_ENDPOINTS } from '../api/endpoints';
 
 interface CommunityApiResponse<T> {
   status: number;
