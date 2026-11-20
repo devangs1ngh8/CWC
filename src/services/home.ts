@@ -1,5 +1,5 @@
-import { HOME_ENDPOINTS } from './api 2/endpoints';
-import { apiGet } from './api 2/http';
+import { HOME_ENDPOINTS } from './api/endpoints';
+import { apiGet } from './api/http';
 import type { EducationResponse } from './auth/@types/types';
 
 export const getEducationList = async (

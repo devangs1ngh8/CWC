@@ -1,5 +1,5 @@
-import { AUTH_ENDPOINTS } from '../api 2/endpoints';
-import { apiGet, apiPost, apiPut, apiPatch } from '../api 2/http';
+import { AUTH_ENDPOINTS } from '../api/endpoints';
+import { apiGet, apiPost, apiPut, apiPatch } from '../api/http';
 
 import type {
   LoginRequest,

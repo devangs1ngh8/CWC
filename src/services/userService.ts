@@ -1,4 +1,4 @@
-import { apiDelete } from './api 2/http';
+import { apiDelete } from './api/http';
 
 export const deleteAccount = async () => {
   try {

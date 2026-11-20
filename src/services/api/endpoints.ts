@@ -12,7 +12,8 @@ export const AUTH_ENDPOINTS = {
   COMPLETE_ONBOARDING: 'user/onboarding/complete-onboarding',
   GET_PROFILE: 'user/onboarding/profile',
   CHANGE_PASSWORD: 'user/onboarding/change-password',
-  UPDATE_PASSWORD: 'user/onboarding/update-password',
+  UPDATE_PASSWORD: '/v1/user/onboarding/update-password',
+  MANAGE_GOAL: 'user/onboarding/manage-goal',
 };
 
 export const COMMUNITY_ENDPOINTS = {
