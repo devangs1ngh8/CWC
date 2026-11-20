@@ -38,19 +38,24 @@ import LogSection from '../../components/logSection';
 import LogOption from '../../components/logOption';
 
 import { Storage } from '../../services/storage/index';
+
 import { StorageKeys } from '../../services/storage/keys';
 
 import colors from '../../utils/color';
 
 import { validateTemperature } from '../../utils/validations';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAppDispatch, useAppSelector } from '../../redux';
 
 import { setLogsForDate } from '../../redux/slice/logsSlice';
+
 import { getLogs, saveLogs } from '../../services/logs/logs';
 
 import { normalize, SCREEN_WIDTH } from '../../utils/metrics';
+
+import { LogsResponse } from '../../services/logs/@types/types';
 
 const Logs = () => {
   const { t } = useTranslation();
@@ -69,39 +74,59 @@ const Logs = () => {
 
   type Medication = {
     id: string;
+
     name: string;
+
     dosage: string;
+
     dosageUnit: 'mg' | 'ml';
+
     time: string;
   };
 
   type HormoneValues = {
     lh: string;
+
     fsh: string;
+
     estrogen: string;
+
     progesterone: string;
   };
 
   type LogsDetails = {
     temperature: string;
+
     temperatureUnit: '°C' | '°F';
+
     savedHormones: Record<string, string>;
+
     hormones: HormoneValues;
+
     medications: Medication[];
+
     notes: string;
   };
 
   const createEmptyLogsDetails = (): LogsDetails => ({
     temperature: '',
+
     temperatureUnit: '°C',
+
     savedHormones: {},
+
     hormones: {
       lh: '',
+
       fsh: '',
+
       estrogen: '',
+
       progesterone: '',
     },
+
     medications: [],
+
     notes: '',
   });
 
@@ -141,9 +166,16 @@ const Logs = () => {
 
   const dispatch = useAppDispatch();
 
+  const userId = useAppSelector(state => state.auth.userId);
+
+  const logsSelectionsKey = `${StorageKeys.LOGS_SELECTIONS}_${userId}`;
+  const logsDetailsKey = `${StorageKeys.LOGS_DETAILS}_${userId}`;
+
   const logDate = [
     selectedDate.getFullYear(),
+
     String(selectedDate.getMonth() + 1).padStart(2, '0'),
+
     String(selectedDate.getDate()).padStart(2, '0'),
   ].join('-');
 
@@ -154,8 +186,10 @@ const Logs = () => {
   const updateDetailsForDate = (updates: Partial<LogsDetails>) => {
     setDetailsByDate(prev => ({
       ...prev,
+
       [logDate]: {
         ...(prev[logDate] ?? createEmptyLogsDetails()),
+
         ...updates,
       },
     }));
@@ -169,11 +203,16 @@ const Logs = () => {
     try {
       const response = await saveLogs({
         logType: 2,
+
         logDate,
+
         basalBodyTemperature: {
           category: 8,
+
           categoryNameKey: 'LOG.CATEGORY.BASAL_BODY_TEMPERATURE',
+
           unit: 1,
+
           value: Number(currentDetails.temperature),
         },
       });
@@ -186,20 +225,28 @@ const Logs = () => {
 
   const handleSaveHormones = async () => {
     const selectedHormones = hormonesData
+
       .filter(hormone => hormones[hormone.key].trim() !== '')
+
       .map(hormone => ({
         optionNameKey: `LOG.URINARY_HORMONES.${hormone.key.toUpperCase()}`,
+
         value: Number(hormones[hormone.key]),
+
         unit: hormone.unit,
       }));
 
     try {
       const response = await saveLogs({
         logType: 3,
+
         logDate,
+
         urinaryHormones: {
           category: 9,
+
           categoryNameKey: 'LOG.CATEGORY.URINARY_HORMONES',
+
           selectedOption: selectedHormones,
         },
       });
@@ -210,36 +257,19 @@ const Logs = () => {
     }
   };
 
-  const handleSaveNotes = async () => {
-    const note = currentDetails.notes.trim();
+  const logsCacheKey = `${userId}_${logDate}`;
 
-    if (!note) return;
-
-    try {
-      const response = await saveLogs({
-        logType: 4,
-        logDate,
-        notes: {
-          category: 11,
-          categoryNameKey: 'LOG.CATEGORY.NOTES',
-          note,
-        },
-      });
-
-      console.log('Notes saved:', response);
-    } catch (error: any) {
-      console.log('SAVE NOTES ERROR:', error.response?.data || error);
-    }
-  };
-
-  const logs = useAppSelector(state => state.logs.logsByDate[logDate]);
+  const logs = useAppSelector(state => state.logs.logsByDate[logsCacheKey]);
 
   const fetchedCategories = logs?.data?.logs ?? [];
 
   useEffect(() => {
-    const savedSelections = Storage.get<
-      Record<string, Record<string, string | string[]>>
-    >(StorageKeys.LOGS_SELECTIONS);
+    if (!userId) return;
+
+    const savedSelections =
+      Storage.get<Record<string, Record<string, string | string[]>>>(
+        logsSelectionsKey,
+      );
 
     if (savedSelections && typeof savedSelections === 'object') {
       const normalizedSelections: Record<string, Record<string, string[]>> = {};
@@ -257,19 +287,21 @@ const Logs = () => {
       });
 
       setSelectedByDate(normalizedSelections);
+    } else {
+      setSelectedByDate({});
     }
 
     setIsStorageLoaded(true);
-  }, []);
+  }, [userId, logsSelectionsKey]);
 
   useEffect(() => {
-    if (!isStorageLoaded) return;
+    if (!isStorageLoaded || !userId) return;
 
-    Storage.set(StorageKeys.LOGS_SELECTIONS, selectedByDate);
-  }, [selectedByDate, isStorageLoaded]);
+    Storage.set(logsSelectionsKey, selectedByDate);
+  }, [selectedByDate, isStorageLoaded, userId, logsSelectionsKey]);
 
   useEffect(() => {
-    if (!isStorageLoaded) return;
+    if (!isStorageLoaded || !userId) return;
 
     const fetchLogs = async () => {
       try {
@@ -277,37 +309,43 @@ const Logs = () => {
 
         dispatch(
           setLogsForDate({
+            userId,
             date: logDate,
             data: response,
           }),
         );
       } catch (error: any) {
         console.log('STATUS:', error.response?.status);
+
         console.log('ERROR DATA:', error.response?.data);
+
         console.log('REQUEST URL:', error.config?.url);
       }
     };
 
     fetchLogs();
-  }, [logDate, dispatch, isStorageLoaded]);
+  }, [logDate, dispatch, isStorageLoaded, userId]);
 
   useEffect(() => {
-    const savedDetails = Storage.get<Record<string, LogsDetails>>(
-      StorageKeys.LOGS_DETAILS,
-    );
+    if (!userId) return;
+
+    const savedDetails =
+      Storage.get<Record<string, LogsDetails>>(logsDetailsKey);
 
     if (savedDetails && typeof savedDetails === 'object') {
       setDetailsByDate(savedDetails);
+    } else {
+      setDetailsByDate({});
     }
 
     setIsDetailsLoaded(true);
-  }, []);
+  }, [userId, logsDetailsKey]);
 
   useEffect(() => {
-    if (!isDetailsLoaded) return;
+    if (!isDetailsLoaded || !userId) return;
 
-    Storage.set(StorageKeys.LOGS_DETAILS, detailsByDate);
-  }, [detailsByDate, isDetailsLoaded]);
+    Storage.set(logsDetailsKey, detailsByDate);
+  }, [detailsByDate, isDetailsLoaded, userId, logsDetailsKey]);
 
   const [medicationName, setMedicationName] = useState('');
 
@@ -324,28 +362,37 @@ const Logs = () => {
   const [selectedMedicationId, setSelectedMedicationId] = useState<
     string | null
   >(null);
+
   const [medicationOptionsVisible, setMedicationOptionsVisible] =
     useState(false);
+
   const [deleteMedicationVisible, setDeleteMedicationVisible] = useState(false);
 
   const [loadingOptionKey, setLoadingOptionKey] = useState<string | null>(null);
 
   const resetMedicationForm = () => {
     setMedicationName('');
+
     setDosage('');
+
     setDosageUnit('ml');
+
     setMedicationTime(t('logs.medications.morning'));
+
     setSelectedMedicationId(null);
   };
 
   const openAddMedication = () => {
     resetMedicationForm();
+
     setIsEditingMedication(false);
+
     setMedicationModalVisible(true);
   };
 
   const openMedicationOptions = (medication: Medication) => {
     setSelectedMedicationId(medication.id);
+
     setMedicationOptionsVisible(true);
   };
 
@@ -357,16 +404,25 @@ const Logs = () => {
     if (!medication) return;
 
     setMedicationName(medication.name);
+
     setDosage(medication.dosage);
+
     setDosageUnit(medication.dosageUnit);
+
     setMedicationTime(medication.time);
+
     setIsEditingMedication(true);
+
     setMedicationOptionsVisible(false);
+
     setMedicationModalVisible(true);
+
+    console.log('MEDICATION BEING EDITED:', medication);
   };
 
   const openDeleteMedication = () => {
     setMedicationOptionsVisible(false);
+
     setDeleteMedicationVisible(true);
   };
 
@@ -375,61 +431,93 @@ const Logs = () => {
 
     const payload = {
       name: medicationName.trim(),
+
       dosage,
+
       unit: dosageUnit === 'mg' ? 1 : 2,
+
       time: 1,
+
       logDate,
     };
 
     try {
       if (isEditingMedication && selectedMedicationId) {
+        const isValidMongoId = /^[0-9a-fA-F]{24}$/.test(selectedMedicationId);
+
+        if (!isValidMongoId) {
+          console.log(
+            'Cannot update medication: Invalid MongoDB ID',
+
+            selectedMedicationId,
+          );
+
+          return;
+        }
+
         const response = await updateMedication({
           medicationId: selectedMedicationId,
+
           ...payload,
         });
 
         if (!response || (response.status !== 200 && response.status !== 201)) {
           console.log('UPDATE MEDICATION FAILED:', response);
+
           return;
         }
 
-        // Update local state only after API success
         updateDetailsForDate({
           medications: currentDetails.medications.map(item =>
             item.id === selectedMedicationId
               ? {
                   ...item,
+
                   name: medicationName.trim(),
+
                   dosage,
+
                   dosageUnit,
+
                   time: medicationTime,
                 }
               : item,
           ),
         });
+
+        console.log('UPDATE MEDICATION RESPONSE:', response.data);
       } else {
         const response = await addMedication(payload);
 
         if (!response || response.status !== 201) {
           console.log('ADD MEDICATION FAILED:', response);
+
           return;
         }
 
         updateDetailsForDate({
           medications: [
             ...currentDetails.medications,
+
             {
               id: response.data._id,
+
               name: response.data.name,
+
               dosage: response.data.dosage,
+
               dosageUnit,
+
               time: medicationTime,
             },
           ],
         });
+
+        console.log('ADD MEDICATION RESPONSE:', response.data);
       }
 
       setMedicationModalVisible(false);
+
       resetMedicationForm();
     } catch (error: any) {
       console.log('SAVE MEDICATION ERROR:', error.response?.data || error);
@@ -444,6 +532,7 @@ const Logs = () => {
 
       if (!response || response.status !== 200) {
         console.log('DELETE MEDICATION FAILED:', response);
+
         return;
       }
 
@@ -454,6 +543,7 @@ const Logs = () => {
       });
 
       setDeleteMedicationVisible(false);
+
       setSelectedMedicationId(null);
     } catch (error: any) {
       console.log('DELETE MEDICATION ERROR:', error.response?.data || error);
@@ -466,7 +556,9 @@ const Logs = () => {
     setLoadingOptionKey(optionKey);
 
     const dripTitle = t('logs.vulvalSensation.drip');
+
     const bubbleTitle = t('logs.vulvalSensation.bubble');
+
     const noneTitle = t('logs.symptoms.blockGreen');
 
     setSelectedByDate(prev => {
@@ -474,28 +566,40 @@ const Logs = () => {
 
       let updatedSelections: string[] = [];
 
-      // VULVAL SENSATION
       if (sectionKey === 'sensation') {
-        if (optionTitle === dripTitle) {
-          updatedSelections = currentSelections.filter(
-            item => item !== dripTitle && item !== bubbleTitle,
-          );
+        const isSpecialOption =
+          optionTitle === dripTitle || optionTitle === bubbleTitle;
 
-          if (!currentSelections.includes(dripTitle)) {
-            updatedSelections.push(dripTitle);
-          }
-        } else if (optionTitle === bubbleTitle) {
-          updatedSelections = currentSelections.filter(
-            item => item !== dripTitle && item !== bubbleTitle,
-          );
+        const specialOption = currentSelections.find(
+          item => item === dripTitle || item === bubbleTitle,
+        );
 
-          if (!currentSelections.includes(bubbleTitle)) {
-            updatedSelections.push(bubbleTitle);
+        if (isSpecialOption) {
+          if (currentSelections.includes(optionTitle)) {
+            updatedSelections = currentSelections.filter(
+              item => item !== optionTitle,
+            );
+          } else {
+            const extraOption = currentSelections.find(
+              item => item !== dripTitle && item !== bubbleTitle,
+            );
+
+            updatedSelections = [
+              optionTitle,
+              ...(extraOption ? [extraOption] : []),
+            ];
           }
         } else {
-          updatedSelections = currentSelections.includes(optionTitle)
-            ? currentSelections.filter(item => item !== optionTitle)
-            : [...currentSelections, optionTitle];
+          if (specialOption) {
+            updatedSelections = currentSelections.includes(optionTitle)
+              ? currentSelections.filter(item => item !== optionTitle)
+              : [specialOption, optionTitle];
+          } else {
+            // Without Drip/Bubble, allow only one option.
+            updatedSelections = currentSelections.includes(optionTitle)
+              ? []
+              : [optionTitle];
+          }
         }
       }
 
@@ -525,8 +629,10 @@ const Logs = () => {
 
       return {
         ...prev,
+
         [logDate]: {
           ...(prev[logDate] || {}),
+
           [sectionKey]: updatedSelections,
         },
       };
@@ -537,6 +643,7 @@ const Logs = () => {
 
       dispatch(
         setLogsForDate({
+          userId,
           date: logDate,
           data: response,
         }),
@@ -550,7 +657,9 @@ const Logs = () => {
 
   const formattedDate = selectedDate.toLocaleDateString('en-US', {
     month: 'long',
+
     day: 'numeric',
+
     year: 'numeric',
   });
 
@@ -581,6 +690,7 @@ const Logs = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       const itemWidth = normalize(44);
+
       const itemGap = normalize(8);
 
       const screenCenter = SCREEN_WIDTH / 3;
@@ -594,6 +704,7 @@ const Logs = () => {
 
       calendarRef.current?.scrollTo({
         x: Math.max(0, offset),
+
         animated: false,
       });
     }, 100);
@@ -655,7 +766,9 @@ const Logs = () => {
                   setSelectedDate(new Date(day.date));
 
                   const itemWidth = normalize(44);
+
                   const itemGap = normalize(8);
+
                   const screenCenter = SCREEN_WIDTH / 3;
 
                   const offset =
@@ -665,6 +778,7 @@ const Logs = () => {
 
                   calendarRef.current?.scrollTo({
                     x: Math.max(0, offset),
+
                     animated: true,
                   });
                 }}
@@ -798,6 +912,7 @@ const Logs = () => {
                   <Pressable
                     onPress={() => {
                       setHormones(currentDetails.hormones);
+
                       setEditingHormone(hormone.key);
                     }}
                   >
@@ -853,8 +968,11 @@ const Logs = () => {
 
                     <Text style={styles.medicationCardDetails}>
                       {medication.dosage}
+
                       {medication.dosageUnit}
+
                       <Text style={styles.medicationDot}> • </Text>
+
                       {medication.time}
                     </Text>
                   </View>
@@ -890,7 +1008,6 @@ const Logs = () => {
             style={styles.notesInput}
             placeholderTextColor={colors.textFourth}
             value={currentDetails.notes}
-            onEndEditing={handleSaveNotes}
             onChangeText={handleNotesChange}
             maxLength={100}
             multiline
@@ -908,6 +1025,7 @@ const Logs = () => {
         animationType="slide"
         onRequestClose={() => {
           Keyboard.dismiss();
+
           setEditingHormone(null);
         }}
       >
@@ -916,6 +1034,7 @@ const Logs = () => {
           onStartShouldSetResponder={() => true}
           onResponderRelease={() => {
             Keyboard.dismiss();
+
             setEditingHormone(null);
           }}
         >
@@ -928,6 +1047,7 @@ const Logs = () => {
 
             <View style={styles.titleRow}>
               <Text style={styles.titleOne}>{t('logs.sections.urinary')}</Text>
+
               <Text style={styles.titleTwo}>
                 {t('logs.medications.medication')}
               </Text>
@@ -960,6 +1080,7 @@ const Logs = () => {
                             onChangeText={value =>
                               setHormones(previous => ({
                                 ...previous,
+
                                 [hormone.key]: cleanHormoneValue(value),
                               }))
                             }
@@ -981,6 +1102,7 @@ const Logs = () => {
                   onPress={async () => {
                     const isValid = hormonesData.every(hormone => {
                       const value = hormones[hormone.key];
+
                       return value === '' || validateHormoneValue(value);
                     });
 
@@ -990,11 +1112,14 @@ const Logs = () => {
 
                     updateDetailsForDate({
                       hormones: { ...hormones },
+
                       savedHormones: {
                         ...currentDetails.savedHormones,
+
                         ...Object.fromEntries(
                           hormonesData.map(hormone => [
                             hormone.key,
+
                             hormones[hormone.key]
                               ? `${hormones[hormone.key]} ${hormone.unit}`
                               : '',
@@ -1004,6 +1129,7 @@ const Logs = () => {
                     });
 
                     Keyboard.dismiss();
+
                     setEditingHormone(null);
                   }}
                 >
@@ -1029,21 +1155,25 @@ const Logs = () => {
           onResponderRelease={() => setMedicationOptionsVisible(false)}
         >
           <Pressable onPress={() => setMedicationOptionsVisible(false)} />
+
           <View
             style={styles.medicationOptionsModal}
             onStartShouldSetResponder={() => true}
             onResponderRelease={event => event.stopPropagation()}
           >
             <View style={styles.modalHandle} />
+
             <Pressable style={styles.medicationOption} onPress={editMedication}>
               <Image
                 source={image.editMedication}
                 style={styles.medicationOptionIcon}
               />
+
               <Text style={styles.medicationOptionText}>
                 {t('logs.medications.edit')} {t('logs.medications.medication')}
               </Text>
             </Pressable>
+
             <Pressable
               style={styles.medicationOption}
               onPress={openDeleteMedication}
@@ -1052,6 +1182,7 @@ const Logs = () => {
                 source={image.deleteMedication}
                 style={styles.medicationOptionIcon}
               />
+
               <Text style={styles.medicationOptionText}>
                 {t('logs.medications.deleteMedication')}
               </Text>
@@ -1072,19 +1203,23 @@ const Logs = () => {
           onResponderRelease={() => setDeleteMedicationVisible(false)}
         >
           <Pressable onPress={() => setDeleteMedicationVisible(false)} />
+
           <View
             style={styles.deleteMedicationModal}
             onStartShouldSetResponder={() => true}
             onResponderRelease={event => event.stopPropagation()}
           >
             <View style={styles.modalHandle} />
+
             <Image
               source={image.deleteAccount}
               style={styles.deleteMedicationIcon}
             />
+
             <Text style={styles.deleteMedicationTitle}>
               Are you sure you want to delete this medication?
             </Text>
+
             <View style={styles.deleteMedicationButtons}>
               <Pressable
                 style={styles.deleteMedicationCancel}
@@ -1094,6 +1229,7 @@ const Logs = () => {
                   {t('reminders.cancel')}
                 </Text>
               </Pressable>
+
               <Pressable
                 style={styles.deleteMedicationConfirm}
                 onPress={confirmDeleteMedication}
@@ -1113,6 +1249,7 @@ const Logs = () => {
         animationType="slide"
         onRequestClose={() => {
           Keyboard.dismiss();
+
           setMedicationModalVisible(false);
         }}
       >
@@ -1121,6 +1258,7 @@ const Logs = () => {
           onStartShouldSetResponder={() => true}
           onResponderRelease={() => {
             Keyboard.dismiss();
+
             setMedicationModalVisible(false);
           }}
         >
@@ -1156,6 +1294,7 @@ const Logs = () => {
                 automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
               >
                 {/* Medication Name */}
+
                 <View style={styles.medicationField}>
                   <Text>{t('logs.medications.name')}</Text>
 
@@ -1170,6 +1309,7 @@ const Logs = () => {
                 </View>
 
                 {/* Dosage */}
+
                 <View style={styles.medicationField}>
                   <Text>{t('logs.medications.dosage')}</Text>
 
@@ -1183,7 +1323,9 @@ const Logs = () => {
                       onChangeText={value =>
                         setDosage(
                           value
+
                             .replace(/[^0-9.]/g, '')
+
                             .replace(/(\..*)\./g, '$1'),
                         )
                       }
@@ -1197,12 +1339,14 @@ const Logs = () => {
                           onPress={() => setDosageUnit(unit)}
                           style={[
                             styles.unitButton,
+
                             dosageUnit === unit && styles.activeUnitButton,
                           ]}
                         >
                           <Text
                             style={[
                               styles.unitTexts,
+
                               dosageUnit === unit && styles.activeUnitText,
                             ]}
                           >
@@ -1215,14 +1359,18 @@ const Logs = () => {
                 </View>
 
                 {/* Medication Time */}
+
                 <View style={styles.medicationField}>
                   <Text>{t('logs.medications.time')}</Text>
 
                   <View style={styles.timeContainer}>
                     {[
                       t('logs.medications.morning'),
+
                       t('logs.medications.night'),
+
                       t('logs.medications.afternoon'),
+
                       t('logs.medications.evening'),
                     ].map(time => (
                       <Pressable
@@ -1230,12 +1378,14 @@ const Logs = () => {
                         onPress={() => setMedicationTime(time)}
                         style={[
                           styles.timeButton,
+
                           medicationTime === time && styles.activeTimeButton,
                         ]}
                       >
                         <Text
                           style={[
                             styles.timeText,
+
                             medicationTime === time && styles.activeTimeText,
                           ]}
                         >
@@ -1249,10 +1399,12 @@ const Logs = () => {
             </KeyboardAvoidingView>
 
             {/* Save Button */}
+
             <Pressable
               style={styles.medicationSaveButton}
               onPress={() => {
                 Keyboard.dismiss();
+
                 saveMedication();
               }}
             >
