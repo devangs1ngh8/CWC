@@ -1,5 +1,5 @@
 import { View, Text, Pressable, Keyboard } from 'react-native';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
 import styles from './style';
@@ -27,6 +27,7 @@ import { useAppDispatch, useAppSelector } from '../../redux';
 
 import {
   setEmail as setReduxEmail,
+  setUserId,
   updateProfile,
 } from '../../redux/slice/authSlice';
 // import { getProfileData } from '../../utils/profileStorage';
@@ -49,6 +50,12 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const savedEmail = useAppSelector(state => state.auth.email);
+
+  const reduxUserId = useAppSelector(state => state.auth.userId);
+
+  useEffect(() => {
+    console.log('REDUX USER ID:', reduxUserId);
+  }, [reduxUserId]);
 
   console.log('Redux Email:', savedEmail);
 
@@ -73,17 +80,15 @@ const Login = () => {
       });
 
       await Storage.set(StorageKeys.AUTH_TOKEN, data.accessToken);
-      // const token = await Storage.get(StorageKeys.AUTH_TOKEN);
-      // console.log('token', token);
+      await Storage.set(StorageKeys.USER_ID, data.userId);
 
-      // await Storage.set(StorageKeys.AUTH_TOKEN, data.accessToken);
+      dispatch(setUserId(data.userId));
+      dispatch(setReduxEmail(email.trim()));
 
       console.log('LOGIN TOKEN SAVED:', {
         exists: !!data.accessToken,
         length: data.accessToken?.length,
       });
-
-      dispatch(setReduxEmail(email.trim()));
 
       const profileResponse = await getUserProfile();
 
@@ -92,32 +97,39 @@ const Login = () => {
         JSON.stringify(profileResponse, null, 2),
       );
 
+      console.log('LOGGED IN USER ID:', data.userId);
+
       const user = profileResponse.data;
 
       dispatch(
         updateProfile({
-          // Personal Information
-          name: user.basicDetails?.name ?? user.name ?? '',
-          phone: user.phone ?? '',
-          dob: user.basicDetails?.dob ?? null,
-          height: user.basicDetails?.height ?? '',
-          heightUnit: user.basicDetails?.heightUnit === 1 ? 'CM' : 'FT/IN',
-          weight: user.basicDetails?.weight ?? '',
-          weightUnit: user.basicDetails?.weightUnit === 1 ? 'KG' : 'LBS',
+          basicDetails: {
+            name: user.basicDetails?.name ?? user.name ?? '',
+            dob: user.basicDetails?.dob ?? null,
+            height: String(user.basicDetails?.height ?? ''),
+            heightUnit: user.basicDetails?.heightUnit === 1 ? 'CM' : 'FT/IN',
+            weight: String(user.basicDetails?.weight ?? ''),
+            weightUnit: user.basicDetails?.weightUnit === 1 ? 'KG' : 'LBS',
+          },
 
-          // Your Cycles
-          lactating: String(user.healthDetail?.lactationStatus ?? ''),
-          contraceptive: String(user.healthDetail?.contraceptionStatus ?? ''),
-          bleedTimeline: String(user.healthDetail?.bleedingTimeline ?? ''),
-          cycleLength: String(user.healthDetail?.cycleLength ?? ''),
-          lastMenstruationDate: user.healthDetail?.lastMenstruationDate ?? null,
+          healthDetail: {
+            lactationStatus: String(user.healthDetail?.lactationStatus ?? ''),
+            contraceptionStatus: String(
+              user.healthDetail?.contraceptionStatus ?? '',
+            ),
+            bleedingTimeline: String(user.healthDetail?.bleedingTimeline ?? ''),
+            lastMenstruationDate:
+              user.healthDetail?.lastMenstruationDate ?? null,
+            cycleLength: String(user.healthDetail?.cycleLength ?? ''),
+          },
 
-          // Catholic Community
-          community: String(user.communityPreference?.isCatholic ?? ''),
-          state: user.communityPreference?.state ?? '',
-          city: user.communityPreference?.city ?? '',
-          parish: user.communityPreference?.parish ?? '',
-          pastor: user.communityPreference?.pastor ?? '',
+          communityPreference: {
+            isCatholic: user.communityPreference?.isCatholic ?? 0,
+            state: user.communityPreference?.state ?? '',
+            city: user.communityPreference?.city ?? '',
+            parish: user.communityPreference?.parish ?? '',
+            pastor: user.communityPreference?.pastor ?? '',
+          },
         }),
       );
 
