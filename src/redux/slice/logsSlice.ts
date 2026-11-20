@@ -6,8 +6,9 @@ type LogsState = {
 };
 
 type SetLogsPayload = {
+  userId: string;
   date: string;
-  data: any;
+  data: LogsResponse;
 };
 
 const initialState: LogsState = {
@@ -19,9 +20,11 @@ const logsSlice = createSlice({
   initialState,
   reducers: {
     setLogsForDate: (state, action: PayloadAction<SetLogsPayload>) => {
-      const { date, data } = action.payload;
+      const { userId, date, data } = action.payload;
 
-      state.logsByDate[date] = data;
+      const cacheKey = `${userId}_${date}`;
+
+      state.logsByDate[cacheKey] = data;
     },
   },
 });
