@@ -4,9 +4,9 @@ import { useNavigation } from '@react-navigation/native';
 
 import { saveProfileData } from '../../utils/profileStorage';
 
-import { useAppDispatch, useAppSelector } from '../../redux';
-import { updateProfile } from '../../redux/slice/authSlice';
-import { UserPreferences } from '../../redux/slice/authTypes';
+// import { useAppDispatch, useAppSelector } from '../../redux';
+// import { updateProfile } from '../../redux/slice/authSlice';
+// import { UserPreferences } from '../../redux/slice/authTypes';
 
 import { HeaderSection, StepBody, PrimaryButton } from '../../components';
 
@@ -14,19 +14,20 @@ import { image } from '../../assets';
 import styles from './style';
 import { ScreenName } from '../../navigation/screenName';
 
+type UserPreferences = {
+  periodPredictions: boolean;
+  cycleDeviationDetection: boolean;
+  fertilityStatusEstimation: boolean;
+};
+
 const YourPreferences = () => {
   const navigation = useNavigation<any>();
-  const dispatch = useAppDispatch();
 
-  const profile = useAppSelector(state => state.auth.profile);
-
-  const [preferences, setPreferences] = useState<UserPreferences>(
-    profile.preferences ?? {
-      periodPredictions: false,
-      cycleDeviationDetection: false,
-      fertilityStatusEstimation: false,
-    },
-  );
+  const [preferences, setPreferences] = useState<UserPreferences>({
+    periodPredictions: false,
+    cycleDeviationDetection: false,
+    fertilityStatusEstimation: false,
+  });
 
   const preferenceOptions: {
     key: keyof UserPreferences;
@@ -54,15 +55,12 @@ const YourPreferences = () => {
   };
 
   const handleNext = async () => {
-    const profileData = {
-      preferences,
-    };
-
-    dispatch(updateProfile(profileData));
-
-    await saveProfileData(profileData);
-
-    navigation.navigate(ScreenName.CatholicCommunity);
+    try {
+      await saveProfileData({ preferences });
+      navigation.navigate(ScreenName.CatholicCommunity);
+    } catch (error) {
+      console.log('PREFERENCES SAVE ERROR:', error);
+    }
   };
 
   return (
