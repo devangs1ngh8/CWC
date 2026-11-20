@@ -1,4 +1,4 @@
-import { apiPost, apiPut, apiDelete } from '../api 2/http';
+import { apiPost, apiPut, apiDelete } from '../api/http';
 
 export interface MedicationRequest {
   name: string;
