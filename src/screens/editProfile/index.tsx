@@ -51,12 +51,6 @@ import { image } from '../../assets';
 import styles from './style';
 import colors from '../../utils/color';
 
-// import {
-//   states,
-//   citiesByState,
-//   parishNames,
-// } from '../../constants/communityOptions';
-
 import {
   lactatingOptions,
   contraceptiveOptions,
@@ -71,9 +65,7 @@ import {
   validateHeight,
 } from '../../utils/validations';
 
-// import { getProfileData, saveProfileData } from '../../utils/profileStorage';
 import { ScreenName } from '../../navigation/screenName';
-// import { citiesByState } from '../../constants/communityOptions';
 
 const getOptionLabel = (
   options: string[],
@@ -106,7 +98,7 @@ const EditProfile = () => {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+
   const [dob, setDob] = useState<Date | null>(null);
 
   const [height, setHeight] = useState('');
@@ -145,6 +137,10 @@ const EditProfile = () => {
 
   const [loadingStates, setLoadingStates] = useState(false);
   const [loadingCities, setLoadingCities] = useState(false);
+  const [loadingParishes, setLoadingParishes] = useState(false);
+  const [loadingPastor, setLoadingPastor] = useState(false);
+
+  const [profileUserId, setProfileUserId] = useState('');
 
   useEffect(() => {
     const fetchStates = async () => {
@@ -166,7 +162,7 @@ const EditProfile = () => {
   const handleStateChange = async (value: string) => {
     setState(value);
 
-    // Reset dependent selections
+    // Reset dependent fields
     setCity('');
     setParish('');
     setPastor('');
@@ -179,16 +175,65 @@ const EditProfile = () => {
 
       const data = await getCommunityCities(value);
       setCities(data || []);
-    } catch (error) {
-      console.log('FETCH CITIES ERROR:', error);
+    } catch (error: any) {
+      console.log('FETCH CITIES ERROR:', error?.response?.data || error);
     } finally {
       setLoadingCities(false);
     }
   };
 
+  const handleCityChange = async (value: string) => {
+    setCity(value);
+
+    // Reset dependent fields
+    setParish('');
+    setPastor('');
+    setParishes([]);
+
+    try {
+      setLoadingParishes(true);
+
+      const data = await getCommunityParishes(state, value);
+
+      console.log('SELECTED STATE:', state);
+      console.log('SELECTED CITY:', value);
+      console.log('PARISH OPTIONS:', data);
+
+      setParishes(data || []);
+    } catch (error: any) {
+      console.log('FETCH PARISHES ERROR:', error?.response?.data || error);
+    } finally {
+      setLoadingParishes(false);
+    }
+  };
+
+  const handleParishChange = async (value: string) => {
+    setParish(value);
+    setPastor('');
+
+    try {
+      setLoadingPastor(true);
+
+      const data = await getCommunityPastors(state, city, value);
+
+      const validPastors = (data || []).filter(
+        item => item && item.trim().length > 0,
+      );
+
+      setPastor(validPastors[0] || '');
+
+      console.log('SELECTED PARISH:', value);
+      console.log('PASTOR OPTIONS:', validPastors);
+    } catch (error: any) {
+      console.log('FETCH PASTOR ERROR:', error?.response?.data || error);
+      setPastor('');
+    } finally {
+      setLoadingPastor(false);
+    }
+  };
+
   const [errors, setErrors] = useState({
     name: '',
-    phone: '',
     height: '',
     weight: '',
   });
@@ -232,57 +277,55 @@ const EditProfile = () => {
   };
 
   useEffect(() => {
-    setName(profile.name ?? '');
+    const basic = profile.basicDetails;
+    const health = profile.healthDetail;
+    const community = profile.communityPreference;
+
+    setName(basic.name ?? '');
     setEmail(emailFromRedux ?? '');
-    setPhone(profile.phone ?? '');
-    setDob(profile.dob ? new Date(profile.dob) : null);
+    setDob(basic.dob ? new Date(basic.dob) : null);
 
-    setHeightUnit(profile.heightUnit ?? 'CM');
-    setHeight(profile.height ?? '');
+    setHeightUnit(basic.heightUnit ?? 'CM');
+    setHeight(basic.height ?? '');
 
-    setWeight(profile.weight ?? '');
-    setWeightUnit(profile.weightUnit ?? 'KG');
+    setWeight(basic.weight ?? '');
+    setWeightUnit(basic.weightUnit ?? 'KG');
 
-    setLactating(getOptionLabel(lactatingOptions, profile.lactating, t));
+    setLactating(getOptionLabel(lactatingOptions, health.lactationStatus, t));
 
     setContraceptive(
-      getOptionLabel(contraceptiveOptions, profile.contraceptive, t),
+      getOptionLabel(contraceptiveOptions, health.contraceptionStatus, t),
     );
 
     setBleedTimeline(
-      getOptionLabel(bleedTimelineOptions, profile.bleedTimeline, t),
+      getOptionLabel(bleedTimelineOptions, health.bleedingTimeline, t),
     );
 
     setLastMenstruationDate(
-      profile.lastMenstruationDate
-        ? new Date(profile.lastMenstruationDate)
+      health.lastMenstruationDate
+        ? new Date(health.lastMenstruationDate)
         : null,
     );
 
-    setCycleLength(profile.cycleLength ?? '');
+    setCycleLength(health.cycleLength ?? '');
 
-    setState(profile.state ?? '');
-    setCity(profile.city ?? '');
-    setParish(profile.parish ?? '');
-    setPastor(profile.pastor ?? '');
-  }, [profile, emailFromRedux]);
+    setState(community.state ?? '');
+    setCity(community.city ?? '');
+    setParish(community.parish ?? '');
+    setPastor(community.pastor ?? '');
+  }, [profile, emailFromRedux, t]);
 
   // const cityOptions = state ? citiesByState[state] ?? [] : [];
 
   const validateForm = () => {
     const newErrors = {
       name: '',
-      phone: '',
       height: '',
       weight: '',
     };
 
     if (!name.trim() || !validateName(name)) {
       newErrors.name = t('editProfile.validName');
-    }
-
-    if (phone.length !== 10) {
-      newErrors.phone = t('editProfile.validPhone');
     }
 
     if (!validateHeight(heightUnit, height, feet, inches)) {
@@ -307,114 +350,280 @@ const EditProfile = () => {
 
   useEffect(() => {
     const loadProfile = async () => {
-      let hasLocalProfile = false;
-
       try {
-        const savedProfile = emailFromRedux
-          ? await AsyncStorage.getItem(profileCacheKey)
-          : null;
-
-        if (savedProfile) {
-          const parsedProfile = JSON.parse(savedProfile);
-
-          dispatch(updateProfile(parsedProfile));
-          hasLocalProfile = true;
-
-          console.log('LOCAL PROFILE RESTORED:', parsedProfile);
-        }
-
         const response = await getUserProfile();
         const data = response.data;
 
-        const accountEmail = data.email ?? emailFromRedux;
+        const userId = data.userId;
+
+        if (!userId) {
+          throw new Error('User ID not found in profile response');
+        }
+
+        setProfileUserId(userId);
+
+        // Load cache belonging to this particular user
+        const userProfileKey = `profileData_${userId}`;
+
+        const savedProfile = await AsyncStorage.getItem(userProfileKey);
+
+        const cachedProfile = savedProfile ? JSON.parse(savedProfile) : null;
 
         if (data.email) {
           dispatch(setEmailAction(data.email));
         }
 
-        if (hasLocalProfile) {
-          // console.log('Using locally saved profile');
-          return;
-        }
-
         const apiProfile = {
-          name: data.basicDetails?.name ?? '',
-          phone: data.phone ?? '',
-          dob: data.basicDetails?.dob ?? null,
+          basicDetails: {
+            name: data.basicDetails?.name ?? data.name ?? '',
+            dob: data.basicDetails?.dob ?? null,
+            height: data.basicDetails?.height ?? '',
+            heightUnit:
+              Number(data.basicDetails?.heightUnit) === 2 ? 'FT/IN' : 'CM',
+            weight: data.basicDetails?.weight ?? '',
+            weightUnit:
+              Number(data.basicDetails?.weightUnit) === 2 ? 'LBS' : 'KG',
+          },
 
-          height: data.basicDetails?.height ?? '',
-          heightUnit:
-            Number(data.basicDetails?.heightUnit) === 2 ? 'FT/IN' : 'CM',
+          healthDetail: {
+            lactationStatus: String(data.healthDetail?.lactationStatus ?? ''),
+            contraceptionStatus: String(
+              data.healthDetail?.contraceptionStatus ?? '',
+            ),
+            bleedingTimeline: String(data.healthDetail?.bleedingTimeline ?? ''),
+            cycleLength: String(data.healthDetail?.cycleLength ?? ''),
+            lastMenstruationDate:
+              data.healthDetail?.lastMenstruationDate ?? null,
+          },
 
-          weight: data.basicDetails?.weight ?? '',
-          weightUnit:
-            Number(data.basicDetails?.weightUnit) === 2 ? 'LBS' : 'KG',
+          communityPreference: {
+            isCatholic: Number(
+              data.communityPreference?.isCatholic ??
+                cachedProfile?.communityPreference?.isCatholic ??
+                0,
+            ),
 
-          lactating: String(data.healthDetail?.lactationStatus ?? ''),
-          contraceptive: String(data.healthDetail?.contraceptionStatus ?? ''),
-          bleedTimeline: String(data.healthDetail?.bleedingTimeline ?? ''),
+            state:
+              data.communityPreference?.state ??
+              cachedProfile?.communityPreference?.state ??
+              '',
 
-          cycleLength: String(data.healthDetail?.cycleLength ?? ''),
-          lastMenstruationDate: data.healthDetail?.lastMenstruationDate ?? null,
+            city:
+              data.communityPreference?.city ??
+              cachedProfile?.communityPreference?.city ??
+              '',
 
-          state: data.communityPreference?.state ?? '',
-          city: data.communityPreference?.city ?? '',
-          parish: data.communityPreference?.parish ?? '',
-          pastor: data.communityPreference?.pastor ?? '',
+            parish:
+              data.communityPreference?.parish ??
+              cachedProfile?.communityPreference?.parish ??
+              '',
+
+            pastor:
+              data.communityPreference?.pastor ??
+              cachedProfile?.communityPreference?.pastor ??
+              '',
+
+            committedToCatholicTeachings: Number(
+              data.communityPreference?.committedToCatholicTeachings ??
+                cachedProfile?.communityPreference
+                  ?.committedToCatholicTeachings ??
+                0,
+            ),
+          },
+
+          personalPreference: {
+            periodsPredictions: Number(
+              data.personalPreference?.periodsPredictions ??
+                cachedProfile?.personalPreference?.periodsPredictions ??
+                0,
+            ),
+            fertilityPredictions: Number(
+              data.personalPreference?.fertilityPredictions ??
+                cachedProfile?.personalPreference?.fertilityPredictions ??
+                0,
+            ),
+            cycleDeviation: Number(
+              data.personalPreference?.cycleDeviation ??
+                cachedProfile?.personalPreference?.cycleDeviation ??
+                0,
+            ),
+            periodNotifications: Number(
+              data.personalPreference?.periodNotifications ??
+                cachedProfile?.personalPreference?.periodNotifications ??
+                0,
+            ),
+            fertilityStatusNotification: Number(
+              data.personalPreference?.fertilityStatusNotification ??
+                cachedProfile?.personalPreference
+                  ?.fertilityStatusNotification ??
+                0,
+            ),
+          },
         };
 
         dispatch(updateProfile(apiProfile));
 
-        if (accountEmail) {
-          const key = `profileData_${accountEmail.toLowerCase().trim()}`;
-          await AsyncStorage.setItem(key, JSON.stringify(apiProfile));
-        }
+        await AsyncStorage.setItem(userProfileKey, JSON.stringify(apiProfile));
       } catch (error: any) {
         console.log('GET PROFILE ERROR:', error?.response?.data || error);
       }
     };
 
     loadProfile();
-  }, [dispatch, emailFromRedux, profileCacheKey]);
+  }, [dispatch]);
+
+  useEffect(() => {
+    const community = profile.communityPreference;
+
+    const loadCommunityOptions = async () => {
+      if (!community.state) return;
+
+      try {
+        const cityData = await getCommunityCities(community.state);
+        setCities(cityData || []);
+
+        if (!community.city) return;
+
+        const parishData = await getCommunityParishes(
+          community.state,
+          community.city,
+        );
+        setParishes(parishData || []);
+
+        if (!community.parish) return;
+
+        const pastorData = await getCommunityPastors(
+          community.state,
+          community.city,
+          community.parish,
+        );
+
+        const validPastors = (pastorData || []).filter(
+          item => item && item.trim().length > 0,
+        );
+
+        setPastor(validPastors[0] || community.pastor || '');
+      } catch (error: any) {
+        console.log(
+          'LOAD COMMUNITY OPTIONS ERROR:',
+          error?.response?.data || error,
+        );
+      }
+    };
+
+    loadCommunityOptions();
+  }, [
+    profile.communityPreference.state,
+    profile.communityPreference.city,
+    profile.communityPreference.parish,
+  ]);
 
   const handleSave = async () => {
     if (!validateForm()) return;
 
     try {
-      const updatedProfile = {
-        name: name.trim(),
-        phone,
-        dob: dob?.toISOString() ?? null,
-
-        height: heightUnit === 'CM' ? height : `${feet}' ${inches}"`,
-        heightUnit,
-
-        weight,
-        weightUnit,
-
-        lactating: getOptionId(lactatingOptions, lactating, t),
-        contraceptive: getOptionId(contraceptiveOptions, contraceptive, t),
-        bleedTimeline: getOptionId(bleedTimelineOptions, bleedTimeline, t),
-
-        cycleLength,
-
-        lastMenstruationDate: lastMenstruationDate?.toISOString() ?? null,
-
-        state,
-        city,
-        parish,
-        pastor,
-      };
-
       const accountEmail = emailFromRedux || email;
 
       if (!accountEmail) {
         throw new Error('User email not found');
       }
 
-      const key = `profileData_${accountEmail.toLowerCase().trim()}`;
+      const updatedProfile = {
+        basicDetails: {
+          name: name.trim(),
+          dob: dob?.toISOString() ?? null,
+
+          height: heightUnit === 'CM' ? height : `${feet}' ${inches}"`,
+          heightUnit,
+
+          weight,
+          weightUnit,
+        },
+
+        healthDetail: {
+          lactationStatus: getOptionId(lactatingOptions, lactating, t),
+          contraceptionStatus: getOptionId(
+            contraceptiveOptions,
+            contraceptive,
+            t,
+          ),
+          bleedingTimeline: getOptionId(bleedTimelineOptions, bleedTimeline, t),
+
+          cycleLength,
+          lastMenstruationDate: lastMenstruationDate?.toISOString() ?? null,
+        },
+
+        communityPreference: {
+          isCatholic: Number(profile.communityPreference.isCatholic ?? 0),
+
+          committedToCatholicTeachings: Number(
+            profile.communityPreference.committedToCatholicTeachings ?? 0,
+          ),
+
+          state,
+          city,
+          parish,
+          pastor,
+        },
+        personalPreference: profile.personalPreference,
+      };
+
+      console.log(
+        'COMMUNITY PREFERENCE:',
+        JSON.stringify(updatedProfile.communityPreference, null, 2),
+      );
+
+      const payload = {
+        basicDetails: {
+          name: updatedProfile.basicDetails.name,
+          dob: updatedProfile.basicDetails.dob ?? undefined,
+
+          heightUnit: updatedProfile.basicDetails.heightUnit === 'CM' ? 1 : 2,
+          height: updatedProfile.basicDetails.height,
+
+          weightUnit: updatedProfile.basicDetails.weightUnit === 'KG' ? 1 : 2,
+          weight: updatedProfile.basicDetails.weight,
+        },
+
+        healthDetail: {
+          lactationStatus: Number(updatedProfile.healthDetail.lactationStatus),
+          contraceptionStatus: Number(
+            updatedProfile.healthDetail.contraceptionStatus,
+          ),
+          bleedingTimeline: Number(
+            updatedProfile.healthDetail.bleedingTimeline,
+          ),
+          cycleLength: Number(updatedProfile.healthDetail.cycleLength),
+          lastMenstruationDate:
+            updatedProfile.healthDetail.lastMenstruationDate ?? undefined,
+        },
+
+        communityPreference: {
+          isCatholic: updatedProfile.communityPreference.isCatholic,
+
+          committedToCatholicTeachings:
+            updatedProfile.communityPreference.committedToCatholicTeachings,
+
+          state: updatedProfile.communityPreference.state,
+          city: updatedProfile.communityPreference.city,
+          parish: updatedProfile.communityPreference.parish,
+          pastor: updatedProfile.communityPreference.pastor,
+        },
+      };
+
+      console.log('UPDATE PROFILE PAYLOAD:', payload);
+
+      const response = await updateUserProfile(payload);
+
+      console.log('UPDATE PROFILE RESPONSE:', response);
 
       dispatch(updateProfile(updatedProfile));
+
+      if (!profileUserId) {
+        throw new Error('User ID not found');
+      }
+
+      const key = `profileData_${profileUserId}`;
 
       await AsyncStorage.setItem(key, JSON.stringify(updatedProfile));
 
@@ -424,12 +633,10 @@ const EditProfile = () => {
         await AsyncStorage.removeItem(profilePhotoKey);
       }
 
-      console.log('PROFILE SAVED LOCALLY:', updatedProfile);
-
       Toast.show({
         type: 'success',
         text1: 'Profile Updated',
-        text2: 'Your details have been saved on this device.',
+        text2: 'Your details have been saved successfully.',
       });
 
       navigation.reset({
@@ -443,13 +650,15 @@ const EditProfile = () => {
           },
         ],
       });
-    } catch (error) {
-      console.log('PROFILE UPDATE ERROR:', error);
+    } catch (error: any) {
+      console.log('PROFILE UPDATE ERROR:', error?.response?.data || error);
 
       Toast.show({
         type: 'error',
         text1: 'Update Failed',
-        text2: 'Unable to save profile. Please try again.',
+        text2:
+          error?.response?.data?.message ||
+          'Unable to save profile. Please try again.',
       });
     }
   };
@@ -582,35 +791,6 @@ const EditProfile = () => {
             value={email}
             editable={false}
           />
-
-          <Text style={styles.label}>{t('editProfile.phoneNumber')}</Text>
-
-          <View
-            style={[
-              styles.phoneInputContainer,
-              errors.phone ? styles.inputError : null,
-            ]}
-          >
-            <Text style={styles.countryCode}>+1</Text>
-            <View style={styles.phoneDivider} />
-
-            <TextInput
-              style={styles.phoneTextInput}
-              value={phone}
-              onChangeText={value => {
-                setPhone(cleanNumber(value).slice(0, 10));
-                setErrors(previous => ({ ...previous, phone: '' }));
-              }}
-              placeholder="Add Phone Number"
-              placeholderTextColor={colors.text8}
-              keyboardType="phone-pad"
-              maxLength={10}
-            />
-          </View>
-
-          {!!errors.phone && (
-            <Text style={styles.errorText}>{errors.phone}</Text>
-          )}
 
           <Text style={styles.label}>{t('personalInfo.dateOfBirth')}</Text>
 
@@ -790,6 +970,9 @@ const EditProfile = () => {
 
           <CustomDropdown
             title={t('community.selectState')}
+            placeholder={
+              loadingStates ? 'Loading states...' : t('community.selectState')
+            }
             options={states}
             selectedValue={state}
             onSelect={handleStateChange}
@@ -800,25 +983,42 @@ const EditProfile = () => {
 
           <CustomDropdown
             title={t('community.selectCity')}
+            placeholder={
+              !state
+                ? 'Select state first'
+                : loadingCities
+                ? 'Loading cities...'
+                : t('community.selectCity')
+            }
             options={cities}
             selectedValue={city}
-            onSelect={setCity}
+            onSelect={handleCityChange}
+            disabled={!state || loadingCities}
           />
 
           <Text style={styles.label}>{t('community.localParishName')}</Text>
 
           <CustomDropdown
             title={t('community.selectParish')}
+            placeholder={
+              !city
+                ? 'Select city first'
+                : loadingParishes
+                ? 'Loading parishes...'
+                : t('community.selectParish')
+            }
             options={parishes}
             selectedValue={parish}
-            onSelect={setParish}
+            onSelect={handleParishChange}
+            disabled={!city || loadingParishes}
           />
 
           <Text style={styles.label}>{t('community.pastorName')}</Text>
 
           <TextInput
             style={[styles.input, styles.disabledInput]}
-            value={pastor}
+            value={loadingPastor ? 'Loading pastor...' : pastor}
+            placeholder={!parish ? 'Select parish first' : 'Pastor name'}
             editable={false}
           />
 
