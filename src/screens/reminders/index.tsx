@@ -9,10 +9,17 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  getReminders,
+  createReminder,
+  updateReminder,
+  deleteReminder as deleteReminderApi,
+  type ReminderListResponse,
+} from '../../services/reminder/reminderService';
 import { useTranslation } from 'react-i18next';
 
 import { ScreenHeader, BottomSheetModal, DateInput } from '../../components';
@@ -30,74 +37,86 @@ const Reminders = () => {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
-  const [reminders, setReminders] = useState<any[]>([
-    {
-      id: '1',
-      title: 'reminders.defaultTitle',
-      date: new Date(),
-      time: new Date(2000, 0, 1, 7, 30),
-      frequency: 'daily',
-      weekdays: [],
-      enabled: true,
-      isDefault: true,
-    },
-  ]);
+  const [reminders, setReminders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  // Load saved reminders when the screen opens.
-  useEffect(() => {
-    const loadReminders = async () => {
-      try {
-        const savedReminders = await AsyncStorage.getItem('savedReminders');
-
-        if (savedReminders) {
-          const parsedReminders = JSON.parse(savedReminders);
-
-          const loadedReminders = parsedReminders.map((item: any) => ({
-            ...item,
-            date: new Date(item.date),
-            time: new Date(item.time),
-            enabled: item.isDefault ? true : item.enabled,
-          }));
-
-          const hasDefaultReminder = loadedReminders.some(
-            (item: any) => item.isDefault,
-          );
-
-          if (!hasDefaultReminder) {
-            loadedReminders.unshift({
-              id: '1',
-              title: 'reminders.defaultTitle',
-              date: new Date(),
-              time: new Date(2000, 0, 1, 7, 30),
-              frequency: 'daily',
-              weekdays: [],
-              enabled: true,
-              isDefault: true,
-            });
-          }
-
-          setReminders(loadedReminders);
-        }
-      } catch (error) {
-        console.log('Error loading reminders:', error);
-      } finally {
-        setIsLoaded(true);
-      }
-    };
-
-    loadReminders();
-  }, []);
-
-  // Save reminders whenever the list changes.
-  useEffect(() => {
-    if (isLoaded) {
-      AsyncStorage.setItem('savedReminders', JSON.stringify(reminders)).catch(
-        error => console.log('Error saving reminders:', error),
-      );
+  const getFrequencyValue = (value: string): number => {
+    switch (value) {
+      case 'daily':
+        return 1;
+      case 'weekly':
+        return 2;
+      default:
+        return 3;
     }
-  }, [reminders, isLoaded]);
+  };
+
+  const getFrequencyLabel = (value: number): string => {
+    switch (value) {
+      case 1:
+        return 'daily';
+      case 2:
+        return 'weekly';
+      default:
+        return 'once';
+    }
+  };
+
+  const formatReminderDate = (date: Date, time: Date) => {
+    const selectedDateTime = new Date(date);
+
+    selectedDateTime.setHours(time.getHours(), time.getMinutes(), 0, 0);
+
+    const year = selectedDateTime.getFullYear();
+    const month = String(selectedDateTime.getMonth() + 1).padStart(2, '0');
+    const day = String(selectedDateTime.getDate()).padStart(2, '0');
+    const hours = String(selectedDateTime.getHours()).padStart(2, '0');
+    const minutes = String(selectedDateTime.getMinutes()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:00`;
+  };
+
+  const fetchReminders = async () => {
+    try {
+      setLoading(true);
+
+      const response = await getReminders();
+
+      const mappedReminders = response.data.reminders.map(item => {
+        const apiDate = new Date(item.date);
+
+        const reminderDate = new Date(
+          apiDate.getUTCFullYear(),
+          apiDate.getUTCMonth(),
+          apiDate.getUTCDate(),
+          apiDate.getUTCHours(),
+          apiDate.getUTCMinutes(),
+          0,
+        );
+
+        return {
+          id: item._id,
+          title: item.title,
+          date: reminderDate,
+          time: reminderDate,
+          frequency: getFrequencyLabel(item.frequency),
+          weekdays: item.repeatFrequency ?? [],
+          enabled: item.status === 1,
+          isDefault: item.isDefault ?? false,
+        };
+      });
+
+      setReminders(mappedReminders);
+    } catch (error) {
+      console.log('Fetch reminders error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReminders();
+  }, []);
 
   const [modal, setModal] = useState('');
   const [selectedReminder, setSelectedReminder] = useState<any>(null);
@@ -151,77 +170,107 @@ const Reminders = () => {
     setModal('');
   };
 
-  const addReminder = () => {
+  const addReminder = async () => {
     if (!title.trim() || !date) return;
-    if (frequency === 'weekly' && weekdays.length === 0) return;
 
-    setReminders(previous => [
-      ...previous,
-      {
-        id: Date.now().toString(),
-        title: title.trim(),
-        date,
-        time,
-        frequency,
-        weekdays,
-        enabled: true,
-        isDefault: false,
-      },
-    ]);
-
-    closeModal();
-  };
-
-  const saveReminder = () => {
-    if (!isDefaultEdit) {
-      if (!title.trim() || !date) return;
-      if (frequency === 'weekly' && weekdays.length === 0) return;
+    if (frequency === 'weekly' && weekdays.length === 0) {
+      return;
     }
 
-    setReminders(previous =>
-      previous.map(item =>
-        item.id === selectedReminder?.id
-          ? isDefaultEdit
-            ? { ...item, time }
-            : {
-                ...item,
-                title: title.trim(),
-                date,
-                time,
-                frequency,
-                weekdays,
-              }
-          : item,
-      ),
-    );
+    try {
+      const payload = {
+        title: title.trim(),
+        date: formatReminderDate(date, time),
+        frequency: getFrequencyValue(frequency),
+        repeatFrequency: frequency === 'weekly' ? weekdays : null,
+      };
 
-    closeModal();
+      await createReminder(payload);
+
+      await fetchReminders();
+      closeModal();
+    } catch (error) {
+      console.log('Create reminder error:', error);
+    }
   };
 
-  const deleteReminder = () => {
+  const saveReminder = async () => {
+    if (!selectedReminder) return;
+
+    if (!isDefaultEdit) {
+      if (!title.trim() || !date) return;
+
+      if (frequency === 'weekly' && weekdays.length === 0) {
+        return;
+      }
+    }
+
+    try {
+      const payload = {
+        reminderId: selectedReminder.id,
+        title: isDefaultEdit ? selectedReminder.title : title.trim(),
+        date: formatReminderDate(
+          isDefaultEdit ? selectedReminder.date : date!,
+          time,
+        ),
+        frequency: getFrequencyValue(
+          isDefaultEdit ? selectedReminder.frequency : frequency,
+        ),
+        repeatFrequency: isDefaultEdit
+          ? null
+          : frequency === 'weekly'
+          ? weekdays
+          : null,
+        status: selectedReminder.enabled ? 1 : 0,
+      };
+
+      await updateReminder(payload);
+
+      await fetchReminders();
+      closeModal();
+    } catch (error) {
+      console.log('Update reminder error:', error);
+    }
+  };
+
+  const deleteReminder = async () => {
     if (!selectedReminder || selectedReminder.isDefault) return;
 
-    setReminders(previous =>
-      previous.filter(item => item.id !== selectedReminder.id),
-    );
+    try {
+      await deleteReminderApi(selectedReminder.id);
 
-    closeModal();
+      await fetchReminders();
+      closeModal();
+    } catch (error) {
+      console.log('Delete reminder error:', error);
+    }
   };
 
-  const toggleReminder = (id: string) => {
-    setReminders(previous =>
-      previous.map(item =>
-        item.id === id ? { ...item, enabled: !item.enabled } : item,
-      ),
-    );
+  const toggleReminder = async (item: any) => {
+    try {
+      const payload = {
+        reminderId: item.id,
+        title: item.title,
+        date: formatReminderDate(item.date, item.time),
+        frequency: getFrequencyValue(item.frequency),
+        repeatFrequency: item.frequency === 'weekly' ? item.weekdays : null,
+        status: item.enabled ? 0 : 1,
+      };
+
+      await updateReminder(payload);
+
+      await fetchReminders();
+    } catch (error) {
+      console.log('Toggle reminder error:', error);
+    }
   };
 
   const selectDay = (day: number) => {
-    if (weekdays.includes(day)) {
-      setWeekdays(weekdays.filter(item => item !== day));
-    } else {
-      setWeekdays([...weekdays, day]);
-    }
+    setWeekdays(previous =>
+      previous.includes(day)
+        ? previous.filter(item => item !== day)
+        : [...previous, day],
+    );
   };
 
   const isEdit = modal === 'edit';
@@ -241,27 +290,41 @@ const Reminders = () => {
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
         >
-          {reminders.map(item => (
-            <ReminderCard
-              key={item.id}
-              title={item.isDefault ? t(item.title) : item.title}
-              time={formatTime(item.time)}
-              frequency={item.frequency}
-              enabled={item.isDefault ? true : item.enabled}
-              isDefault={item.isDefault}
-              weekdays={item.weekdays}
-              onEdit={() => openEditModal(item)}
-              onDelete={() => {
-                setSelectedReminder(item);
-                setModal('delete');
-              }}
-              onToggle={() => {
-                if (!item.isDefault) {
-                  toggleReminder(item.id);
-                }
-              }}
+          {loading ? (
+            <ActivityIndicator
+              size="large"
+              color={colors.primary}
+              style={{ marginTop: 30 }}
             />
-          ))}
+          ) : reminders.length === 0 ? (
+            <Text style={{ textAlign: 'center', marginTop: 30 }}>
+              No reminders found.
+            </Text>
+          ) : (
+            reminders.map(item => (
+              <ReminderCard
+                key={item.id}
+                title={
+                  item.isDefault ? t('reminders.defaultTitle') : item.title
+                }
+                time={formatTime(item.time)}
+                frequency={item.frequency}
+                enabled={item.isDefault ? true : item.enabled}
+                isDefault={item.isDefault}
+                weekdays={item.weekdays}
+                onEdit={() => openEditModal(item)}
+                onDelete={() => {
+                  setSelectedReminder(item);
+                  setModal('delete');
+                }}
+                onToggle={() => {
+                  if (!item.isDefault) {
+                    toggleReminder(item);
+                  }
+                }}
+              />
+            ))
+          )}
         </ScrollView>
       </View>
 
@@ -276,7 +339,6 @@ const Reminders = () => {
         visible={modal === 'add' || modal === 'edit'}
         onClose={closeModal}
       >
-        {/* <KeyboardAvoidingView behavior="padding"> */}
         <Text style={styles.sheetTitle}>
           {isEdit ? t('reminders.edit') : t('reminders.add')}{' '}
           <Text style={styles.purpleText}>{t('reminders.reminder')}</Text>
@@ -311,6 +373,7 @@ const Reminders = () => {
               value={date}
               onChange={setDate}
               placeholder={t('reminders.selectDate')}
+              allowFutureDates={true}
             />
           )}
 
@@ -427,7 +490,6 @@ const Reminders = () => {
             </Text>
           </Pressable>
         </View>
-        {/* </KeyboardAvoidingView> */}
       </BottomSheetModal>
 
       <BottomSheetModal visible={modal === 'delete'} onClose={closeModal}>
