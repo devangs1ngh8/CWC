@@ -5,10 +5,7 @@ import {
   Text,
   Image,
   Pressable,
-  ScrollView,
   ActivityIndicator,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
   FlatList,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -24,7 +21,6 @@ import colors from '../../utils/color';
 import i18n from '../../i18n';
 
 const PAGE_SIZE = 10;
-const SCROLL_THRESHOLD = 100;
 
 const LearningLounge = () => {
   const navigation = useNavigation<any>();
@@ -37,27 +33,6 @@ const LearningLounge = () => {
   const [totalPages, setTotalPages] = useState(1);
 
   const isLoadingRef = useRef(false);
-  const hasTriggeredRef = useRef(false);
-
-  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
-
-    const isAtBottom =
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - SCROLL_THRESHOLD;
-
-    if (isAtBottom && !hasTriggeredRef.current) {
-      hasTriggeredRef.current = true;
-
-      if (page < totalPages) {
-        fetchEducation(page + 1);
-      }
-    }
-
-    if (!isAtBottom) {
-      hasTriggeredRef.current = false;
-    }
-  };
 
   const fetchEducation = async (pageNumber: number) => {
     if (isLoadingRef.current) return;
@@ -154,7 +129,7 @@ const LearningLounge = () => {
           columnWrapperStyle={styles.learningGrid}
           showsVerticalScrollIndicator={false}
           onEndReached={() => {
-            if (!isLoading && page < totalPages) {
+            if (page < totalPages) {
               fetchEducation(page + 1);
             }
           }}
