@@ -58,7 +58,7 @@ const Splash = () => {
           } else {
             navigation.reset({
               index: 0,
-              routes: [{ name: ScreenName.Login }],
+              routes: [{ name: ScreenName.Language }],
             });
           }
         }, 2000);
