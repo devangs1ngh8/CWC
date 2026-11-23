@@ -30,3 +30,7 @@ export const HOME_ENDPOINTS = {
 export const LOGS_ENDPOINTS = {
   LOGS: 'user/logs',
 };
+
+export const REMINDER_ENDPOINTS = {
+  REMINDERS: 'user/reminder',
+};
