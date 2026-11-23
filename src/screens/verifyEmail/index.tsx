@@ -15,7 +15,7 @@ import { verifyOtp, resendOtp } from '../../services/auth/auth';
 import { Storage } from '../../services/storage';
 import { StorageKeys } from '../../services/storage/keys';
 
-const SecurityPin = () => {
+const VerifyEmail = () => {
   const navigation = useNavigation<any>();
 
   const route = useRoute<any>();
@@ -224,4 +224,4 @@ const SecurityPin = () => {
   );
 };
 
-export default SecurityPin;
+export default VerifyEmail;
