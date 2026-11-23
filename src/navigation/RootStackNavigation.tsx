@@ -55,6 +55,7 @@ export type RootStackParamList = {
   YourCycles: undefined;
   CatholicCommunity: undefined;
   MainTabs: undefined;
+  LearningDetail: undefined;
   LearningLounge: undefined;
   EditProfile: undefined;
   More: undefined;
@@ -121,6 +122,10 @@ const RootStackNavigation = () => {
         name="MainTabs"
         component={BottomTabNavigator}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name={ScreenName.LearningDetail}
+        component={LearningDetail}
       />
       <Stack.Screen
         name={ScreenName.LearningLounge}
