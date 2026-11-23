@@ -129,6 +129,7 @@ const Login = () => {
             city: user.communityPreference?.city ?? '',
             parish: user.communityPreference?.parish ?? '',
             pastor: user.communityPreference?.pastor ?? '',
+            committedToCatholicTeachings: 0,
           },
         }),
       );
