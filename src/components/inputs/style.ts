@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { normalize } from '../../utils/metrics';
 import colors from '../../utils/color';
 
@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
   },
 
   passwordContainer: {
-    paddingVertical: normalize(18),
+    paddingVertical: Platform.OS === 'android' ? normalize(8) : normalize(18),
     paddingHorizontal: normalize(16),
     borderWidth: 1,
     borderRadius: normalize(14),
