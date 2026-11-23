@@ -15,25 +15,21 @@ import {
   REGISTER,
 } from 'redux-persist';
 
-// Slice imports
 import authReducer from './slice/authSlice';
 import subscriptionReducer from './slice/subscriptionSlice';
 import logsReducer from './slice/logsSlice';
 
-// Persist auth state
 const authPersistConfig = {
   key: 'auth',
   storage: AsyncStorage,
 };
 
-// Combine reducers
 const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
   subscription: subscriptionReducer,
   logs: logsReducer,
 });
 
-// Configure store
 const store = configureStore({
   reducer: rootReducer,
   middleware: getDefaultMiddleware =>
@@ -44,17 +40,13 @@ const store = configureStore({
     }),
 });
 
-// Persistor
 export const persistor = persistStore(store);
 
-// Types
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
-// Typed hooks
 export const useAppDispatch: () => AppDispatch = useDispatch;
 
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
-// Export store
 export default store;

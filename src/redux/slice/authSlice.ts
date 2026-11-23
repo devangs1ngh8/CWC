@@ -25,6 +25,7 @@ const initialState: AuthState = {
 
     communityPreference: {
       isCatholic: 0,
+      committedToCatholicTeachings: 0,
       state: '',
       city: '',
       parish: '',
