@@ -17,6 +17,7 @@ const DateInput = ({
   placeholder,
   error,
   inputStyle,
+  allowFutureDates = false,
 }: Props) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [tempDate, setTempDate] = useState(value ?? DEFAULT_DATE);
@@ -81,7 +82,7 @@ const DateInput = ({
               value={tempDate}
               mode="date"
               display="spinner"
-              maximumDate={new Date()}
+              maximumDate={allowFutureDates ? undefined : new Date()}
               onChange={(_, selectedDate) => {
                 if (selectedDate) {
                   setTempDate(selectedDate);

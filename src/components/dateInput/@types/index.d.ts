@@ -4,4 +4,5 @@ export interface Props {
   placeholder: string;
   error?: string;
   inputStyle?: StyleProp<TextStyle>;
+  allowFutureDates?: boolean;
 }
