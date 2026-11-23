@@ -11,8 +11,6 @@ import { getValues } from '../../utils/commonFunctions';
 import { Storage } from '../../services/storage';
 import { StorageKeys } from '../../services/storage/keys';
 
-import { getUserProfile } from '../../services/auth/auth';
-
 const Splash = () => {
   const navigation = useNavigation<any>();
   const [savedLanguage, setSavedLanguage] = useState<string | null>(null);
