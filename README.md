@@ -1,97 +1,266 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# CWC – React Native Application
 
-# Getting Started
+A React Native mobile application built with TypeScript, focused on user onboarding, profile management, daily logs, reminders, and personalized user experiences.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## 🚀 Tech Stack
 
-## Step 1: Start Metro
+| Technology                            | Purpose                                        |
+| ------------------------------------- | ---------------------------------------------- |
+| React Native                          | Cross-platform mobile development              |
+| TypeScript                            | Type safety and maintainable code              |
+| Redux Toolkit                         | Global state management                        |
+| React Hooks                           | Local component state and lifecycle management |
+| Axios                                 | HTTP requests and API communication            |
+| MMKV                                  | Fast local key-value storage                   |
+| AsyncStorage                          | Persisting simple app preferences              |
+| React Navigation                      | Screen navigation                              |
+| i18next                               | Multi-language support                         |
+| React Native Community DateTimePicker | Date and time selection                        |
+| React Native Safe Area Context        | Safe area handling                             |
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## ✨ Features
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+### 1. Authentication & Onboarding
 
-```sh
-# Using npm
-npm start
+- Sign Up and Sign In screens.
+- Forgot Password functionality.
+- Security PIN verification.
+- New Password screen.
+- Splash screen and onboarding flow.
+- Language selection and persistence.
 
-# OR using Yarn
-yarn start
+### 2. Multi-language Support
+
+- Language selection during onboarding.
+- Dynamic language switching using i18next.
+- Persisted language preferences.
+- Language-specific splash screen content.
+
+### 3. Logs Management
+
+- View logs based on the selected date.
+- Fetch log data from backend APIs.
+- Display different log categories and their available options.
+- Handle log-related information, including:
+  - Bleeding
+  - Vulval Sensation
+  - Cervical Fluid Color
+  - Cervical Visual Observation
+  - Mood
+  - Symptoms
+  - Sleep Disturbances
+  - Basal Body Temperature
+  - Urinary Hormones
+  - Medications
+  - Notes
+- Manage application state using Redux Toolkit.
+
+### 4. Reminders Management
+
+- Fetch reminders from the backend.
+- Create new reminders.
+- Update existing reminders.
+- Delete reminders.
+- Enable or disable reminders.
+- Support different reminder frequencies:
+  - Daily
+  - Weekly
+  - Once
+- Select specific weekdays for weekly reminders.
+- Select reminder dates and times.
+- Display loading and empty states.
+
+### 5. Reusable UI Components
+
+- Reusable buttons.
+- Screen headers and body components.
+- Input components.
+- Date input component.
+- Bottom sheet modal.
+- Reminder cards.
+- Error messages.
+
+## 🏗️ Project Architecture
+
+The application follows a modular structure that separates screens, reusable components, API services, state management, and utilities.
+
+```text
+src/
+│
+├── assets/
+│   ├── images/
+│   └── icons/
+│
+├── components/
+│   ├── primaryButton/
+│   ├── screenHeader/
+│   ├── screenBody/
+│   ├── dateInput/
+│   ├── bottomSheetModal/
+│   └── ...
+│
+├── navigation/
+│   └── RootStackNavigator.tsx
+│
+├── screens/
+│   ├── Splash/
+│   ├── Language/
+│   ├── SignIn/
+│   ├── SignUp/
+│   ├── ForgotPassword/
+│   ├── SecurityPin/
+│   ├── NewPassword/
+│   ├── Logs/
+│   └── ...
+│
+├── services/
+│   ├── reminderService.ts
+│   └── ...
+│
+├── api/
+│   ├── http.ts
+│   └── endpoints.ts
+│
+├── redux/
+│   ├── store.ts
+│   └── slices/
+│
+├── storage/
+│   └── ...
+│
+├── utils/
+│   └── ...
+│
+└── i18n/
+    └── ...
 ```
 
-## Step 2: Build and run your app
+_Note: This is a logical overview of the architecture. Adjust folder names to match the actual repository structure._
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+## 🔄 State Management
 
-### Android
+The application uses different approaches depending on the type of data.
 
-```sh
-# Using npm
-npm run android
+### Local State – useState
 
-# OR using Yarn
+Used for screen-specific data such as:
+
+- Form inputs.
+- Modal visibility.
+- Selected dates and times.
+- Loading indicators.
+- Temporary UI selections.
+
+### Global State – Redux Toolkit
+
+Used to manage shared application data, such as Logs data that needs to be accessed across components or screens.
+
+### Persistent Storage
+
+- **MMKV:** Fast local storage for application data.
+- **AsyncStorage:** Stores preferences such as selected language and onboarding status.
+
+## 🌐 API Integration
+
+The application communicates with backend services using Axios.
+
+A centralized HTTP client provides reusable methods:
+
+- `apiGet()` – GET requests.
+- `apiPost()` – POST requests.
+- `apiPut()` – PUT requests.
+- `apiPatch()` – PATCH requests.
+- `apiDelete()` – DELETE requests.
+
+### Reminder API
+
+Base endpoint:
+
+`/v1/user/reminder`
+
+| Method | Endpoint                            | Description       |
+| ------ | ----------------------------------- | ----------------- |
+| GET    | `/v1/user/reminder`                 | Fetch reminders   |
+| POST   | `/v1/user/reminder`                 | Create a reminder |
+| PUT    | `/v1/user/reminder`                 | Update a reminder |
+| DELETE | `/v1/user/reminder?reminderId={id}` | Delete a reminder |
+
+API functions are maintained separately in service files to keep screen components clean and maintainable.
+
+## ⚙️ Installation & Setup
+
+### Prerequisites
+
+- Node.js
+- Yarn
+- React Native development environment
+- Android Studio for Android development
+- Xcode and CocoaPods for iOS development
+
+### 1. Clone the Repository
+
+```bash
+git clone <repository-url>
+```
+
+### 2. Navigate to the Project
+
+```bash
+cd <project-folder>
+```
+
+### 3. Install Dependencies
+
+```bash
+yarn install
+```
+
+### 4. iOS Setup
+
+```bash
+cd ios
+pod install
+cd ..
+```
+
+### 5. Run the Application
+
+**Android**
+
+```bash
 yarn android
 ```
 
-### iOS
+**iOS**
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
+```bash
 yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+For a specific iOS simulator, use the simulator name supported by your project's React Native CLI configuration.
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+## 🔐 Environment Configuration
 
-## Step 3: Modify your app
+Configure the backend API base URL and any required environment variables according to your development environment.
 
-Now that you have successfully run the app, let's make changes!
+Do not commit:
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+- API secrets.
+- Authentication tokens.
+- Private credentials.
+- Environment-specific sensitive configuration.
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+## 🧑‍💻 Development Guidelines
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+- Use TypeScript interfaces for API request and response structures.
+- Keep API calls inside service files.
+- Use reusable components wherever possible.
+- Use Redux Toolkit for shared application state.
+- Use local state for screen-specific UI interactions.
+- Keep navigation and screen responsibilities separate.
+- Handle API loading, success, and error states.
+- Use consistent naming conventions and project formatting.
 
-## Congratulations! :tada:
+---
 
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+**Built with React Native and TypeScript.**
