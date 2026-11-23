@@ -9,7 +9,9 @@ export const currentlang = () =>
     : LanguageCode.ENGLISH;
 
 export const currentScreen = () => {
-  i18n.resolvedLanguage === 'es' ? image.spanishSplashText : image.splashText;
+  return i18n.resolvedLanguage === 'es'
+    ? image.spanishSplashText
+    : image.splashText;
 };
 
 export const getValues = async () => {
