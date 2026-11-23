@@ -31,19 +31,31 @@ const More = () => {
   );
 
   const profileEmail = useAppSelector(state => state.auth.email);
+  const userId = useAppSelector(state => state.auth.userId);
 
-  const profilePhotoKey = `profilePhotoUri_${profileEmail
-    ?.toLowerCase()
-    .trim()}`;
+  const profilePhotoKey = `profilePhotoUri_${userId}`;
 
   useEffect(() => {
     const loadProfilePhoto = async () => {
-      if (!profileEmail) {
+      if (!userId) {
         setProfilePhoto(null);
         return;
       }
 
-      const savedPhoto = await AsyncStorage.getItem(profilePhotoKey);
+      let savedPhoto = await AsyncStorage.getItem(profilePhotoKey);
+
+      if (!savedPhoto && profileEmail) {
+        const oldPhotoKey = `profilePhotoUri_${profileEmail
+          .toLowerCase()
+          .trim()}`;
+
+        savedPhoto = await AsyncStorage.getItem(oldPhotoKey);
+
+        if (savedPhoto) {
+          await AsyncStorage.setItem(profilePhotoKey, savedPhoto);
+        }
+      }
+
       setProfilePhoto(savedPhoto);
     };
 
@@ -52,7 +64,7 @@ const More = () => {
     loadProfilePhoto();
 
     return unsubscribe;
-  }, [navigation, profilePhotoKey, profileEmail]);
+  }, [navigation, profilePhotoKey, userId, profileEmail]);
 
   const handleLogout = async () => {
     setIsLogoutModalVisible(false);
@@ -76,7 +88,6 @@ const More = () => {
         showBackButton={false}
       />
       <Text style={styles.version}>v1.2.0</Text>
-      {/* </View> */}
 
       <Image
         source={profilePhoto ? { uri: profilePhoto } : image.defaultProfile}
