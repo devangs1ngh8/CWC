@@ -7,7 +7,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: normalize(20),
-    // paddingBottom: normalize(20),
     backgroundColor: colors.background,
     borderTopLeftRadius: normalize(30),
     borderTopRightRadius: normalize(30),

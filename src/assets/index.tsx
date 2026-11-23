@@ -51,16 +51,6 @@ export const image = {
   defaultLearningSpanish: require(`${Path}/defaultLearningSpanish.png`),
   defaultLearningEnglish: require(`${Path}/defaultLearningEnglish.png`),
 
-  // cycleBasics3: require(`${Path}/cycleBasics3.png`),
-  // practicalGuidance2: require(`${Path}/practicalGuidance2.png`),
-  // yourCycle: require(`${Path}/yourCycle.png`),
-  // awareness: require(`${Path}/awareness.png`),
-  // trackingPeriod: require(`${Path}/trackingPeriod.png`),
-  // doctor: require(`${Path}/doctor.png`),
-  // healthy: require(`${Path}/healthy.png`),
-  // parenthood: require(`${Path}/parenthood.png`),
-  // nfpStarted: require(`${Path}/nfpStarted.png`),
-
   mySubscription: require(`${Path}/mySubscription.png`),
   changePassword: require(`${Path}/changePassword.png`),
   reminders: require(`${Path}/reminders.png`),
@@ -160,5 +150,3 @@ export const logsImages = {
   drip: require(`${Path}/drip.png`),
   bubble: require(`${Path}/bubble.png`),
 };
-
-// export { image, logsImages };

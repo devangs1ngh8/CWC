@@ -20,7 +20,6 @@ const styles = StyleSheet.create({
 
   list: {
     paddingHorizontal: normalize(24),
-    // paddingBottom: SCREEN_HEIGHT * 0.11,
   },
 
   addButton: {
@@ -185,7 +184,6 @@ const styles = StyleSheet.create({
   },
 
   submitButton: {
-    // height: normalize(52),
     backgroundColor: colors.primary,
     borderRadius: normalize(14),
     alignItems: 'center',

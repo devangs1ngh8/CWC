@@ -551,7 +551,6 @@ const styles = StyleSheet.create({
   medicationCardName: {
     fontSize: normalize(18),
     color: colors.textPrimary,
-    // fontFamily: 'Manrope-Bold',
   },
 
   medicationCardDetails: {

@@ -175,7 +175,6 @@ const Home = () => {
 
         const response = await getEducationList(1, 10);
 
-        // Handle both Axios response and response body
         const candidates = [response?.data?.data, response?.data, response];
 
         const result = candidates.find(item => Array.isArray(item?.data));

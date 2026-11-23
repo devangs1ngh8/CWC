@@ -158,7 +158,6 @@ export default StyleSheet.create({
   },
 
   pastorInput: {
-    // Reuse your existing input styling
     backgroundColor: '#F8F4F7',
     borderWidth: 1,
     borderColor: '#EEDFEA',

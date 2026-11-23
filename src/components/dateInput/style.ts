@@ -36,7 +36,6 @@ const styles = StyleSheet.create({
     borderColor: colors.error,
   },
 
-  // Modal overlay
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
@@ -44,7 +43,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  // Picker container
   datePickerContainer: {
     width: SCREEN_WIDTH - normalize(40),
     backgroundColor: colors.background,
@@ -54,7 +52,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
 
-  // Done button above wheel
   pickerHeader: {
     flexDirection: 'row',
     justifyContent: 'flex-end',

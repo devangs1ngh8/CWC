@@ -14,7 +14,6 @@ const styles = StyleSheet.create({
     right: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    // paddingHorizontal: normalize(60),
     marginTop: normalize(12),
   },
 

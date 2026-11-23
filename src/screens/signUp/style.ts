@@ -18,7 +18,6 @@ const styles = StyleSheet.create({
   consentRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    // marginTop: normalize(24),
   },
 
   checkbox: {
@@ -60,9 +59,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
 
-  bottomContent: {
-    // paddingTop: normalize(24),
-  },
+  bottomContent: {},
 
   createTextRow: {
     flexDirection: 'row',

@@ -162,7 +162,6 @@ const EditProfile = () => {
   const handleStateChange = async (value: string) => {
     setState(value);
 
-    // Reset dependent fields
     setCity('');
     setParish('');
     setPastor('');
@@ -185,7 +184,6 @@ const EditProfile = () => {
   const handleCityChange = async (value: string) => {
     setCity(value);
 
-    // Reset dependent fields
     setParish('');
     setPastor('');
     setParishes([]);
@@ -315,8 +313,6 @@ const EditProfile = () => {
     setPastor(community.pastor ?? '');
   }, [profile, emailFromRedux, t]);
 
-  // const cityOptions = state ? citiesByState[state] ?? [] : [];
-
   const validateForm = () => {
     const newErrors = {
       name: '',
@@ -362,13 +358,10 @@ const EditProfile = () => {
 
         setProfileUserId(userId);
 
-        // New userId-based photo key
         const userPhotoKey = `profilePhotoUri_${userId}`;
 
-        // First check userId-based photo
         let savedPhoto = await AsyncStorage.getItem(userPhotoKey);
 
-        // If not found, check the old email-based photo
         if (!savedPhoto && data.email) {
           const oldPhotoKey = `profilePhotoUri_${data.email
             .toLowerCase()
@@ -376,7 +369,6 @@ const EditProfile = () => {
 
           savedPhoto = await AsyncStorage.getItem(oldPhotoKey);
 
-          // Migrate old photo to userId-based storage
           if (savedPhoto) {
             await AsyncStorage.setItem(userPhotoKey, savedPhoto);
           }
@@ -384,7 +376,6 @@ const EditProfile = () => {
 
         setPhotoUri(savedPhoto);
 
-        // Load cache belonging to this particular user
         const userProfileKey = `profileData_${userId}`;
 
         const savedProfile = await AsyncStorage.getItem(userProfileKey);

@@ -149,7 +149,6 @@ const styles = StyleSheet.create({
 
   trialBadge: {
     backgroundColor: colors.backgroundBG9,
-    // paddingHorizontal: normalize(9),
     paddingVertical: normalize(5),
     borderRadius: normalize(4),
   },

@@ -23,8 +23,6 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: normalize(10),
-    // width: SCREEN_HEIGHT > 700 ? normalize(70) : normalize(60),
-    // width: '80%',
     fontFamily: 'Manrope-Bold',
     color: colors.bleedingSubtitle,
     textAlign: 'center',

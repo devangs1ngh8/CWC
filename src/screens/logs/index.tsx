@@ -146,8 +146,6 @@ const Logs = () => {
 
   const [isDetailsLoaded, setIsDetailsLoaded] = useState(false);
 
-  // const [temperature, setTemperature] = useState('');
-
   const [temperatureUnit, setTemperatureUnit] = useState<'°C' | '°F'>('°C');
 
   const [notes, setNotes] = useState('');
@@ -595,16 +593,12 @@ const Logs = () => {
               ? currentSelections.filter(item => item !== optionTitle)
               : [specialOption, optionTitle];
           } else {
-            // Without Drip/Bubble, allow only one option.
             updatedSelections = currentSelections.includes(optionTitle)
               ? []
               : [optionTitle];
           }
         }
-      }
-
-      // SYMPTOMS
-      else if (sectionKey === 'symptoms') {
+      } else if (sectionKey === 'symptoms') {
         if (optionTitle === noneTitle) {
           updatedSelections = currentSelections.includes(noneTitle)
             ? []
@@ -618,10 +612,7 @@ const Logs = () => {
             ? updatedSelections.filter(item => item !== optionTitle)
             : [...updatedSelections, optionTitle];
         }
-      }
-
-      // OTHER SECTIONS: KEEP SINGLE SELECTION BEHAVIOUR
-      else {
+      } else {
         updatedSelections = currentSelections.includes(optionTitle)
           ? []
           : [optionTitle];

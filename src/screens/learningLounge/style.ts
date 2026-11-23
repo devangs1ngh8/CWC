@@ -13,7 +13,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
 
-  // Header
   header: {
     height: SCREEN_HEIGHT * 0.19,
   },
@@ -24,16 +23,11 @@ const styles = StyleSheet.create({
     color: colors.textTertiary,
   },
 
-  // Scrollable content
   scrollView: {
     flex: 1,
-    // marginTop: -normalize(20),
     borderTopLeftRadius: normalize(35),
     borderTopRightRadius: normalize(35),
     backgroundColor: colors.backgroundBG2,
-    // paddingHorizontal: HORIZONTAL_PADDING,
-    // paddingTop: normalize(30),
-    // paddingBottom: normalize(30),
   },
 
   content: {
@@ -42,7 +36,6 @@ const styles = StyleSheet.create({
     paddingBottom: normalize(30),
   },
 
-  // Two-column grid
   learningGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -76,7 +69,6 @@ const styles = StyleSheet.create({
     color: colors.text8,
   },
 
-  // Learning Detail screen styles - retained
   imageHeader: {
     height: SCREEN_HEIGHT * 0.3,
   },
@@ -152,11 +144,6 @@ const styles = StyleSheet.create({
     paddingVertical: normalize(20),
     color: colors.primary,
   },
-
-  // loaderText: {
-  //   alignSelf: 'center',
-  //   fontSize: normalize(12),
-  // },
 
   noData: {
     textAlign: 'center',

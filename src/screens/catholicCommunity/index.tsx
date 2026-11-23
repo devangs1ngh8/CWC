@@ -31,8 +31,6 @@ const CatholicCommunity = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<any>();
 
-  // console.log('Redux Profile:', profile);
-
   const [community, setCommunity] = useState('');
   const [receiveUpdates, setReceiveUpdates] = useState(false);
 
@@ -71,7 +69,6 @@ const CatholicCommunity = () => {
   const handleStateChange = async (value: string) => {
     setSelectedState(value);
 
-    // Reset dependent fields
     setSelectedCity('');
     setParish('');
     setPastor('');
@@ -97,7 +94,6 @@ const CatholicCommunity = () => {
   const handleCityChange = async (value: string) => {
     setSelectedCity(value);
 
-    // Reset dependent fields
     setParish('');
     setPastor('');
 
@@ -133,7 +129,6 @@ const CatholicCommunity = () => {
         value,
       );
 
-      // Ignore empty or whitespace-only values
       const validPastors = (data || []).filter(
         item => item && item.trim().length > 0,
       );

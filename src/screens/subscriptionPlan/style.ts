@@ -36,7 +36,6 @@ const styles = StyleSheet.create({
 
   bottomActions: {
     paddingHorizontal: normalize(24),
-    // paddingTop: normalize(10),
     paddingBottom: normalize(20),
     backgroundColor: colors.backgroundBG2,
   },

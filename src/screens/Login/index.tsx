@@ -30,7 +30,6 @@ import {
   setUserId,
   updateProfile,
 } from '../../redux/slice/authSlice';
-// import { getProfileData } from '../../utils/profileStorage';
 
 import { getUserProfile } from '../../services/auth/auth';
 

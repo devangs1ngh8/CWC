@@ -54,7 +54,6 @@ const styles = StyleSheet.create({
 
   calendar: {
     paddingTop: normalize(32),
-    // paddingBottom: normalize(32),
     backgroundColor: colors.backgroundBG2,
     borderTopLeftRadius: normalize(55),
     borderTopRightRadius: normalize(55),
@@ -120,7 +119,6 @@ const styles = StyleSheet.create({
   },
 
   cycleSection: {
-    // height: SCREEN_HEIGHT * 0.36,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.textTertiary,
@@ -174,7 +172,6 @@ const styles = StyleSheet.create({
   },
 
   learningDescription: {
-    // width: '100%',
     alignSelf: 'stretch',
     marginTop: normalize(4),
     fontSize: normalize(12),
@@ -202,13 +199,10 @@ const styles = StyleSheet.create({
 
   periodDueImage: {
     position: 'absolute',
-    // height: SCREEN_HEIGHT * 0.295,
-    // width: SCREEN_WIDTH * 0.65,
   },
 
   tunnelImg: {
     height: SCREEN_HEIGHT * 0.387,
-    // backgroundColor: 'red',
   },
 });
 

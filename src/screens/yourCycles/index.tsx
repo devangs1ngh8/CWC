@@ -51,8 +51,6 @@ const YourCycles = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<any>();
 
-  // console.log('Redux Profile:', profile);
-
   const [hasInteracted, setHasInteracted] = useState(false);
   const [hasAttemptedNext, setHasAttemptedNext] = useState(false);
 

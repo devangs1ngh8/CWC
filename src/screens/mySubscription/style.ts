@@ -8,12 +8,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
 
-  // Header
   header: {
     height: SCREEN_HEIGHT * 0.45,
     backgroundColor: colors.primary,
-    // position: 'relative',
-    // overflow: 'hidden',
   },
 
   headerSection: {

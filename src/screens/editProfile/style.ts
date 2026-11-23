@@ -50,7 +50,6 @@ const styles = StyleSheet.create({
   },
 
   changePhotoButton: {
-    // width: '100%',
     paddingVertical: normalize(18),
     borderWidth: 1,
     borderColor: colors.primary,

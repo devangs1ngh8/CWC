@@ -61,7 +61,6 @@ const styles = StyleSheet.create({
   },
 
   childDivider: {
-    // height: normalize(1),
     borderBottomWidth: normalize(1),
     marginLeft: normalize(32),
     borderColor: colors.border,

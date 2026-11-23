@@ -15,7 +15,6 @@ const styles = StyleSheet.create({
   note: {
     color: colors.primary,
     fontSize: normalize(12),
-    // marginTop: normalize(1),
     fontFamily: 'Manrope-Medium',
   },
 
