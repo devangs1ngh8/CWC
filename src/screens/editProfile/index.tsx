@@ -362,6 +362,28 @@ const EditProfile = () => {
 
         setProfileUserId(userId);
 
+        // New userId-based photo key
+        const userPhotoKey = `profilePhotoUri_${userId}`;
+
+        // First check userId-based photo
+        let savedPhoto = await AsyncStorage.getItem(userPhotoKey);
+
+        // If not found, check the old email-based photo
+        if (!savedPhoto && data.email) {
+          const oldPhotoKey = `profilePhotoUri_${data.email
+            .toLowerCase()
+            .trim()}`;
+
+          savedPhoto = await AsyncStorage.getItem(oldPhotoKey);
+
+          // Migrate old photo to userId-based storage
+          if (savedPhoto) {
+            await AsyncStorage.setItem(userPhotoKey, savedPhoto);
+          }
+        }
+
+        setPhotoUri(savedPhoto);
+
         // Load cache belonging to this particular user
         const userProfileKey = `profileData_${userId}`;
 
@@ -627,10 +649,12 @@ const EditProfile = () => {
 
       await AsyncStorage.setItem(key, JSON.stringify(updatedProfile));
 
+      const userPhotoKey = `profilePhotoUri_${profileUserId}`;
+
       if (photoUri) {
-        await AsyncStorage.setItem(profilePhotoKey, photoUri);
+        await AsyncStorage.setItem(userPhotoKey, photoUri);
       } else {
-        await AsyncStorage.removeItem(profilePhotoKey);
+        await AsyncStorage.removeItem(userPhotoKey);
       }
 
       Toast.show({
@@ -699,7 +723,9 @@ const EditProfile = () => {
       Storage.remove(StorageKeys.USER_ID);
       Storage.remove(StorageKeys.SUBSCRIPTION);
 
-      await AsyncStorage.removeItem(profilePhotoKey);
+      if (profileUserId) {
+        await AsyncStorage.removeItem(`profilePhotoUri_${profileUserId}`);
+      }
 
       dispatch(resetAuth());
 
