@@ -11,6 +11,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 
 import { useTranslation } from 'react-i18next';
@@ -138,13 +139,13 @@ const Logs = () => {
     Record<string, Record<string, string[]>>
   >({});
 
-  const [isStorageLoaded, setIsStorageLoaded] = useState(false);
-
   const [detailsByDate, setDetailsByDate] = useState<
     Record<string, LogsDetails>
   >({});
 
   const [isDetailsLoaded, setIsDetailsLoaded] = useState(false);
+
+  const [isLogsLoading, setIsLogsLoading] = useState(true);
 
   const [temperatureUnit, setTemperatureUnit] = useState<'°C' | '°F'>('°C');
 
@@ -166,7 +167,6 @@ const Logs = () => {
 
   const userId = useAppSelector(state => state.auth.userId);
 
-  const logsSelectionsKey = `${StorageKeys.LOGS_SELECTIONS}_${userId}`;
   const logsDetailsKey = `${StorageKeys.LOGS_DETAILS}_${userId}`;
 
   const logDate = [
@@ -194,64 +194,77 @@ const Logs = () => {
   };
 
   const handleSaveTemperature = async () => {
-    if (!currentDetails.temperature.trim()) {
+    if (!currentDetails.temperature.trim() || !userId) {
       return;
     }
 
     try {
       const response = await saveLogs({
         logType: 2,
-
         logDate,
-
         basalBodyTemperature: {
           category: 8,
-
           categoryNameKey: 'LOG.CATEGORY.BASAL_BODY_TEMPERATURE',
-
           unit: 1,
-
           value: Number(currentDetails.temperature),
         },
       });
 
       console.log('Temperature saved:', response);
-    } catch (error) {
-      console.log('Temperature save error:', error);
+
+      const latestLogs = await getLogs(logDate);
+
+      dispatch(
+        setLogsForDate({
+          userId,
+          date: logDate,
+          data: latestLogs,
+        }),
+      );
+    } catch (error: any) {
+      console.log('Temperature save error:', error.response?.data || error);
     }
   };
 
   const handleSaveHormones = async () => {
+    if (!userId) return false;
+
     const selectedHormones = hormonesData
-
       .filter(hormone => hormones[hormone.key].trim() !== '')
-
       .map(hormone => ({
         optionNameKey: `LOG.URINARY_HORMONES.${hormone.key.toUpperCase()}`,
-
         value: Number(hormones[hormone.key]),
-
         unit: hormone.unit,
       }));
 
     try {
       const response = await saveLogs({
         logType: 3,
-
         logDate,
-
         urinaryHormones: {
           category: 9,
-
           categoryNameKey: 'LOG.CATEGORY.URINARY_HORMONES',
-
           selectedOption: selectedHormones,
         },
       });
 
       console.log('Hormones saved:', response);
+
+      // Fetch updated data from server
+      const latestLogs = await getLogs(logDate);
+
+      dispatch(
+        setLogsForDate({
+          userId,
+          date: logDate,
+          data: latestLogs,
+        }),
+      );
+
+      return true;
     } catch (error: any) {
       console.log('SAVE HORMONES ERROR:', error.response?.data || error);
+      return false;
     }
   };
 
@@ -262,49 +275,65 @@ const Logs = () => {
   const fetchedCategories = logs?.data?.logs ?? [];
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !isDetailsLoaded) return;
 
-    const savedSelections =
-      Storage.get<Record<string, Record<string, string | string[]>>>(
-        logsSelectionsKey,
-      );
-
-    if (savedSelections && typeof savedSelections === 'object') {
-      const normalizedSelections: Record<string, Record<string, string[]>> = {};
-
-      Object.entries(savedSelections).forEach(([date, sections]) => {
-        normalizedSelections[date] = {};
-
-        Object.entries(sections).forEach(([sectionKey, value]) => {
-          normalizedSelections[date][sectionKey] = Array.isArray(value)
-            ? value
-            : value
-            ? [value]
-            : [];
-        });
-      });
-
-      setSelectedByDate(normalizedSelections);
-    } else {
-      setSelectedByDate({});
-    }
-
-    setIsStorageLoaded(true);
-  }, [userId, logsSelectionsKey]);
-
-  useEffect(() => {
-    if (!isStorageLoaded || !userId) return;
-
-    Storage.set(logsSelectionsKey, selectedByDate);
-  }, [selectedByDate, isStorageLoaded, userId, logsSelectionsKey]);
-
-  useEffect(() => {
-    if (!isStorageLoaded || !userId) return;
+    let isMounted = true;
 
     const fetchLogs = async () => {
+      setIsLogsLoading(true);
+
       try {
+        console.log('GET LOGS REQUEST DATE:', logDate);
+
         const response = await getLogs(logDate);
 
+        if (!isMounted) return;
+
+        const categories = response?.data?.logs ?? [];
+
+        const hormoneCategory = categories.find(item => item.category === 9);
+
+        const medicationCategory = categories.find(
+          item => item.category === 10,
+        );
+
+        // Map urinary hormones from API
+        const hormoneValues = {
+          lh: '',
+          fsh: '',
+          estrogen: '',
+          progesterone: '',
+        };
+
+        const savedHormones: Record<string, string> = {};
+
+        hormoneCategory?.options?.forEach((item: any) => {
+          const key = item.optionNameKey?.split('.').pop()?.toLowerCase();
+
+          if (key && key in hormoneValues) {
+            hormoneValues[key as keyof typeof hormoneValues] =
+              item.value != null ? String(item.value) : '';
+
+            savedHormones[key] =
+              item.value != null
+                ? `${item.value} ${item.unit ?? ''}`.trim()
+                : '';
+          }
+        });
+
+        // Map medications from API
+        const serverMedications: Medication[] = (
+          medicationCategory?.medications ?? []
+        ).map((item: any) => ({
+          id: item._id,
+          name: item.name,
+          dosage: String(item.dosage),
+          dosageUnit: item.unit === 1 ? 'mg' : 'ml',
+          time:
+            item.time === 1 ? t('logs.medications.morning') : String(item.time),
+        }));
+
+        // Update Redux
         dispatch(
           setLogsForDate({
             userId,
@@ -312,17 +341,35 @@ const Logs = () => {
             data: response,
           }),
         );
+
+        // Update UI state from server response
+        setDetailsByDate(previous => ({
+          ...previous,
+          [logDate]: {
+            ...(previous[logDate] ?? createEmptyLogsDetails()),
+            hormones: hormoneValues,
+            savedHormones,
+            medications: serverMedications,
+          },
+        }));
+
+        console.log('SERVER HORMONES:', hormoneValues);
+        console.log('SERVER MEDICATIONS:', serverMedications);
       } catch (error: any) {
-        console.log('STATUS:', error.response?.status);
-
-        console.log('ERROR DATA:', error.response?.data);
-
-        console.log('REQUEST URL:', error.config?.url);
+        console.log('GET LOGS ERROR:', error.response?.data || error);
+      } finally {
+        if (isMounted) {
+          setIsLogsLoading(false);
+        }
       }
     };
 
     fetchLogs();
-  }, [logDate, dispatch, isStorageLoaded, userId]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [logDate, dispatch, userId, isDetailsLoaded, t]);
 
   useEffect(() => {
     if (!userId) return;
@@ -548,88 +595,139 @@ const Logs = () => {
     }
   };
 
+  const categoryConfig: Record<
+    string,
+    { category: number; categoryNameKey: string }
+  > = {
+    bleeding: {
+      category: 1,
+      categoryNameKey: 'LOG.CATEGORY.BLEEDING',
+    },
+    sensation: {
+      category: 2,
+      categoryNameKey: 'LOG.CATEGORY.VULVAL_SENSATION',
+    },
+    cervicalColor: {
+      category: 3,
+      categoryNameKey: 'LOG.CATEGORY.CERVICAL_FLUID_COLOR',
+    },
+    cervicalObservation: {
+      category: 4,
+      categoryNameKey: 'LOG.CATEGORY.CERVICAL_VISUAL_OBSERVATION',
+    },
+    mood: {
+      category: 5,
+      categoryNameKey: 'LOG.CATEGORY.MOOD',
+    },
+    symptoms: {
+      category: 6,
+      categoryNameKey: 'LOG.CATEGORY.SYMPTOMS',
+    },
+    sleep: {
+      category: 7,
+      categoryNameKey: 'LOG.CATEGORY.SLEEP_DISTURBANCES',
+    },
+  };
+
   const selectOption = async (sectionKey: string, optionTitle: string) => {
-    const optionKey = `${sectionKey}-${optionTitle}`;
+    if (!userId) return;
 
-    setLoadingOptionKey(optionKey);
+    const config = categoryConfig[sectionKey];
+    if (!config) return;
 
-    const dripTitle = t('logs.vulvalSensation.drip');
+    const categoryData = fetchedCategories.find(
+      item => item.category === config.category,
+    );
 
-    const bubbleTitle = t('logs.vulvalSensation.bubble');
+    const selectedOption = categoryData?.options?.find(
+      item =>
+        item.optionName === optionTitle ||
+        t(item.optionNameKey) === optionTitle,
+    );
 
-    const noneTitle = t('logs.symptoms.blockGreen');
+    if (!selectedOption) {
+      console.log('Option not found in API:', optionTitle);
+      return;
+    }
 
-    setSelectedByDate(prev => {
-      const currentSelections = prev[logDate]?.[sectionKey] || [];
+    const isSymptoms = sectionKey === 'symptoms';
+    const isNone =
+      selectedOption.optionNameKey.toUpperCase().endsWith('.NONE') ||
+      optionTitle.trim().toLowerCase() === 'none';
 
-      let updatedSelections: string[] = [];
+    const currentSelections =
+      selected[sectionKey] ??
+      categoryData?.options
+        ?.filter(item => item.isSelected)
+        .map(item => item.optionName) ??
+      [];
 
-      if (sectionKey === 'sensation') {
-        const isSpecialOption =
-          optionTitle === dripTitle || optionTitle === bubbleTitle;
+    const isAlreadySelected = currentSelections.includes(optionTitle);
 
-        const specialOption = currentSelections.find(
-          item => item === dripTitle || item === bubbleTitle,
-        );
+    let updatedSelections: string[];
 
-        if (isSpecialOption) {
-          if (currentSelections.includes(optionTitle)) {
-            updatedSelections = currentSelections.filter(
-              item => item !== optionTitle,
-            );
-          } else {
-            const extraOption = currentSelections.find(
-              item => item !== dripTitle && item !== bubbleTitle,
-            );
+    if (!isSymptoms) {
+      updatedSelections = isAlreadySelected ? [] : [optionTitle];
+    } else if (isNone) {
+      updatedSelections = isAlreadySelected ? [] : [optionTitle];
+    } else {
+      const withoutNone = currentSelections.filter(
+        item => item.trim().toLowerCase() !== 'none',
+      );
 
-            updatedSelections = [
-              optionTitle,
-              ...(extraOption ? [extraOption] : []),
-            ];
-          }
-        } else {
-          if (specialOption) {
-            updatedSelections = currentSelections.includes(optionTitle)
-              ? currentSelections.filter(item => item !== optionTitle)
-              : [specialOption, optionTitle];
-          } else {
-            updatedSelections = currentSelections.includes(optionTitle)
-              ? []
-              : [optionTitle];
-          }
-        }
-      } else if (sectionKey === 'symptoms') {
-        if (optionTitle === noneTitle) {
-          updatedSelections = currentSelections.includes(noneTitle)
-            ? []
-            : [noneTitle];
-        } else {
-          updatedSelections = currentSelections.filter(
-            item => item !== noneTitle,
-          );
+      updatedSelections = isAlreadySelected
+        ? withoutNone.filter(item => item !== optionTitle)
+        : [...withoutNone, optionTitle];
+    }
 
-          updatedSelections = updatedSelections.includes(optionTitle)
-            ? updatedSelections.filter(item => item !== optionTitle)
-            : [...updatedSelections, optionTitle];
-        }
-      } else {
-        updatedSelections = currentSelections.includes(optionTitle)
-          ? []
-          : [optionTitle];
-      }
-
-      return {
-        ...prev,
-
-        [logDate]: {
-          ...(prev[logDate] || {}),
-
-          [sectionKey]: updatedSelections,
-        },
-      };
-    });
+    setLoadingOptionKey(`${sectionKey}-${optionTitle}`);
 
     try {
+      const previouslySelected =
+        categoryData?.options?.filter(item => item.isSelected) ?? [];
+
+      for (const previousOption of previouslySelected) {
+        const previousTitle = previousOption.optionName;
+
+        if (!updatedSelections.includes(previousTitle)) {
+          await saveLogs({
+            logType: 1,
+            logDate,
+            logEntry: {
+              category: config.category,
+              categoryNameKey: config.categoryNameKey,
+              selectedOption: {
+                optionNameKey: previousOption.optionNameKey,
+                isSelected: false,
+              },
+            },
+          });
+        }
+      }
+
+      if (updatedSelections.includes(optionTitle)) {
+        await saveLogs({
+          logType: 1,
+          logDate,
+          logEntry: {
+            category: config.category,
+            categoryNameKey: config.categoryNameKey,
+            selectedOption: {
+              optionNameKey: selectedOption.optionNameKey,
+              isSelected: true,
+            },
+          },
+        });
+      }
+
+      setSelectedByDate(previous => ({
+        ...previous,
+        [logDate]: {
+          ...(previous[logDate] || {}),
+          [sectionKey]: updatedSelections,
+        },
+      }));
+
       const response = await getLogs(logDate);
 
       dispatch(
@@ -640,7 +738,7 @@ const Logs = () => {
         }),
       );
     } catch (error: any) {
-      console.log('Error fetching logs:', error.response?.data || error);
+      console.log('SAVE LOG ERROR:', error.response?.data || error);
     } finally {
       setLoadingOptionKey(null);
     }
@@ -800,214 +898,249 @@ const Logs = () => {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent]}
         showsVerticalScrollIndicator={false}
       >
-        {sections.map(section => (
-          <LogSection
-            key={section.key}
-            title={section.title}
-            backgroundColor={section.bg}
-            titleColor={section.titleColor}
-          >
-            {section.options.map(option => (
-              <LogOption
-                key={option.title}
-                title={option.title}
-                source={option.source}
-                selected={
-                  selected[section.key]?.includes(option.title) || false
-                }
-                selectedCard={section.selectedCard}
-                isLoading={
-                  loadingOptionKey === `${section.key}-${option.title}`
-                }
-                onPress={() => selectOption(section.key, option.title)}
-              />
-            ))}
-          </LogSection>
-        ))}
-
-        <View style={styles.temperatureSection}>
-          <Text style={styles.simpleHeading}>
-            {t('logs.temperature.title')} ⓘ
-          </Text>
-
-          <View style={styles.temperatureRow}>
-            <View style={styles.temperatureInputContainer}>
-              <Image
-                style={styles.thermometerIcon}
-                source={image.thermometer}
-              />
-
-              <TextInput
-                style={styles.temperatureInput}
-                placeholder={t('logs.temperature.placeholder')}
-                placeholderTextColor={colors.textFourth}
-                keyboardType="decimal-pad"
-                value={currentDetails.temperature}
-                onChangeText={value =>
-                  updateDetailsForDate({
-                    temperature: validateTemperature(value),
-                  })
-                }
-                onEndEditing={handleSaveTemperature}
-              />
-            </View>
-
-            <View style={styles.temperatureToggle}>
-              {(['°C', '°F'] as const).map(unit => (
-                <Pressable
-                  key={unit}
-                  onPress={() =>
-                    updateDetailsForDate({ temperatureUnit: unit })
-                  }
-                  style={[
-                    styles.unitButton,
-
-                    currentDetails.temperatureUnit === unit &&
-                      styles.activeUnitButton,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.unitText,
-
-                      currentDetails.temperatureUnit === unit &&
-                        styles.activeUnitText,
-                    ]}
-                  >
-                    {unit}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
+        {isLogsLoading ? (
+          <View>
+            <ActivityIndicator size="small" color={colors.primary} />
           </View>
-        </View>
+        ) : (
+          <>
+            {sections.map(section => {
+              const config = categoryConfig[section.key];
 
-        <View style={styles.hormoneSection}>
-          <Text style={styles.simpleHeading}>
-            {t('logs.sections.urinaryHormones')}
-          </Text>
+              const apiCategory = fetchedCategories.find(
+                item => item.category === config?.category,
+              );
 
-          <View style={styles.hormoneCard}>
-            {hormonesData.map(hormone => (
-              <View key={hormone.key} style={styles.hormoneRow}>
-                <Text style={styles.hormoneText}>{t(hormone.labelKey)}</Text>
+              const apiOptions = (apiCategory?.options || []).filter(
+                option => option.status === 1,
+              );
 
-                <View style={styles.pencilRow}>
-                  <Text style={styles.hormoneValue}>
-                    {currentDetails.savedHormones[hormone.key] || '----'}
+              return (
+                <LogSection
+                  key={section.key}
+                  title={section.title}
+                  backgroundColor={section.bg}
+                  titleColor={section.titleColor}
+                >
+                  {apiOptions.map(option => {
+                    const optionTitle = option.optionName;
+
+                    return (
+                      <LogOption
+                        key={option.optionNameKey}
+                        title={optionTitle}
+                        source={
+                          section.options.find(
+                            item =>
+                              item.title === option.optionName ||
+                              item.title === optionTitle,
+                          )?.source
+                        }
+                        selected={
+                          selected[section.key]?.includes(optionTitle) ??
+                          Boolean(option.isSelected)
+                        }
+                        selectedCard={section.selectedCard}
+                        isLoading={
+                          loadingOptionKey === `${section.key}-${optionTitle}`
+                        }
+                        onPress={() => selectOption(section.key, optionTitle)}
+                      />
+                    );
+                  })}
+                </LogSection>
+              );
+            })}
+
+            <View style={styles.temperatureSection}>
+              <Text style={styles.simpleHeading}>
+                {t('logs.temperature.title')} ⓘ
+              </Text>
+
+              <View style={styles.temperatureRow}>
+                <View style={styles.temperatureInputContainer}>
+                  <Image
+                    style={styles.thermometerIcon}
+                    source={image.thermometer}
+                  />
+
+                  <TextInput
+                    style={styles.temperatureInput}
+                    placeholder={t('logs.temperature.placeholder')}
+                    placeholderTextColor={colors.textFourth}
+                    keyboardType="decimal-pad"
+                    value={currentDetails.temperature}
+                    onChangeText={value =>
+                      updateDetailsForDate({
+                        temperature: validateTemperature(value),
+                      })
+                    }
+                    onEndEditing={handleSaveTemperature}
+                  />
+                </View>
+
+                <View style={styles.temperatureToggle}>
+                  {(['°C', '°F'] as const).map(unit => (
+                    <Pressable
+                      key={unit}
+                      onPress={() =>
+                        updateDetailsForDate({ temperatureUnit: unit })
+                      }
+                      style={[
+                        styles.unitButton,
+
+                        currentDetails.temperatureUnit === unit &&
+                          styles.activeUnitButton,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.unitText,
+
+                          currentDetails.temperatureUnit === unit &&
+                            styles.activeUnitText,
+                        ]}
+                      >
+                        {unit}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.hormoneSection}>
+              <Text style={styles.simpleHeading}>
+                {t('logs.sections.urinaryHormones')}
+              </Text>
+
+              <View style={styles.hormoneCard}>
+                {hormonesData.map(hormone => (
+                  <View key={hormone.key} style={styles.hormoneRow}>
+                    <Text style={styles.hormoneText}>
+                      {t(hormone.labelKey)}
+                    </Text>
+
+                    <View style={styles.pencilRow}>
+                      <Text style={styles.hormoneValue}>
+                        {currentDetails.savedHormones[hormone.key] || '----'}
+                      </Text>
+
+                      <Pressable
+                        onPress={() => {
+                          setHormones(currentDetails.hormones);
+
+                          setEditingHormone(hormone.key);
+                        }}
+                      >
+                        <Image
+                          source={image.editPencil}
+                          style={styles.hormoneEdit}
+                        />
+                      </Pressable>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.medicationSection}>
+              <Text style={styles.simpleHeading}>
+                {t('logs.medications.title')}
+              </Text>
+
+              {currentDetails.medications.length === 0 ? (
+                <View style={styles.emptyMedicationCard}>
+                  <Image
+                    source={image.medicines}
+                    style={styles.emptyMedicationImage}
+                  />
+
+                  <Text style={styles.emptyMedicationText}>
+                    {t('logs.medications.emptyTitle')}
                   </Text>
 
                   <Pressable
-                    onPress={() => {
-                      setHormones(currentDetails.hormones);
+                    style={styles.startAddingButton}
+                    onPress={openAddMedication}
+                  >
+                    <Text style={styles.startAddingText}>
+                      {t('logs.medications.startAdding')}
+                    </Text>
+                  </Pressable>
+                </View>
+              ) : (
+                <>
+                  {currentDetails.medications.map(medication => (
+                    <View key={medication.id} style={styles.medicationCard}>
+                      <Image
+                        source={image.medicines}
+                        style={styles.medicationCardIcon}
+                      />
 
-                      setEditingHormone(hormone.key);
-                    }}
+                      <View style={styles.medicationCardContent}>
+                        <Text style={styles.medicationCardName}>
+                          {medication.name}
+                        </Text>
+
+                        <Text style={styles.medicationCardDetails}>
+                          {medication.dosage}
+
+                          {medication.dosageUnit}
+
+                          <Text style={styles.medicationDot}> • </Text>
+
+                          {medication.time}
+                        </Text>
+                      </View>
+
+                      <Pressable
+                        onPress={() => openMedicationOptions(medication)}
+                      >
+                        <Text style={styles.medicationMore}>⋮</Text>
+                      </Pressable>
+                    </View>
+                  ))}
+
+                  <Pressable
+                    style={styles.addMedicationCard}
+                    onPress={openAddMedication}
                   >
                     <Image
-                      source={image.editPencil}
-                      style={styles.hormoneEdit}
+                      source={image.addMedication}
+                      style={styles.addMedicationPlus}
                     />
+
+                    <Text style={styles.addMedicationText}>
+                      {t('logs.medications.addMedication')}
+                    </Text>
                   </Pressable>
-                </View>
-              </View>
-            ))}
-          </View>
-        </View>
+                </>
+              )}
+            </View>
 
-        <View style={styles.medicationSection}>
-          <Text style={styles.simpleHeading}>
-            {t('logs.medications.title')}
-          </Text>
+            <View style={styles.notesSection}>
+              <Text style={styles.notesLabel}>{t('logs.notes.title')}</Text>
 
-          {currentDetails.medications.length === 0 ? (
-            <View style={styles.emptyMedicationCard}>
-              <Image
-                source={image.medicines}
-                style={styles.emptyMedicationImage}
+              <TextInput
+                placeholder={t('logs.notes.placeholder')}
+                style={styles.notesInput}
+                placeholderTextColor={colors.textFourth}
+                value={currentDetails.notes}
+                onChangeText={handleNotesChange}
+                maxLength={100}
+                multiline
               />
 
-              <Text style={styles.emptyMedicationText}>
-                {t('logs.medications.emptyTitle')}
+              <Text style={styles.limitIndicator}>
+                {t('logs.notes.limitNumber')}
               </Text>
-
-              <Pressable
-                style={styles.startAddingButton}
-                onPress={openAddMedication}
-              >
-                <Text style={styles.startAddingText}>
-                  {t('logs.medications.startAdding')}
-                </Text>
-              </Pressable>
             </View>
-          ) : (
-            <>
-              {currentDetails.medications.map(medication => (
-                <View key={medication.id} style={styles.medicationCard}>
-                  <Image
-                    source={image.medicines}
-                    style={styles.medicationCardIcon}
-                  />
-
-                  <View style={styles.medicationCardContent}>
-                    <Text style={styles.medicationCardName}>
-                      {medication.name}
-                    </Text>
-
-                    <Text style={styles.medicationCardDetails}>
-                      {medication.dosage}
-
-                      {medication.dosageUnit}
-
-                      <Text style={styles.medicationDot}> • </Text>
-
-                      {medication.time}
-                    </Text>
-                  </View>
-
-                  <Pressable onPress={() => openMedicationOptions(medication)}>
-                    <Text style={styles.medicationMore}>⋮</Text>
-                  </Pressable>
-                </View>
-              ))}
-
-              <Pressable
-                style={styles.addMedicationCard}
-                onPress={openAddMedication}
-              >
-                <Image
-                  source={image.addMedication}
-                  style={styles.addMedicationPlus}
-                />
-
-                <Text style={styles.addMedicationText}>
-                  {t('logs.medications.addMedication')}
-                </Text>
-              </Pressable>
-            </>
-          )}
-        </View>
-
-        <View style={styles.notesSection}>
-          <Text style={styles.notesLabel}>{t('logs.notes.title')}</Text>
-
-          <TextInput
-            placeholder={t('logs.notes.placeholder')}
-            style={styles.notesInput}
-            placeholderTextColor={colors.textFourth}
-            value={currentDetails.notes}
-            onChangeText={handleNotesChange}
-            maxLength={100}
-            multiline
-          />
-
-          <Text style={styles.limitIndicator}>
-            {t('logs.notes.limitNumber')}
-          </Text>
-        </View>
+          </>
+        )}
       </ScrollView>
 
       <Modal
@@ -1099,7 +1232,9 @@ const Logs = () => {
 
                     if (!isValid) return;
 
-                    await handleSaveHormones();
+                    const isSaved = await handleSaveHormones();
+
+                    if (!isSaved) return;
 
                     updateDetailsForDate({
                       hormones: { ...hormones },
@@ -1388,8 +1523,6 @@ const Logs = () => {
                 </View>
               </ScrollView>
             </KeyboardAvoidingView>
-
-            {/* Save Button */}
 
             <Pressable
               style={styles.medicationSaveButton}
