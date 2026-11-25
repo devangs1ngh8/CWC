@@ -104,10 +104,6 @@ const LearningLounge = () => {
       return <ActivityIndicator size="small" style={styles.loader} />;
     }
 
-    if (page >= totalPages) {
-      return <Text style={styles.noData}>No more learning content</Text>;
-    }
-
     return undefined;
   };
 

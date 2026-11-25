@@ -7,6 +7,7 @@ import {
   StatusBar,
   Dimensions,
   Alert,
+  ScrollView,
 } from 'react-native';
 
 import YoutubePlayer from 'react-native-youtube-iframe';
@@ -17,6 +18,8 @@ import styles from './style';
 import { image } from '../../assets';
 
 import i18n from '../../i18n';
+import WebView from 'react-native-webview';
+import RenderHTML from 'react-native-render-html';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -35,6 +38,7 @@ const LearningDetail = () => {
   const route = useRoute<any>();
 
   const { item } = route.params as { item: any };
+  console.log('ITEM DESCRIPTION: ', item.description);
 
   const videoId = getYouTubeVideoId(item.videoUrl);
 
@@ -162,7 +166,12 @@ const LearningDetail = () => {
           <View style={styles.content}>
             <Text style={styles.title}>{item.title}</Text>
 
-            <Text style={styles.description}>{item.description}</Text>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <RenderHTML
+                source={{ html: item?.description }}
+                contentWidth={SCREEN_WIDTH}
+              />
+            </ScrollView>
           </View>
         </>
       )}
