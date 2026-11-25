@@ -48,6 +48,7 @@ export interface LogCategoryOption {
   order: number;
   status: number;
   optionName: string;
+  isSelected?: boolean;
 }
 
 export interface LogCategory {

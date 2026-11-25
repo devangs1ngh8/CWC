@@ -34,3 +34,19 @@ export const LOGS_ENDPOINTS = {
 export const REMINDER_ENDPOINTS = {
   REMINDERS: 'user/reminder',
 };
+
+export const HELP_SUPPORT_ENDPOINTS = {
+  CREATE_TICKET: 'user/help-support',
+};
+
+export const TRACKING_PREFERENCE_ENDPOINTS = {
+  TRACKING_PREFERENCE: 'user/tracking-preference',
+};
+
+export const NOTIFICATION_ENDPOINTS = {
+  UPDATE_SETTING: 'user/onboarding/notification-setting',
+};
+
+export const LANGUAGE_ENDPOINTS = {
+  UPDATE_PREFERENCE: 'user/onboarding/language-prefernce',
+};

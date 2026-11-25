@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosHeaders } from 'axios';
 import { Storage } from '../storage';
 import { StorageKeys } from '../storage/keys';
-// import DeviceInfo from 'react-native-device-info';
+import DeviceInfo from 'react-native-device-info';
 import { API_VERSION } from './endpoints';
 import { isAndroid } from '../../utils/metrics';
 
@@ -27,7 +27,7 @@ http.interceptors.request.use(async configuration => {
   const [token, deviceModel, language] = await Promise.all([
     Storage.get<string>(StorageKeys.AUTH_TOKEN),
     Storage.get<string>(StorageKeys.DEVICE_MODEL),
-    Storage.get<string>(StorageKeys.LANGUAGE),
+    Storage.get<string>('en'),
   ]);
 
   // console.log('AUTH TOKEN EXISTS:', !!token);
@@ -57,10 +57,10 @@ http.interceptors.request.use(async configuration => {
     config.headers.delete('Authorization');
   }
 
-  config.headers.set('lang', language || 'en');
+  config.headers.set('lang', 'en');
   config.headers.set('device_type', isAndroid ? '1' : '2');
   config.headers.set('device_name', deviceModel || '');
-  config.headers.set('device_id', '1234567890');
+  config.headers.set('device_id', DeviceInfo.getUniqueIdSync());
 
   config.headers.set(
     'timezone',

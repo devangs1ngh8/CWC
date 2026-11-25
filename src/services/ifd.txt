@@ -1,0 +1,5 @@
+Pointers : 
+API not implemented in : 
+1. Manage Goals Screen
+2. Change Password Screen
+3. Static Content Screen
