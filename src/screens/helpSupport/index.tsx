@@ -16,6 +16,9 @@ import { useNavigation } from '@react-navigation/native';
 
 import { ScreenName } from '../../navigation/screenName';
 
+import { useAppSelector } from '../../redux';
+import { createHelpSupportTicket } from '../../services/helpSupport/helpSupport';
+
 import ScreenHeader from '../../components/screenHeader';
 import BottomSheetModal from '../../components/bottomSheetModal';
 
@@ -27,34 +30,86 @@ const HelpSupport = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<any>();
 
+  const email = useAppSelector(state => state.auth.email);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [category, setCategory] = useState('Technical');
   const [issue, setIssue] = useState('');
   const [categoryModalVisible, setCategoryModalVisible] = useState(false);
 
   const categories = [
-    'Technical',
-    'App Functionality',
-    'Care Navigator',
-    'Other',
+    { id: 1, label: 'Technical' },
+    { id: 2, label: 'App Functionality' },
+    { id: 3, label: 'Care Navigator' },
+    { id: 4, label: 'Other' },
   ];
 
-  const handleSend = () => {
+  const handleSend = async () => {
     Keyboard.dismiss();
 
-    Toast.show({
-      type: 'success',
-      text1: t('helpSupport.successTitle'),
-      text2: t('helpSupport.successMessage'),
-    });
-
-    setIssue('');
-
-    setTimeout(() => {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: ScreenName.MainTabs, params: { screen: 'More' } }],
+    if (!email) {
+      Toast.show({
+        type: 'error',
+        text1: 'Email not found',
+        text2: 'Please login again.',
       });
-    }, 2000);
+      return;
+    }
+
+    if (!issue.trim()) return;
+
+    const selectedCategory = categories.find(item => item.label === category);
+
+    if (!selectedCategory) return;
+
+    try {
+      setIsSubmitting(true);
+
+      const payload = {
+        email,
+        description: issue.trim(),
+        category: selectedCategory.id,
+      };
+
+      console.log('HELP SUPPORT PAYLOAD:', payload);
+
+      const response = await createHelpSupportTicket(payload);
+
+      console.log('HELP SUPPORT RESPONSE:', response);
+
+      Toast.show({
+        type: 'success',
+        text1: t('helpSupport.successTitle'),
+        text2: response.message,
+      });
+
+      setIssue('');
+
+      setTimeout(() => {
+        navigation.reset({
+          index: 0,
+          routes: [
+            {
+              name: ScreenName.MainTabs,
+              params: { screen: 'More' },
+            },
+          ],
+        });
+      }, 2000);
+    } catch (error: any) {
+      console.log('HELP SUPPORT ERROR:', error?.response?.data || error);
+
+      Toast.show({
+        type: 'error',
+        text1: 'Submission Failed',
+        text2:
+          error?.response?.data?.message ||
+          'Unable to submit your issue. Please try again.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -150,11 +205,16 @@ const HelpSupport = () => {
           </ScrollView>
 
           <Pressable
-            style={[styles.sendButton, !issue.trim() && styles.disabledButton]}
-            disabled={!issue.trim()}
+            style={[
+              styles.sendButton,
+              (!issue.trim() || isSubmitting) && styles.disabledButton,
+            ]}
+            disabled={!issue.trim() || isSubmitting}
             onPress={handleSend}
           >
-            <Text style={styles.sendButtonText}>{t('helpSupport.send')}</Text>
+            <Text style={styles.sendButtonText}>
+              {isSubmitting ? 'Submitting...' : t('helpSupport.send')}
+            </Text>
           </Pressable>
         </View>
       </KeyboardAvoidingView>
@@ -168,20 +228,20 @@ const HelpSupport = () => {
 
           {categories.map(item => (
             <Pressable
-              key={item}
+              key={item.id}
               style={styles.sheetOption}
               onPress={() => {
-                setCategory(item);
+                setCategory(item.label);
                 setCategoryModalVisible(false);
               }}
             >
               <Text
                 style={[
                   styles.sheetOptionText,
-                  category === item && styles.selectedOption,
+                  category === item.label && styles.selectedOption,
                 ]}
               >
-                {item}
+                {item.label}
               </Text>
             </Pressable>
           ))}
