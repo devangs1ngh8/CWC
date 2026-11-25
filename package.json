@@ -32,6 +32,7 @@
     "react-native-orientation-locker": "^1.7.0",
     "react-native-otp-entry": "^1.8.6",
     "react-native-otp-timer": "^1.0.1",
+    "react-native-render-html": "^6.3.4",
     "react-native-safe-area-context": "^5.10.1",
     "react-native-screens": "^4.30.0",
     "react-native-toast-message": "^2.5.2",

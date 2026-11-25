@@ -1363,7 +1363,9 @@ PODS:
     - Yoga
   - react-native-orientation-locker (1.7.0):
     - React-Core
-  - react-native-safe-area-context (5.10.1):
+  - react-native-render-html (6.3.4):
+    - React-Core
+  - react-native-safe-area-context (5.11.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1376,8 +1378,8 @@ PODS:
     - React-graphics
     - React-ImageManager
     - React-jsi
-    - react-native-safe-area-context/common (= 5.10.1)
-    - react-native-safe-area-context/fabric (= 5.10.1)
+    - react-native-safe-area-context/common (= 5.11.1)
+    - react-native-safe-area-context/fabric (= 5.11.1)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -1387,7 +1389,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-safe-area-context/common (5.10.1):
+  - react-native-safe-area-context/common (5.11.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1409,7 +1411,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-safe-area-context/fabric (5.10.1):
+  - react-native-safe-area-context/fabric (5.11.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1880,7 +1882,7 @@ PODS:
     - React-utils (= 0.87.0)
     - ReactNativeDependencies
   - ReactNativeDependencies (0.87.0)
-  - RNBootSplash (7.3.4):
+  - RNBootSplash (7.3.5):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1902,7 +1904,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNDateTimePicker (9.2.2):
+  - RNDateTimePicker (9.3.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1926,7 +1928,7 @@ PODS:
     - Yoga
   - RNDeviceInfo (15.0.2):
     - React-Core
-  - RNScreens (4.30.0):
+  - RNScreens (4.30.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1948,9 +1950,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNScreens/common (= 4.30.0)
+    - RNScreens/common (= 4.30.1)
     - Yoga
-  - RNScreens/common (4.30.0):
+  - RNScreens/common (4.30.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2033,6 +2035,7 @@ DEPENDENCIES:
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-orientation-locker (from `../node_modules/react-native-orientation-locker`)
+  - react-native-render-html (from `../node_modules/react-native-render-html`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-video (from `../node_modules/react-native-video`)
   - react-native-webview (from `../node_modules/react-native-webview`)
@@ -2191,6 +2194,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-image-picker"
   react-native-orientation-locker:
     :path: "../node_modules/react-native-orientation-locker"
+  react-native-render-html:
+    :path: "../node_modules/react-native-render-html"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-video:
@@ -2337,7 +2342,8 @@ SPEC CHECKSUMS:
   react-native-blur: d628c0e12d6fcb4b04e2b31eb31a7935d073397b
   react-native-image-picker: 2e458bfceaa90c49dd98aae3d9d6fde80633e8c1
   react-native-orientation-locker: cc6f357b289a2e0dd2210fea0c52cb8e0727fdaa
-  react-native-safe-area-context: f2bf5d3db254014a48910436c4a58ab0c4e2fe1f
+  react-native-render-html: 5afc4751f1a98621b3009432ef84c47019dcb2bd
+  react-native-safe-area-context: dbee8606869d976bb8d23ed26e50df198cb5688d
   react-native-video: 60ae0731a9603d2ac0867f64724b752c68ea9460
   react-native-webview: f189adab64d5d71cec3b9e9ec3261355376ec7a2
   React-NativeModulesApple: 22b2f3e1538ceb1aab1ab182ccb0666ea2ec36ad
@@ -2376,10 +2382,10 @@ SPEC CHECKSUMS:
   ReactCodegen: dca6757feb1e977c5cf6708872d7fe48b5a45528
   ReactCommon: 5f5a302748322015f2e3334869cdd9b4d0395846
   ReactNativeDependencies: ec5530432d8191b38e278117d498aaff05ea9d6f
-  RNBootSplash: 45b212c42bbdb4951f4160f20162e1f3f732ad3c
-  RNDateTimePicker: e2d1fa58ac2faa1e318fd4b1e86633c8ab4bdc73
+  RNBootSplash: 4e70ffcd452006609d59d51860375e606661c5e9
+  RNDateTimePicker: 03060c68fb3dc96486a17cbf0d679f61d2bbdca1
   RNDeviceInfo: 4c852998208b60dc192ae3529e5867817719ad1e
-  RNScreens: cffc1add7f801ca6a13eef6b112052e0cd74b26b
+  RNScreens: 6ab7b7cf795846a969ff65c42469dc31588efe2c
   SocketRocket: 37aec555668fb852ec12e3c0de59a86ca58f0871
   Yoga: d1c536142c5ff8ec8cd856ab2a7c227a1d875c8e
 
