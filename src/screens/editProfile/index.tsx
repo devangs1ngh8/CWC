@@ -237,6 +237,7 @@ const EditProfile = () => {
   });
 
   const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [hasProfilePhoto, setHasProfilePhoto] = useState(false);
   const [isPhotoModalVisible, setIsPhotoModalVisible] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
@@ -250,6 +251,7 @@ const EditProfile = () => {
 
     if (result.assets?.[0]?.uri) {
       setPhotoUri(result.assets[0].uri);
+      setHasProfilePhoto(true);
     }
 
     setIsPhotoModalVisible(false);
@@ -264,6 +266,7 @@ const EditProfile = () => {
 
     if (result.assets?.[0]?.uri) {
       setPhotoUri(result.assets[0].uri);
+      setHasProfilePhoto(true);
     }
 
     setIsPhotoModalVisible(false);
@@ -272,6 +275,7 @@ const EditProfile = () => {
   const handleRemovePhoto = () => {
     setPhotoUri(null);
     setIsPhotoModalVisible(false);
+    setHasProfilePhoto(false);
   };
 
   useEffect(() => {
@@ -375,6 +379,7 @@ const EditProfile = () => {
         }
 
         setPhotoUri(savedPhoto);
+        setHasProfilePhoto(!!savedPhoto);
 
         const userProfileKey = `profileData_${userId}`;
 
@@ -1079,13 +1084,15 @@ const EditProfile = () => {
           </Text>
         </Pressable>
 
-        <Pressable style={styles.photoOption} onPress={handleRemovePhoto}>
-          <Image source={image.remove} style={styles.optionIcon} />
+        {hasProfilePhoto && (
+          <Pressable style={styles.photoOption} onPress={handleRemovePhoto}>
+            <Image source={image.remove} style={styles.optionIcon} />
 
-          <Text style={styles.optionText}>
-            {t('editProfile.photoOptions.removePhoto')}
-          </Text>
-        </Pressable>
+            <Text style={styles.optionText}>
+              {t('editProfile.photoOptions.removePhoto')}
+            </Text>
+          </Pressable>
+        )}
       </BottomSheetModal>
 
       <BottomSheetModal
