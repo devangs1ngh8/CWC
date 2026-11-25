@@ -336,12 +336,14 @@ const Home = () => {
             <Text style={{ textAlign: 'center' }}>Loading...</Text>
           )}
 
-          <Pressable
-            style={styles.exploreButton}
-            onPress={() => navigation.navigate(ScreenName.LearningLounge)}
-          >
-            <Text style={styles.exploreButtonText}>{t('home.explore')}</Text>
-          </Pressable>
+          {!isLearningLoading && learningItems.length >= 4 && (
+            <Pressable
+              style={styles.exploreButton}
+              onPress={() => navigation.navigate(ScreenName.LearningLounge)}
+            >
+              <Text style={styles.exploreButtonText}>{t('home.explore')}</Text>
+            </Pressable>
+          )}
         </View>
       </ScrollView>
     </View>
