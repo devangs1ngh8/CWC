@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, Switch, Image } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
 
 import ScreenHeader from '../../components/screenHeader';
@@ -8,27 +8,47 @@ import { image } from '../../assets';
 import colors from '../../utils/color';
 import styles from './style';
 
-const NOTIFICATION_KEY = 'pushNotificationsEnabled';
+import { updateNotificationSetting } from '../../services/notification/notification';
 
 const NotificationSettings = () => {
   const { t } = useTranslation();
+
   const [isEnabled, setIsEnabled] = useState(true);
-
-  useEffect(() => {
-    const loadPreference = async () => {
-      const savedValue = await AsyncStorage.getItem(NOTIFICATION_KEY);
-
-      if (savedValue !== null) {
-        setIsEnabled(savedValue === 'true');
-      }
-    };
-
-    loadPreference();
-  }, []);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleToggle = async (value: boolean) => {
+    const previousValue = isEnabled;
+
     setIsEnabled(value);
-    await AsyncStorage.setItem(NOTIFICATION_KEY, String(value));
+    setIsLoading(true);
+
+    try {
+      const response = await updateNotificationSetting({
+        push: value ? 1 : 0,
+      });
+
+      console.log('NOTIFICATION UPDATE RESPONSE:', response);
+
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: response.message,
+      });
+    } catch (error: any) {
+      setIsEnabled(previousValue);
+
+      console.log('NOTIFICATION UPDATE ERROR:', error?.response?.data || error);
+
+      Toast.show({
+        type: 'error',
+        text1: 'Update Failed',
+        text2:
+          error?.response?.data?.message ||
+          'Unable to update notification preference.',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -54,8 +74,11 @@ const NotificationSettings = () => {
           </View>
 
           <Switch
-            style={{ transform: [{ scaleX: 0.67 }, { scaleY: 0.67 }] }}
+            style={{
+              transform: [{ scaleX: 0.67 }, { scaleY: 0.67 }],
+            }}
             value={isEnabled}
+            disabled={isLoading}
             onValueChange={handleToggle}
             trackColor={{
               false: colors.borderColor,
