@@ -1,12 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, Image, Switch, ScrollView } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
 
 import ScreenHeader from '../../components/screenHeader';
 import { image } from '../../assets';
 import colors from '../../utils/color';
 import styles from './style';
+
+import {
+  getTrackingPreference,
+  updateTrackingPreference,
+  TrackingPreferenceData,
+  UpdateTrackingPreferencePayload,
+} from '../../services/trackingPreference/trackingPreference';
+
 import { trackingPreferencesData, hcpData } from './trackingPreferencesData';
 
 const TrackingPreferences = () => {
@@ -26,25 +34,203 @@ const TrackingPreferences = () => {
     email4: false,
   });
 
+  const [hcpList, setHcpList] = useState<
+    TrackingPreferenceData['sharedWithHCPs']
+  >([]);
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadTrackingPreferences = async () => {
+    try {
+      setIsLoading(true);
+
+      const response = await getTrackingPreference();
+      const data = response.data;
+
+      const hormoneData = data.urinaryHormoneAnalysis;
+
+      setOptions(previous => ({
+        ...previous,
+        urinaryHormone: Object.values(hormoneData).some(Boolean),
+        fsh: hormoneData.fshTestResult,
+        lh: hormoneData.lhTestResult,
+        estrogen: hormoneData.estrogenLevelTest,
+        progesterone: hormoneData.progesteroneTestResult,
+        manageSymptoms: data.manageSymptoms,
+        hcp: data.myInsightsWithHCP,
+      }));
+
+      setHcpList(data.sharedWithHCPs || []);
+    } catch (error: any) {
+      console.log(
+        'TRACKING PREFERENCE GET ERROR:',
+        error?.response?.data || error,
+      );
+
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Unable to fetch tracking preferences.',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadTrackingPreferences();
+  }, []);
+
   const handleToggle = async (key: keyof typeof options, value: boolean) => {
-    const updatedOptions = {
-      ...options,
-      [key]: value,
-    };
+    const previousOptions = options;
 
-    setOptions(updatedOptions);
+    let payload: UpdateTrackingPreferencePayload = {};
 
-    await AsyncStorage.setItem(
-      'trackingPreferences',
-      JSON.stringify(updatedOptions),
+    switch (key) {
+      case 'manageSymptoms':
+        payload = {
+          manageSymptoms: value,
+        };
+        break;
+
+      case 'hcp':
+        payload = {
+          myInsightsWithHCP: value,
+        };
+        break;
+
+      case 'fsh':
+        payload = {
+          urinaryHormoneAnalysis: {
+            fshTestResult: value,
+          },
+        };
+        break;
+
+      case 'lh':
+        payload = {
+          urinaryHormoneAnalysis: {
+            lhTestResult: value,
+          },
+        };
+        break;
+
+      case 'estrogen':
+        payload = {
+          urinaryHormoneAnalysis: {
+            estrogenLevelTest: value,
+          },
+        };
+        break;
+
+      case 'progesterone':
+        payload = {
+          urinaryHormoneAnalysis: {
+            progesteroneTestResult: value,
+          },
+        };
+        break;
+
+      case 'urinaryHormone':
+        payload = {
+          urinaryHormoneAnalysis: {
+            fshTestResult: value,
+            lhTestResult: value,
+            estrogenLevelTest: value,
+            progesteroneTestResult: value,
+          },
+        };
+        break;
+
+      default:
+        return;
+    }
+
+    setOptions(previous => {
+      if (key === 'urinaryHormone') {
+        return {
+          ...previous,
+          urinaryHormone: value,
+          fsh: value,
+          lh: value,
+          estrogen: value,
+          progesterone: value,
+        };
+      }
+
+      const updated = {
+        ...previous,
+        [key]: value,
+      };
+
+      if (
+        key === 'fsh' ||
+        key === 'lh' ||
+        key === 'estrogen' ||
+        key === 'progesterone'
+      ) {
+        updated.urinaryHormone =
+          updated.fsh || updated.lh || updated.estrogen || updated.progesterone;
+      }
+
+      return updated;
+    });
+
+    try {
+      await updateTrackingPreference(payload);
+    } catch (error: any) {
+      setOptions(previousOptions);
+
+      console.log(
+        'TRACKING PREFERENCE PUT ERROR:',
+        error?.response?.data || error,
+      );
+
+      Toast.show({
+        type: 'error',
+        text1: 'Update Failed',
+        text2: error?.response?.data?.message || 'Unable to update preference.',
+      });
+    }
+  };
+
+  const handleHcpToggle = async (hcpId: string, value: boolean) => {
+    const previousList = hcpList;
+
+    const updatedList = hcpList.map(hcp =>
+      hcp.hcpId === hcpId ? { ...hcp, isEnabled: value } : hcp,
     );
+
+    setHcpList(updatedList);
+
+    try {
+      await updateTrackingPreference({
+        sharedWithHCPs: updatedList,
+      });
+    } catch (error: any) {
+      setHcpList(previousList);
+
+      console.log(
+        'HCP PREFERENCE UPDATE ERROR:',
+        error?.response?.data || error,
+      );
+
+      Toast.show({
+        type: 'error',
+        text1: 'Update Failed',
+        text2:
+          error?.response?.data?.message || 'Unable to update HCP preference.',
+      });
+    }
   };
 
   const renderSwitch = (key: keyof typeof options, disabled = false) => (
     <Switch
-      style={{ transform: [{ scaleX: 0.67 }, { scaleY: 0.67 }] }}
+      style={{
+        transform: [{ scaleX: 0.67 }, { scaleY: 0.67 }],
+      }}
       value={options[key]}
-      disabled={disabled}
+      disabled={disabled || isLoading}
       onValueChange={value => handleToggle(key, value)}
       trackColor={{
         false: colors.borderColor,
@@ -53,21 +239,6 @@ const TrackingPreferences = () => {
       ios_backgroundColor={colors.borderColor}
     />
   );
-
-  useEffect(() => {
-    const loadOptions = async () => {
-      const savedOptions = await AsyncStorage.getItem('trackingPreferences');
-
-      if (savedOptions) {
-        setOptions(previous => ({
-          ...previous,
-          ...JSON.parse(savedOptions),
-        }));
-      }
-    };
-
-    loadOptions();
-  }, []);
 
   return (
     <View style={styles.container}>
@@ -82,6 +253,7 @@ const TrackingPreferences = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
+          {/* TRACKING PREFERENCES */}
           <View style={styles.card}>
             {trackingPreferencesData.map(item => (
               <View key={item.key}>
@@ -98,6 +270,7 @@ const TrackingPreferences = () => {
                   {renderSwitch(item.key)}
                 </View>
 
+                {/* HORMONE CHILD OPTIONS */}
                 {item.key === 'urinaryHormone' &&
                   options.urinaryHormone &&
                   item.children.map((child, childIndex) => (
@@ -111,6 +284,7 @@ const TrackingPreferences = () => {
 
                         {renderSwitch(child.key)}
                       </View>
+
                       {childIndex !== item.children.length - 1 && (
                         <View style={styles.childDivider} />
                       )}
@@ -120,6 +294,7 @@ const TrackingPreferences = () => {
             ))}
           </View>
 
+          {/* HCP PREFERENCES */}
           <View style={styles.card}>
             <View style={[styles.row, !options.hcp && styles.lastRow2]}>
               <Image source={hcpData.icon} style={styles.icon} />
@@ -130,16 +305,29 @@ const TrackingPreferences = () => {
             </View>
 
             {options.hcp &&
-              hcpData.children.map((child, index) => (
+              hcpList.map((hcp, index) => (
                 <View
-                  key={child.key}
+                  key={hcp.hcpId}
                   style={[
                     styles.child2Row,
-                    index === hcpData.children.length - 1 && styles.lastRow,
+                    index === hcpList.length - 1 && styles.lastRow,
                   ]}
                 >
-                  <Text style={styles.emailTitle}>{child.title}</Text>
-                  {renderSwitch(child.key)}
+                  <Text style={styles.emailTitle}>{hcp.name}</Text>
+
+                  <Switch
+                    style={{
+                      transform: [{ scaleX: 0.67 }, { scaleY: 0.67 }],
+                    }}
+                    value={hcp.isEnabled}
+                    disabled={isLoading}
+                    onValueChange={value => handleHcpToggle(hcp.hcpId, value)}
+                    trackColor={{
+                      false: colors.borderColor,
+                      true: colors.primary,
+                    }}
+                    ios_backgroundColor={colors.borderColor}
+                  />
                 </View>
               ))}
           </View>
